@@ -16,8 +16,13 @@ namespace Lumos
 	/// </summary>
 	public class Uploader
 	{
-		static List<string> tempDirs = new List<string>();
-
+		public static readonly BuildTarget[] supportedBuildTargets = {
+			BuildTarget.WebPlayer,
+			BuildTarget.StandaloneOSXIntel,
+			BuildTarget.StandaloneWindows,
+			BuildTarget.StandaloneWindows64
+		};
+		
 		[MenuItem("Window/Lumos Deploy %#d")]
 		/// <summary>
 		/// Builds and uploads a game.
@@ -25,42 +30,59 @@ namespace Lumos
 		public static void BuildAndUpload ()
 		{
 			var file = Build();
-			Upload(file);
+			//Upload(file);
 		}
 		
 		/// <summary>
 		/// Builds the game, the target depending on Unity's build settings.
 		/// </summary>
+		/// <returns>The path to the built (and possibly compressed) game file.</returns>
 		public static string Build ()
 		{
-			// Build player.
 			var target = EditorUserBuildSettings.activeBuildTarget;
 			var extension = GetBuildTargetExtension(target);
-
+			
+			
 			if (extension == null) {
-				Debug.LogError("Unsupported build target: " + target);
+				throw new Exception("Unsupported build target: " + target);
 			}
-
-			//var name = PlayerSettings.productName + extension;
-			var name = "game" + extension;
-			var location = Path.Combine(GetTempDir(), name);
+			
+			// Build game file.
+			var buildLocation = FileUtil.GetUniqueTempPathInProject();
 			var sceneQuery = from scene in EditorBuildSettings.scenes
 							 where scene.enabled
 							 let s = scene.path
 							 select s;
 			var scenes = sceneQuery.ToArray();
-			BuildPipeline.BuildPlayer(scenes, location, target, BuildOptions.None);
+			BuildPipeline.BuildPlayer(scenes, buildLocation, target, BuildOptions.None);
 			
-			// TODO Create archive of exported file if necessary.
-
-			// Return the name of the created file.
-			string file = "";
+			// Process file according to its type (web, standalone, etc.).
+			var file = "";
+			var name = "gamedir";
+			
 			switch (target) {
 				case BuildTarget.WebPlayer:
-					file = Path.Combine(location, name + ".unity3d");
+					// Rename .unity3d file.
+					var existingFile = Path.Combine(buildLocation, new DirectoryInfo(buildLocation).Name + ".unity3d");
+					file = Path.Combine(buildLocation, name + ".unity3d");
+					File.Move(existingFile, file);
 					break;
-				default:
-					file = location;
+				
+				case BuildTarget.StandaloneOSXIntel:
+					// Move directory contents to .app subdirectory.
+					var files = Directory.GetFileSystemEntries(buildLocation);
+					var app = Path.Combine(buildLocation, name + ".app");
+					Directory.CreateDirectory(app);
+					
+					foreach (var f in files) {
+						File.Move(f, Path.Combine(app, Path.GetFileName(f)));
+					}
+					
+					// Create parent directory to hold .app and zip it.
+					var parentDir = Path.Combine(buildLocation, name);
+					Directory.CreateDirectory(parentDir);
+					File.Move(app, Path.Combine(parentDir, new DirectoryInfo(app).Name));
+					file = Files.ZipDirectory(parentDir);
 					break;
 			}
 			
@@ -236,8 +258,7 @@ namespace Lumos
 		{
 			switch (target) {
 				case BuildTarget.WebPlayer:
-					// Build outputs .unity3d file; explicitly setting extension unnecessary.
-					return "";
+					return ".unity3d";
 				case BuildTarget.StandaloneOSXIntel:
 					return ".app";
 				case BuildTarget.StandaloneWindows:
@@ -246,30 +267,6 @@ namespace Lumos
 				default:
 					return null;
 			}
-		}
-		
-		/// <summary>
-		/// Creates a temporary directory.
-		/// </summary>
-		/// <remarks>This folder gets removed whenever Unity does its cleanup run.</remarks>
-		/// <returns>The temporary directory.</returns>
-		static string GetTempDir ()
-		{
-			var tempDir = FileUtil.GetUniqueTempPathInProject();
-			tempDirs.Add(tempDir);
-			return tempDir;
-		}
-		
-		/// <summary>
-		/// Removes temporary directories used to build and upload games.
-		/// </summary>
-		public static void RemoveTempFiles ()
-		{
-			foreach (var dir in tempDirs) {
-				FileUtil.DeleteFileOrDirectory(dir);
-			}
-
-			Debug.Log("Temporary files removed.");
 		}
 	}
 }

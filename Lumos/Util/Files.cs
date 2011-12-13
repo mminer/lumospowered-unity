@@ -19,9 +19,10 @@ namespace Lumos.Util
 		/// <returns>The resulting zip file.</returns>
 		public static string ZipDirectory (string directory)
 		{
+			Debug.Log("1. " + directory);
 			// Filename = <directory name>.zip
-			var filename = Path.GetDirectoryName(directory) + ".zip";
-			
+			var filename = directory + ".zip";
+			Debug.Log("2. " + filename);
 			try {
 				using (var zip = new ZipFile()) {
 					zip.AddDirectory(directory);
@@ -77,6 +78,18 @@ namespace Lumos.Util
 			}
 			
 			// Are zip and octet-stream the only file types we need to consider?
+		}
+		
+		/// <summary>
+		/// Tests whether the given path is a file or a folder.
+		/// Modified from http://stackoverflow.com/questions/1395205/better-way-to-check-if-path-is-a-file-or-a-directory-c-net
+		/// </summary>
+		/// <param name="file">The file or folder to check.</param>
+		/// <returns>True if the file is a directory, false if it's a file.</returns>
+		public static bool IsDirectory (string file)
+		{
+			var attr = File.GetAttributes(file);
+			return (attr & FileAttributes.Directory) == FileAttributes.Directory;
 		}
 	}
 }
