@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using Lumos.Util;
 
 namespace Lumos
 {
@@ -40,7 +41,8 @@ namespace Lumos
 				Debug.LogError("Unsupported build target: " + target);
 			}
 
-			var name = PlayerSettings.productName + extension;
+			//var name = PlayerSettings.productName + extension;
+			var name = "game" + extension;
 			var location = Path.Combine(GetTempDir(), name);
 			var sceneQuery = from scene in EditorBuildSettings.scenes
 							 where scene.enabled
@@ -48,7 +50,7 @@ namespace Lumos
 							 select s;
 			var scenes = sceneQuery.ToArray();
 			BuildPipeline.BuildPlayer(scenes, location, target, BuildOptions.None);
-
+			
 			// TODO Create archive of exported file if necessary.
 
 			// Return the name of the created file.
@@ -61,7 +63,7 @@ namespace Lumos
 					file = location;
 					break;
 			}
-
+			
 			return file;
 		}
 		
@@ -90,21 +92,26 @@ namespace Lumos
 		/// </summary>
 		class FileUploader
 		{
-			string path;
+			string file;
 			BuildTarget target;
 			string resource;
 			string checksum;
 			string contentType;
 			string date;
-
-			public FileUploader (string path, BuildTarget target)
+			
+			/// <summary>
+			/// Constructor.
+			/// </summary>
+			/// <param name="file">The path to the file.</param>
+			/// <param name="target">The build target./param>
+			public FileUploader (string file, BuildTarget target)
 			{
-				this.path = path;
+				this.file = file;
 				this.target = target;
-				this.resource = "/games/" + Path.GetFileName(path);
-				this.checksum = Util.GetMD5HashFromFile(path);
-				this.contentType = "application/octet-stream";
-				this.date = Util.currentTimestamp;
+				this.resource = "/games/" + Path.GetFileName(file);
+				this.checksum = Files.MD5HashFromFile(file);
+				this.contentType = Files.FileContentType(file);
+				this.date = Web.currentTimestamp;
 				
 				StartFetchUploadHeaders();
 			}
@@ -123,7 +130,7 @@ namespace Lumos
 				};
 
 				var baseUrl = Preferences.lumosUrl + "api/upload/headers";
-				var url = new Uri(Util.ConstructGetUrl(baseUrl, parameters));
+				var url = new Uri(Web.ConstructGetUrl(baseUrl, parameters));
 				var client = new WebClient();
 				client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(FinishFetchUploadHeaders);
 				client.DownloadStringAsync(url);
@@ -155,7 +162,7 @@ namespace Lumos
 			{
 				try {
 					// Prepare file.
-					var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+					var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read);
 					var data = new byte[fileStream.Length];
 					fileStream.Read(data, 0, (int)fileStream.Length);
 					fileStream.Close();

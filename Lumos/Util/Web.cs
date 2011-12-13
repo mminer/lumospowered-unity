@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 
-namespace Lumos
+namespace Lumos.Util
 {
 	/// <summary>
-	/// Utility functions for use throughout Lumos.
+	/// Helper methods for web requests.
 	/// </summary>
-	public static class Util
+	public static class Web
 	{
 		/// <summary>
-		/// Returns the current timestamp in a string compatible with RFC 2616.
+		/// Returns the current timestamp in a string compatible with RFC 2616 for sending over HTTP requests.
 		/// </summary>
 		/// <returns></returns>
 		public static string currentTimestamp {
@@ -40,26 +39,6 @@ namespace Lumos
 			return url;
 		}
 
-		/// <summary>
-		/// Generates the MD5 hash for a file.
-		/// </summary>
-		/// <param name="filename">The full path to the file.</param>
-		/// <returns>The file's MD5 hash.</returns>
-		public static string GetMD5HashFromFile (string filename)
-		{
-			var file = new FileStream(filename, FileMode.Open);
-			var md5 = new MD5CryptoServiceProvider();
-			byte[] parts = md5.ComputeHash(file);
-			file.Close();
-
-			// Construct hex string from byte array.
-			var hashBuilder = new StringBuilder();
-			foreach (var part in parts) {
-				hashBuilder.Append(part.ToString("X2"));
-			}
-
-			var hash = hashBuilder.ToString().ToLower();
-			return hash;
-		}
+		
 	}
 }
