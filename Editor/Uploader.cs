@@ -16,11 +16,11 @@ namespace Lumos
 	/// </summary>
 	public class Uploader
 	{
-		public static readonly BuildTarget[] supportedBuildTargets = {
-			BuildTarget.WebPlayer,
-			BuildTarget.StandaloneOSXIntel,
-			BuildTarget.StandaloneWindows,
-			BuildTarget.StandaloneWindows64
+		static readonly Dictionary<BuildTarget, string> buildTargetStrings = new Dictionary<BuildTarget, string>() {
+			{ BuildTarget.WebPlayer,           "unity-web" },
+			{ BuildTarget.StandaloneOSXIntel,  "unity-mac" },
+			{ BuildTarget.StandaloneWindows,   "unity-win" },
+			{ BuildTarget.StandaloneWindows64, "unity-win64" }
 		};
 		
 		[MenuItem("Window/Lumos Deploy %#d")]
@@ -30,7 +30,7 @@ namespace Lumos
 		public static void BuildAndUpload ()
 		{
 			var file = Build();
-			//Upload(file);
+			Upload(file);
 		}
 		
 		/// <summary>
@@ -58,7 +58,7 @@ namespace Lumos
 			
 			// Process file according to its type (web, standalone, etc.).
 			var file = "";
-			var name = "gamedir";
+			var name = PlayerSettings.productName.ToLower().Replace(' ', '_');
 			
 			switch (target) {
 				case BuildTarget.WebPlayer:
@@ -116,7 +116,6 @@ namespace Lumos
 		{
 			string file;
 			BuildTarget target;
-			string resource;
 			string checksum;
 			string contentType;
 			string date;
@@ -130,7 +129,6 @@ namespace Lumos
 			{
 				this.file = file;
 				this.target = target;
-				this.resource = "/games/" + Path.GetFileName(file);
 				this.checksum = Files.MD5HashFromFile(file);
 				this.contentType = Files.FileContentType(file);
 				this.date = Web.currentTimestamp;
@@ -144,14 +142,15 @@ namespace Lumos
 			void StartFetchUploadHeaders ()
 			{
 				var parameters = new Dictionary<string, object>() {
-					{ "api_key", "asd" },
-					{ "resource", resource },
+					{ "api_key", Preferences.apiKey },
+					{ "filename", Path.GetFileName(file) },
 					{ "checksum", checksum },
 					{ "content_type", contentType },
-					{ "date", date }
+					{ "date", date },
+					{ "platform",  buildTargetStrings[target] }
 				};
 
-				var baseUrl = Preferences.lumosUrl + "api/upload/headers";
+				var baseUrl = Preferences.apiUrl + "games/" + Preferences.gameId + "/deployments/uploadheaders";
 				var url = new Uri(Web.ConstructGetUrl(baseUrl, parameters));
 				var client = new WebClient();
 				client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(FinishFetchUploadHeaders);
@@ -190,8 +189,8 @@ namespace Lumos
 					fileStream.Close();
 
 					// Set up request.
-					var url = "http://" + headers["Host"] + resource;
-					headers.Remove("Host"); // Can't include host as a custom header.
+					var url = headers["url"] as string;
+					headers.Remove("url"); // Not to be sent as a header.
 
 					var request = HttpWebRequest.Create(url) as HttpWebRequest;
 					request.Method = "PUT";

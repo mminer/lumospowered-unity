@@ -10,14 +10,31 @@ namespace Lumos
 	/// </summary>
 	public class Preferences
 	{
-		public const string lumosUrl = "http://localhost:8083/";
+		public const string apiUrl = "http://localhost:8083/api/";
 
 		static readonly GUIContent apiKeyLabel = new GUIContent("API Key");
 		static readonly GUIContent deployLabel = new GUIContent("Deploy");
 		static bool loaded;
 
 		// Preferences.
-		public static string apiKey { get; private set; }
+		static string _apiKey;
+		/// <summary>
+		/// Secret key. Should not be shared.
+		/// </summary>
+		public static string apiKey {
+			get {
+				if (_apiKey == null) { Load(); }
+				return _apiKey;
+			}
+			private set { _apiKey = value; }
+		}
+		
+		/// <summary>
+		/// The game's identifier.
+		/// </summary>
+		public static string gameId {
+			get { return apiKey.Split('-')[0]; }
+		}
 
 		// EditorPrefs keys.
 		const string keyPrefix = "Lumos ";
@@ -28,7 +45,7 @@ namespace Lumos
 		{
 			// Load the preferences.
 			if (!loaded) {
-				apiKey = EditorPrefs.GetString(apiKeyKey, "");
+				Load();
 				loaded = true;
 			}
 
@@ -42,7 +59,13 @@ namespace Lumos
 				EditorPrefs.SetString(apiKeyKey, apiKey);
 			}
 		}
+		
+		/// <summary>
+		/// Load the preferences from EditorPrefs.
+		/// </summary>
+		static void Load ()
+		{
+			apiKey = EditorPrefs.GetString(apiKeyKey, "");
+		}
 	}
-
-
 }
