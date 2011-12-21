@@ -5,12 +5,12 @@ using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 
-namespace Lumos.Util
+namespace LumosPowered
 {
 	/// <summary>
 	/// Functions for manipulating and extracting information from files.
 	/// </summary>
-	public static class Files
+	static class Files
 	{
 		/// <summary>
 		/// Compresses a directory into a zip file.

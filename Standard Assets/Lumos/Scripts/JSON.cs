@@ -3,7 +3,7 @@ using System.Collections;
 using System.Globalization;
 using System.Text;
 
-namespace Lumos.Util
+namespace LumosPowered
 {
 	/// <summary>
 	/// This class encodes and decodes JSON strings.
@@ -13,7 +13,7 @@ namespace Lumos.Util
 	/// All numbers are parsed to doubles.
 	/// </summary>
 	/// <remarks>
-	/// This class is a slightly modified version of Procurios' JSON parser (changed namespace) and is subject to the MIT license.
+	/// This class is a slightly modified version (changed namespace) of Procurios' JSON parser and is subject to the MIT license.
 	/// See http://techblog.procurios.nl/k/news/view/14605/14863/How-do-I-write-my-own-parser-for-JSON.html.
 	/// </remarks>
 	public class JSON

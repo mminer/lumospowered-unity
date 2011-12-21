@@ -5,22 +5,19 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Lumos.Util
+namespace LumosPowered
 {
 	/// <summary>
 	/// Helper methods for web requests.
 	/// </summary>
-	public static class Web
+	static class Web
 	{
 		/// <summary>
 		/// Returns the current timestamp in a string compatible with RFC 2616 for sending over HTTP requests.
 		/// </summary>
 		/// <returns></returns>
 		public static string currentTimestamp {
-			get {
-				var timestamp = DateTime.Now.ToUniversalTime().ToString("r");
-				return timestamp;
-			}
+			get { return DateTime.Now.ToUniversalTime().ToString("r"); }
 		}
 		
 		/// <summary>
@@ -38,7 +35,5 @@ namespace Lumos.Util
 			var url = baseUrl + "?" + query;
 			return url;
 		}
-
-		
 	}
 }

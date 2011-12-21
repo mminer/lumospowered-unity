@@ -7,14 +7,13 @@ using System.Net;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
-using Lumos.Util;
 
-namespace Lumos
+namespace LumosPowered
 {
 	/// <summary>
 	/// Facilitates building and uploading a game to Lumos.
 	/// </summary>
-	public class Uploader
+	class Uploader
 	{
 		static readonly Dictionary<BuildTarget, string> buildTargetStrings = new Dictionary<BuildTarget, string>() {
 			{ BuildTarget.WebPlayer,           "unity-web" },
@@ -22,17 +21,7 @@ namespace Lumos
 			{ BuildTarget.StandaloneWindows,   "unity-win" },
 			{ BuildTarget.StandaloneWindows64, "unity-win64" }
 		};
-		
-		[MenuItem("Window/Lumos Deploy %#d")]
-		/// <summary>
-		/// Builds and uploads a game.
-		/// </summary>
-		public static void BuildAndUpload ()
-		{
-			var file = Build();
-			Upload(file);
-		}
-		
+
 		/// <summary>
 		/// Builds the game, the target depending on Unity's build settings.
 		/// </summary>
@@ -41,7 +30,6 @@ namespace Lumos
 		{
 			var target = EditorUserBuildSettings.activeBuildTarget;
 			var extension = GetBuildTargetExtension(target);
-			
 			
 			if (extension == null) {
 				throw new Exception("Unsupported build target: " + target);
@@ -84,6 +72,9 @@ namespace Lumos
 					File.Move(app, Path.Combine(parentDir, new DirectoryInfo(app).Name));
 					file = Files.ZipDirectory(parentDir);
 					break;
+
+				default:
+					throw new Exception("Stop");
 			}
 			
 			return file;
@@ -142,7 +133,7 @@ namespace Lumos
 			void StartFetchUploadHeaders ()
 			{
 				var parameters = new Dictionary<string, object>() {
-					{ "api_key", Preferences.apiKey },
+					{ "api_key", LumosControlPanel.apiKey },
 					{ "filename", Path.GetFileName(file) },
 					{ "checksum", checksum },
 					{ "content_type", contentType },
@@ -150,9 +141,15 @@ namespace Lumos
 					{ "platform",  buildTargetStrings[target] }
 				};
 
-				var baseUrl = Preferences.apiUrl + "games/" + Preferences.gameId + "/deployments/uploadheaders";
+				var baseUrl = Hosting.apiUrl + "games/" + LumosControlPanel.gameId + "/uploadheaders";
 				var url = new Uri(Web.ConstructGetUrl(baseUrl, parameters));
 				var client = new WebClient();
+
+				// Send authorization credentials.
+				var credentials = Encoding.UTF8.GetBytes(Lumos.gameId + ":" + Hosting.password);
+				client.Headers["Authorization"] = "Basic " + Convert.ToBase64String(credentials);
+
+				// Start download.
 				client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(FinishFetchUploadHeaders);
 				client.DownloadStringAsync(url);
 			}
@@ -160,7 +157,7 @@ namespace Lumos
 			/// <summary>
 			/// Callback once the header fetch has completed.
 			/// </summary>
-			/// <param name="sender">Unused; necessary to match delegate signature./param>
+			/// <param name="sender">Unused; necessary to match delegate signature.</param>
 			/// <param name="e">The response.</param>
 			void FinishFetchUploadHeaders (object sender, DownloadStringCompletedEventArgs e)
 			{
@@ -171,7 +168,7 @@ namespace Lumos
 					// Now that we have our upload headers, start the action.
 					StartUpload(headers);
 				} else {
-					Debug.LogError("Fetching upload info failed: " + e.Error.Message + "; " + e.Error.StackTrace);
+					Debug.LogError("Fetching upload headers failed: " + e.Error.Message + "; " + e.Error.StackTrace);
 				}
 			}
 			
