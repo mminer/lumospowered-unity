@@ -21,11 +21,11 @@ public class LumosLogs : MonoBehaviour
 
 	#endregion
 
-	const string apiUrl = "http://localhost:8084/api/";
+	const string apiUrl = "http://ec2.matthewminer.com:8081/api/1/";
 
-	static readonly Hashtable headers = new Hashtable() {
-		{ "Content-Type", "application/json" }
-	};
+	// TEMPORARY
+	const string gameId = "8ba54a65";
+	const string apiKey = "8ba54a65-7f51-4a33-a565-b9f5a0cf9028";
 
 	/// <summary>
 	/// The stored logs.
@@ -121,21 +121,30 @@ public class LumosLogs : MonoBehaviour
 		if (Application.internetReachability == NetworkReachability.NotReachable) {
 			yield break;
 		}
-
-		// Generate request.
-		var parameters = new Hashtable() {
-			{ "logs", LogsToArrayList() }
-		};
-		var json = JSON.JsonEncode(parameters);
+		
+		var json = JSON.JsonEncode(LogsToArrayList());
 		var payload = Encoding.ASCII.GetBytes(json);
-		var www = new WWW(apiUrl + Lumos.gameId, payload, headers);
 
-		// Send info to server
+		// Create signature.
+		var key = Encoding.UTF8.GetBytes(apiKey);
+		var jsonBytes = Encoding.UTF8.GetBytes(json);
+		var hash = new HMACSHA1(key).ComputeHash(jsonBytes);
+		var signature = "LumosLogs " + Convert.ToBase64String(hash);
+
+		// Add request headers.
+		var headers = new Hashtable() {
+			{ "Content-Type", "application.json" },
+			{ "Authorization", signature }
+		};
+
+		// Send request.
+		var url = apiUrl + "games/" + gameId + "/logs";
+		var www = new WWW(url, payload, headers);
 		yield return www;
 		Lumos.Log("Request: " + json);
 		Lumos.Log("Response: " + www.text);
 
-		// Parse the response
+		// Parse the response.
 		try {
 			if (www.error != null) {
 				throw new Exception(www.error);
@@ -143,7 +152,7 @@ public class LumosLogs : MonoBehaviour
 
 			var response = JSON.JsonDecode(www.text) as Hashtable;
 
-			// Display returned info if there is any
+			// Display returned info if there is any.
 			if (response.ContainsKey("message")) {
 				Lumos.Log("Success: " + response["message"]);
 				logs.Clear();
@@ -174,7 +183,7 @@ public class LumosLogs : MonoBehaviour
 	/// </summary>
 	class Log
 	{
-		public readonly string kind; // info, error, etc.
+		public readonly string type; // info, error, etc.
 		public readonly string message;
 		public readonly string trace;
 		public readonly string level;
@@ -183,7 +192,7 @@ public class LumosLogs : MonoBehaviour
 
 		public Log (LogType type, string message, string trace)
 		{
-			this.kind = typeLabels[type];
+			this.type = typeLabels[type];
 			this.message = message;
 			this.trace = trace;
 			this.level = Application.loadedLevelName;
@@ -197,8 +206,8 @@ public class LumosLogs : MonoBehaviour
 		public Hashtable ToHashtable ()
 		{
 			var table = new Hashtable() {
-				{ "kind", kind },
-				{ "mesage", message },
+				{ "type", type },
+				{ "message", message },
 				{ "trace", trace },
 				{ "level", level },
 				{ "total", total },
@@ -212,7 +221,7 @@ public class LumosLogs : MonoBehaviour
 		/// </summary>
 		public bool IsEqual (LogType type, string message, string trace)
 		{
-			return this.kind == typeLabels[type] && this.message == message && this.trace == trace;
+			return this.type == typeLabels[type] && this.message == message && this.trace == trace;
 		}
 
 		/// <summary>
@@ -228,7 +237,7 @@ public class LumosLogs : MonoBehaviour
 		/// </summary>
 		void GenerateHash ()
 		{
-			var combined = kind + message + trace;
+			var combined = type + message + trace;
 			var bytes = Encoding.ASCII.GetBytes(combined);
 			var md5 = new MD5CryptoServiceProvider();
 			var data = md5.ComputeHash(bytes);

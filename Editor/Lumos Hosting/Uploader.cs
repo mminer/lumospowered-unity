@@ -22,6 +22,16 @@ namespace LumosPowered
 			{ BuildTarget.StandaloneWindows64, "unity-win64" }
 		};
 
+		[MenuItem("Window/Lumos Deploy %#d")]
+		/// <summary>
+		/// Builds and uploads a game.
+		/// </summary>
+		public static void BuildAndUpload ()
+		{
+			var file = Uploader.Build();
+			Uploader.Upload(file);
+		}
+
 		/// <summary>
 		/// Builds the game, the target depending on Unity's build settings.
 		/// </summary>
@@ -133,7 +143,6 @@ namespace LumosPowered
 			void StartFetchUploadHeaders ()
 			{
 				var parameters = new Dictionary<string, object>() {
-					{ "api_key", LumosControlPanel.apiKey },
 					{ "filename", Path.GetFileName(file) },
 					{ "checksum", checksum },
 					{ "content_type", contentType },
@@ -141,12 +150,12 @@ namespace LumosPowered
 					{ "platform",  buildTargetStrings[target] }
 				};
 
-				var baseUrl = Hosting.apiUrl + "games/" + LumosControlPanel.gameId + "/uploadheaders";
+				var baseUrl = LumosHosting.apiUrl + "games/" + Preferences.gameId + "/uploadheaders";
 				var url = new Uri(Web.ConstructGetUrl(baseUrl, parameters));
 				var client = new WebClient();
 
 				// Send authorization credentials.
-				var credentials = Encoding.UTF8.GetBytes(Lumos.gameId + ":" + Hosting.password);
+				var credentials = Encoding.UTF8.GetBytes(Lumos.gameId + ":" + LumosHosting.password);
 				client.Headers["Authorization"] = "Basic " + Convert.ToBase64String(credentials);
 
 				// Start download.

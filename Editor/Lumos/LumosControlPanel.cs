@@ -3,72 +3,67 @@ using System.Collections;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// The preferences pane.
-/// </summary>
-public class LumosControlPanel : EditorWindow
+namespace LumosPowered
 {
-	public const string apiUrl = "http://localhost:8083/api/";
-
-	static readonly GUIContent apiKeyLabel = new GUIContent("API Key");
-	static readonly GUIContent deployLabel = new GUIContent("Deploy");
-	static bool loaded;
-
-	// Preferences.
-	static string _apiKey;
 	/// <summary>
-	/// Secret key. Should not be shared.
+	/// The preferences pane.
 	/// </summary>
-	public static string apiKey {
-		get {
-			if (_apiKey == null) { Load(); }
-			return _apiKey;
-		}
-		private set { _apiKey = value; }
-	}
-		
-	/// <summary>
-	/// The game's identifier.
-	/// </summary>
-	public static string gameId {
-		get { return apiKey.Split('-')[0]; }
-	}
-
-	// EditorPrefs keys.
-	const string keyPrefix = "Lumos ";
-	const string apiKeyKey = keyPrefix + "API Key";
-
-	/// <summary>
-	/// Adds a menu named "Some Window" to the Window menu.
-	/// </summary>
-	[MenuItem("Window/Lumos")]
-	static void Init ()
+	public class Preferences
 	{
-		// Get existing open window, or make new one if none
-		GetWindow<LumosControlPanel>().Show();
-	}
+		public const string apiUrl = "http://localhost:8083/api/";
 
-	//[PreferenceItem("Lumos")]
-	public static void OnGUI ()
-	{
-		// Load the preferences.
-		if (!loaded) {
-			Load();
-			loaded = true;
+		static readonly GUIContent apiKeyLabel = new GUIContent("API Key");
+		static bool loaded;
+
+		// Preferences.
+		static string _apiKey;
+		/// <summary>
+		/// Secret key. Should not be shared.
+		/// </summary>
+		public static string apiKey
+		{
+			get
+			{
+				if (_apiKey == null) { Load(); }
+				return _apiKey;
+			}
+			private set { _apiKey = value; }
 		}
 
-		apiKey = EditorGUILayout.TextField(apiKeyLabel, apiKey);
-
-		if (GUI.changed) {
-			EditorPrefs.SetString(apiKeyKey, apiKey);
+		/// <summary>
+		/// The game's identifier.
+		/// </summary>
+		public static string gameId
+		{
+			get { return apiKey.Split('-')[0]; }
 		}
-	}
-		
-	/// <summary>
-	/// Load the preferences from EditorPrefs.
-	/// </summary>
-	static void Load ()
-	{
-		apiKey = EditorPrefs.GetString(apiKeyKey, "");
+
+		// EditorPrefs keys.
+		const string keyPrefix = "Lumos ";
+		const string apiKeyKey = keyPrefix + "API Key";
+
+		[PreferenceItem("Lumos")]
+		public static void OnGUI ()
+		{
+			// Load the preferences.
+			if (!loaded) {
+				Load();
+				loaded = true;
+			}
+
+			apiKey = EditorGUILayout.TextField(apiKeyLabel, apiKey);
+
+			if (GUI.changed) {
+				EditorPrefs.SetString(apiKeyKey, apiKey);
+			}
+		}
+
+		/// <summary>
+		/// Load the preferences from EditorPrefs.
+		/// </summary>
+		static void Load ()
+		{
+			apiKey = EditorPrefs.GetString(apiKeyKey, "");
+		}
 	}
 }

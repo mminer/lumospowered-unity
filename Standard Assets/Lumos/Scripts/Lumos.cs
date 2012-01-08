@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Rebel Hippo Inc. All rights reserved.
+﻿// Copyright (c) 2011 Rebel Hippo Inc. All rights reserved.
 
 using System;
 using System.Collections;
@@ -74,6 +74,7 @@ public partial class Lumos : MonoBehaviour
 
 		instance = this;
 		DontDestroyOnLoad(this);
+		apiKey = "a929b9c9-123"; // TEMP
 		gameId = apiKey.Split('-')[0];
 
 		if (gameId == null || gameId == "") {
