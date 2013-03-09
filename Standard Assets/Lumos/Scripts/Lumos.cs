@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011 Rebel Hippo Inc. All rights reserved.
+// Copyright (c) 2011 Rebel Hippo Inc. All rights reserved.
 
 using System;
 using System.Collections;
@@ -39,11 +39,11 @@ public partial class Lumos : MonoBehaviour
 	/// </summary>
 	public static string gameId { get; private set; }
 
-	static uint _timerInterval = 30;
+	static int _timerInterval = 30;
 	/// <summary>
 	/// The interval in seconds at which events (most likely queued data sends) are triggered.
 	/// </summary>
-	public static uint timerInterval
+	public static int timerInterval
 	{
 		get { return _timerInterval; }
 		set { _timerInterval = value; }
@@ -74,11 +74,11 @@ public partial class Lumos : MonoBehaviour
 
 		instance = this;
 		DontDestroyOnLoad(this);
-		apiKey = "a929b9c9-123"; // TEMP
+		apiKey = "4463803b-a6f5-45b1-99cd-7cf1c8c1c4a6"; // TEMP
 		gameId = apiKey.Split('-')[0];
 
 		if (gameId == null || gameId == "") {
-			Debug.LogWarning("Lumos API key not set. No information will be sent.");
+			UnityEngine.Debug.LogWarning("Lumos API key not set. No information will be sent.");
 			Destroy(gameObject);
 			return;
 		}
@@ -113,7 +113,7 @@ public partial class Lumos : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Sends queued data. Currently the only data that accumulates is debug logs.
+	/// Sends queued data.
 	/// </summary>
 	public void SendQueued ()
 	{
@@ -143,7 +143,7 @@ public partial class Lumos : MonoBehaviour
 	public static Coroutine RunRoutine (IEnumerator routine)
 	{
 		if (instance == null) {
-			LogError("The Lumos game object must be instantiated before its methods can be used.");
+			Lumos.LogError("The Lumos game object must be instantiated before its methods can be used.");
 			return null;
 		}
 
