@@ -1,7 +1,7 @@
-// Copyright (c) 2011 Rebel Hippo Inc. All rights reserved.
+// Copyright (c) 2012 Rebel Hippo Inc. All rights reserved.
 
-using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -10,14 +10,9 @@ using UnityEngine;
 public partial class Lumos : MonoBehaviour
 {
 	/// <summary>
-	/// Method signature for events hooked up to the timer.
-	/// </summary>
-	public delegate void TimedEventHandler ();
-
-	/// <summary>
 	/// The version.
 	/// </summary>
-	public static readonly Version version = new Version(1, 0);
+	public const string version = "1.0";
 
 	/// <summary>
 	/// An instance of this class.
@@ -25,115 +20,57 @@ public partial class Lumos : MonoBehaviour
 	public static Lumos instance { get; private set; }
 
 	/// <summary>
-	/// Displays detailed information about WWW requests / responses when set to true.
+	/// Displays detailed information about WWW requests / responses when true.
 	/// </summary>
 	public static bool debug { get; set; }
-
-	/// <summary>
-	/// Access key. Should never be shared.
-	/// </summary>
-	public static string apiKey { private get; set; }
 
 	/// <summary>
 	/// A unique string that identifies the application.
 	/// </summary>
 	public static string gameId { get; private set; }
 
-	static int _timerInterval = 30;
-	/// <summary>
-	/// The interval in seconds at which events (most likely queued data sends) are triggered.
-	/// </summary>
-	public static int timerInterval
-	{
-		get { return _timerInterval; }
-		set { _timerInterval = value; }
-	}
+	#region Inspector Settings
+
+	public string secretKey;
+	public bool runInEditor;
+	public bool recordPresetEvents;
+	public bool recordErrors;
+	public bool recordWarnings;
+	public bool recordLogs;
+
+	#endregion
 
 	/// <summary>
-	/// Events that are triggered on a timed interval.
+	/// Initializes a new instance of this class.
 	/// </summary>
-	public static event TimedEventHandler timedEvents;
-
-	/// <summary>
-	/// Whether the data sending timer is paused.
-	/// </summary>
-	static bool timerPaused;
-
-	Lumos () { }
+	Lumos () {}
 
 	/// <summary>
 	/// Sets up Lumos.
 	/// </summary>
 	void Awake ()
 	{
-		// Prevent multiple instances of Lumos from existing, necessary because of DontDestroyOnLoad.
+		// Prevent multiple instances of Lumos from existing.
+		// Necessary because DontDestroyOnLoad keeps the object between scenes.
 		if (instance != null) {
+			Lumos.Log("Destroying duplicate game object instance.");
 			Destroy(gameObject);
 			return;
 		}
 
 		instance = this;
 		DontDestroyOnLoad(this);
-		apiKey = "4463803b-a6f5-45b1-99cd-7cf1c8c1c4a6"; // TEMP
-		gameId = apiKey.Split('-')[0];
+		gameId = secretKey.Split('-')[0];
 
 		if (gameId == null || gameId == "") {
-			UnityEngine.Debug.LogWarning("Lumos API key not set. No information will be sent.");
-			Destroy(gameObject);
+			Lumos.Remove("Secret key not set.");
 			return;
 		}
-	}
 
-	/// <summary>
-	/// Extra setup that needs to occur after Awake.
-	/// </summary>
-	void Start ()
-	{
-		// Start looping timer send.
-		RunRoutine(SendQueuedRoutine());
-	}
-
-	void OnLevelWasLoaded ()
-	{
-		SendQueued();
-	}
-
-	/// <summary>
-	/// Sends queued data on an interval.
-	/// </summary>
-	IEnumerator SendQueuedRoutine ()
-	{
-		yield return new WaitForSeconds((float)timerInterval);
-
-		if (!timerPaused) {
-			SendQueued();
-		}
-
-		RunRoutine(SendQueuedRoutine());
-	}
-
-	/// <summary>
-	/// Sends queued data.
-	/// </summary>
-	public void SendQueued ()
-	{
-		timedEvents();
-	}
-
-	/// <summary>
-	/// Pauses the queued data send timer.
-	/// </summary>
-	public static void PauseTimer ()
-	{
-		timerPaused = true;
-	}
-
-	/// <summary>
-	/// Resumes the queued data send timer.
-	/// </summary>
-	public static void ResumeTimer ()
-	{
-		timerPaused = false;
+		// Set up debug log redirect.
+		Application.RegisterLogCallback(LumosLogs.Record);
+		
+		LumosCore.Init();
 	}
 
 	/// <summary>
@@ -143,10 +80,26 @@ public partial class Lumos : MonoBehaviour
 	public static Coroutine RunRoutine (IEnumerator routine)
 	{
 		if (instance == null) {
-			Lumos.LogError("The Lumos game object must be instantiated before its methods can be used.");
+			Lumos.LogError("Lumos game object must be instantiated " +
+			               "before its methods can be called.");
 			return null;
 		}
 
 		return instance.StartCoroutine(routine);
+	}
+
+	/// <summary>
+	/// Destroys the instance so that it cannot be used.
+	/// This will be called at the start of the game if it's determined that
+	/// information cannot be sent to the server properly.
+	/// </summary>
+	/// <param name="reason">The reason why the instance is unusable.</param>
+	public static void Remove (string reason)
+	{
+		if (instance != null) {
+			Debug.LogWarning("[Lumos] " + reason +
+			                 " No information will be recorded.");
+			Destroy(instance.gameObject);
+		}
 	}
 }

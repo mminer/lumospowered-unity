@@ -1,16 +1,17 @@
-// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+// Copyright (c) 2012 Rebel Hippo Inc. All rights reserved.
 
 using UnityEngine;
 
 /// <summary>
-/// Replacement Debug functions that the library can use without being picked up by the log callback.
+/// Replacement Debug functions that the library can use without being picked
+/// up by the log callback.
 /// </summary>
 public partial class Lumos
 {
 	delegate void MessageLogger (object message);
 
 	/// <summary>
-	/// Logs a regular debug message.
+	/// Logs a debug message.
 	/// </summary>
 	/// <param name="message">The message to log.</param>
 	public static void Log (object message)
@@ -47,6 +48,7 @@ public partial class Lumos
 			return;
 		}
 
-		logger("[Lumos] " + message.ToString());
+		logger("[Lumos] " + message);
 	}
 }
+
