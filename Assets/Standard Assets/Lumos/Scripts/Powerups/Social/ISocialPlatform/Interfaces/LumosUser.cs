@@ -25,6 +25,18 @@ public class LumosUser : ILocalUser {
 	// email
 	
 	string url = "localhost:8888/api/1/games/" + Lumos.gameId + "/users";
+
+
+	public LumosUser()
+	{
+
+	}
+
+	public LumosUser(string userID, bool authenticated)
+	{
+		this.userID = userID;
+		this.authenticated = authenticated;
+	}
 	
 	public void Authenticate(Action<bool> callback) {
 		AuthenticateUser(callback);
@@ -55,9 +67,8 @@ public class LumosUser : ILocalUser {
 		};
 		
 		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse;
-			var info = response["user"] as Hashtable;
-			UpdateUser(info);
+			var response = LumosRequest.lastResponse as Hashtable;
+			UpdateUser(response);
 			callback(true);
 		});
 	}

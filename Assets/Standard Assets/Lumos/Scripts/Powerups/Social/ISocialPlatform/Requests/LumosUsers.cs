@@ -7,6 +7,25 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public partial class LumosSocialPlatform : ISocialPlatform {
 
+	
+	void RegisterUser(string username, string password, string email, Action<bool> callback)
+	{
+		var api = url + "/users/" + username + "?method=PUT";
+		
+		var parameters = new Dictionary<string, object>() {
+			{ "player_id", LumosCore.playerId }, 
+			{ "password", password },
+			{ "email", email }
+		};
+		
+		LumosRequest.Send(api, parameters, delegate {
+			var response = LumosRequest.lastResponse as Hashtable;
+			var user = ParseLumosUser(response);
+			_localUser = user;
+
+			callback(true);
+		});
+	}
 
 	void FetchUsers(string[] userIds, Action<IUserProfile[]> callback)
 	{
@@ -29,17 +48,36 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 
 		foreach (var i in info) {
 			var user = i.Value as Hashtable;
-			var id = info["username"] as string;
-			string name = null;
-
-			if (user.ContainsKey("name")) {
-				name = user["name"].ToString();
-			}
-
-			var u = new UserProfile(name, id, false);
-			users.Add(u);
+			var userProfile = ParseUser(user);
+			users.Add(userProfile);
 		}
 
 		return users.ToArray();
+	}
+
+	IUserProfile ParseUser(Hashtable user)
+	{
+		var id = user["username"] as string;
+		string name = null;
+		
+		if (user.ContainsKey("name")) {
+			name = user["name"].ToString();
+		}
+		
+		var userProfile = new UserProfile(name, id, false);
+
+		return userProfile;
+	}
+
+	LumosUser ParseLumosUser(Hashtable info)
+	{
+		var userID = info["username"] as string;
+		var user = new LumosUser(userID, true);
+
+		if (info.ContainsKey("name")) {
+			user.userName = info["name"].ToString();
+		}
+
+		return user;
 	}
 }

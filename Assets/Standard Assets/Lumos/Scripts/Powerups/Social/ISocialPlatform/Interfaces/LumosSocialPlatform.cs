@@ -20,6 +20,12 @@ public partial class LumosSocialPlatform : ISocialPlatform
 	}
 
 
+	public LumosSocialPlatform()
+	{
+		Social.Active = this;
+	}
+
+
 	#region Users
 
 	public void Authenticate(ILocalUser user, Action<bool> callback) 
