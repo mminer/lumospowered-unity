@@ -3,12 +3,13 @@ using UnityEngine.SocialPlatforms;
 using System.Collections;
 using System.Collections.Generic;
 
-public class LumosSocial 
+public class LumosSocial
 {
 	
-	public List<IAchievement> achievements = new List<IAchievement>(); 
+	public List<LumosLeaderboard> leaderboards = new List<LumosLeaderboard>();
+	public List<LumosAchievement> achievements = new List<LumosAchievement>(); 
 	public IAchievementDescription[] descriptions; 
-	private List<IAchievement> processingAchievements = new List<IAchievement>();
+	private List<LumosAchievement> processingAchievements = new List<LumosAchievement>();
 
 
 	public void Connect()
@@ -68,6 +69,8 @@ public class LumosSocial
 		descriptions = achievements;
     }
 	
+	// TODO: I think we lose our Lumos specific achievement data here.
+	// Need to find a work-around
 	/// <summary>
 	/// Callback function after a player's achievements are loaded
 	/// </summary>
@@ -77,7 +80,7 @@ public class LumosSocial
 	void ProcessLoadedPlayerAchievements (IAchievement[] achievements)
 	{
 		foreach (var achievement in achievements) {
-			this.achievements.Add(achievement);
+			this.achievements.Add(achievement as LumosAchievement);
 		}
 		
 		ValidateAchievementsInProcess();
@@ -110,7 +113,7 @@ public class LumosSocial
 	}
 	
 	// Get an earned achievement by ID
-	IAchievement GetEarnedAchievement(string achievementID)
+	LumosAchievement GetEarnedAchievement(string achievementID)
 	{
 		foreach (var achievement in achievements) {
 			if (achievement.id == achievementID) {
