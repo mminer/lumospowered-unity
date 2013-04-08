@@ -34,7 +34,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 
 	public void LoadUsers(string[] userIds, Action<IUserProfile[]> callback)
 	{
-		// Do nothing	
+		FetchUsers(userIds, callback);
 	}
 
 	#endregion
@@ -63,7 +63,8 @@ public partial class LumosSocialPlatform : ISocialPlatform
 
 	public IAchievement CreateAchievement() 
 	{
-		return new Achievement();
+		Lumos.LogError("Lumos does not support creating achievements on the fly.");
+		return null;
 	}
 
 	#endregion
@@ -92,7 +93,8 @@ public partial class LumosSocialPlatform : ISocialPlatform
 
 	public ILeaderboard CreateLeaderboard()
 	{
-		return new LumosLeaderboard();
+		Lumos.LogError("Lumos does not support creating leaderboards on the fly.");
+		return null;
 	}
 
 	#endregion
