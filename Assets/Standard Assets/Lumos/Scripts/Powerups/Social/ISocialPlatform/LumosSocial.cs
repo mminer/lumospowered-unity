@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using System.Collections;
@@ -6,18 +7,32 @@ using System.Collections.Generic;
 public class LumosSocial
 {
 	
-	public List<LumosLeaderboard> leaderboards = new List<LumosLeaderboard>();
-	public List<LumosAchievement> achievements = new List<LumosAchievement>(); 
-	public IAchievementDescription[] descriptions; 
-	private List<LumosAchievement> processingAchievements = new List<LumosAchievement>();
+	public static List<LumosLeaderboard> leaderboards = new List<LumosLeaderboard>();
+	public static List<LumosAchievement> achievements = new List<LumosAchievement>(); 
+	public static IAchievementDescription[] descriptions; 
+	private static List<LumosAchievement> processingAchievements = new List<LumosAchievement>();
 
 
-	public void Connect()
+	public static void Register(string username, string pass, string email, Action<bool> callback)
+	{
+		Social.Active = new LumosSocialPlatform();
+		(Social.localUser as LumosUser).Register(username, pass, email, callback);
+	}
+	
+	public static void Connect(string username=null, string password=null, Action<bool> callback=null)
 	{
         // Authenticate and register a ProcessAuthentication callback
         // This call needs to be made before we can proceed to other calls in the Social API
 		Social.Active = new LumosSocialPlatform();
-        Social.localUser.Authenticate(ProcessAuthentication);
+		
+		if (username != null) {
+			(Social.localUser as LumosUser).Authenticate(username, password, delegate {
+				callback(true);
+			});
+			Debug.Log("call made...");
+		} else {
+			Social.localUser.Authenticate(ProcessAuthentication);	
+		}
     }
 	
 	/// <summary>
@@ -26,7 +41,7 @@ public class LumosSocial
 	/// <param name='achievementID'>
 	/// Achievement ID.
 	/// </param>
-	public void AwardAchievement(string achievementID, int progress=100)
+	public static void AwardAchievement(string achievementID, int progress=100)
 	{
 		if (Social.localUser.authenticated) {
 			var achievement = GetEarnedAchievement(achievementID);
@@ -39,7 +54,7 @@ public class LumosSocial
 		}
 	}
 
-	public void LoadAchievements()
+	public static void LoadAchievements()
 	{
 		Social.LoadAchievementDescriptions(ProcessLoadedAchievements);
 		Social.LoadAchievements(ProcessLoadedPlayerAchievements);
@@ -47,7 +62,7 @@ public class LumosSocial
 
     // This function gets called when Authenticate completes
     // Note that if the operation is successful, Social.localUser will contain data from the server. 
-    void ProcessAuthentication (bool success) 
+    static void ProcessAuthentication (bool success) 
 	{
         if (success) {
             Lumos.Log("Authenticated local user!");
@@ -57,7 +72,7 @@ public class LumosSocial
     }
 
     // This function gets called when the LoadAchievement call completes
-    void ProcessLoadedAchievements (IAchievementDescription[] achievements)
+    static void ProcessLoadedAchievements (IAchievementDescription[] achievements)
 	{
         if (achievements.Length == 0) {
             Debug.Log ("Error: no achievements found");
@@ -77,10 +92,10 @@ public class LumosSocial
 	/// <param name='achievements'>
 	/// Achievements.
 	/// </param>
-	void ProcessLoadedPlayerAchievements (IAchievement[] achievements)
+	static void ProcessLoadedPlayerAchievements (IAchievement[] achievements)
 	{
 		foreach (var achievement in achievements) {
-			this.achievements.Add(achievement as LumosAchievement);
+			LumosSocial.achievements.Add(achievement as LumosAchievement);
 		}
 		
 		ValidateAchievementsInProcess();
@@ -92,7 +107,7 @@ public class LumosSocial
 	/// <param name='success'>
 	/// Success.
 	/// </param>
-	void AwardedAchievement(bool success)
+	static void AwardedAchievement(bool success)
 	{
 		if (success) {
 			// Reload the player's earned achievements
@@ -102,7 +117,7 @@ public class LumosSocial
 	
 	// Check the pending awarded achievements to see if they 
 	// were awarded to the player
-	void ValidateAchievementsInProcess()
+	static void ValidateAchievementsInProcess()
 	{
 		foreach (var achievement in processingAchievements) {
 			if (achievements.Contains(achievement)) {
@@ -113,7 +128,7 @@ public class LumosSocial
 	}
 	
 	// Get an earned achievement by ID
-	LumosAchievement GetEarnedAchievement(string achievementID)
+	static LumosAchievement GetEarnedAchievement(string achievementID)
 	{
 		foreach (var achievement in achievements) {
 			if (achievement.id == achievementID) {
@@ -128,7 +143,7 @@ public class LumosSocial
 		
 	}
 	
-	public void SubmitScore(int score, string leaderboardID) {
+	public static void SubmitScore(int score, string leaderboardID) {
 		// Only count new high scores
 		if (!Social.localUser.authenticated) {
 			return;
@@ -137,7 +152,7 @@ public class LumosSocial
 		Social.ReportScore(score, leaderboardID, SubmittedScore);
 	}
 	
-	public void SubmittedScore(bool success) {
+	static void SubmittedScore(bool success) {
 		Debug.Log("score submitted: " + success);		
 	}
 }

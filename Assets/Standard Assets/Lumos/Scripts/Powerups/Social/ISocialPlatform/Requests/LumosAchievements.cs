@@ -13,7 +13,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 	
 	void FetchPlayerAchievements(Action<IAchievement[]> callback) 
 	{						
-		var api = url + "/achievements/" + localUser.id;
+		var api = url + "/achievements/" + localUser.id + "?method=GET";
 		
 		LumosRequest.Send(api, delegate {
 			var response = LumosRequest.lastResponse as ArrayList;
@@ -30,7 +30,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 	
 	void FetchGameAchievements(Action<IAchievementDescription[]> callback) 
 	{			
-		var api = url + "/achievements";
+		var api = url + "/achievements?method=GET";
 		
 		LumosRequest.Send(api, delegate {
 			var response = LumosRequest.lastResponse as ArrayList;

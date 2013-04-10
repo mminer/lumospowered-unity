@@ -88,9 +88,17 @@ public class LumosRequest
 
 			yield break;
 		}
-
-		// Generate request
-		var json = LumosJSON.JsonEncode(parameters);
+		
+		var json = LumosJSON.Json.Serialize(parameters);
+		
+		Debug.Log("call being made...");
+		
+		// All requests (including GET) are sent as POST
+		// and require parameters to be sent
+		if (json == null) {
+			json = "{}";
+		}
+		
 		var postData = Encoding.ASCII.GetBytes(json);
 		var www = new WWW(url, postData, headers);
 
@@ -105,8 +113,10 @@ public class LumosRequest
 				throw new Exception(www.error);
 			}
 
-			var response = LumosJSON.JsonDecode(www.text) as IDictionary;
+			var response = LumosJSON.Json.Deserialize(www.text) as IDictionary;
 			lastResponse = response;
+			
+			Debug.Log("call returned " + www.text);
 
 			// Display returned info if there is any
 			if (response.Count != 0 && response.Contains("result")) {
@@ -115,6 +125,7 @@ public class LumosRequest
 			}
 
 			if (successCallback != null) {
+				Debug.Log("callback is being called");
 				successCallback();
 			}
 		} catch (Exception e) {

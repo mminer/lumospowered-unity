@@ -28,7 +28,7 @@ public class LumosRealtime
 				{ "message", message}
 			};
 
-			var json = LumosJSON.JsonEncode(encoded);
+			var json = LumosJSON.Json.Serialize(encoded);
 			encodedMessages.Add(json);
 		}
 

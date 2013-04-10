@@ -3,13 +3,67 @@ using System.Collections;
 
 public partial class LumosSocialGUI : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
+	enum Screens { None, Login, Registration, Achievements, Leaderboards, User };
+	Screens screen;
 	
+	float labelWidth;
+	float textBoxWidth;
+	float textBoxHeight;
+	float submitButtonWidth;
+	float submitButtonHeight;
+	float margin;
+	float smallMargin;
+	float largeMargin;
+	
+	
+	void Awake()
+	{
+		screen = Screens.Login;
+		
+		float loginWidth = Screen.width - (Screen.width * 0.33f);
+		float loginHeight = Screen.height - (Screen.height * 0.4f);
+		float loginX = (Screen.width - loginWidth) / 2;
+		float loginY = (Screen.height - loginHeight) / 2;
+		socialWindowRect = new Rect(loginX, loginY, loginWidth, loginHeight);
+		
+		margin = socialWindowRect.height * 0.1f;
+		smallMargin = margin / 2;
+		largeMargin = margin * 1.5f;
+		labelWidth = Screen.width * 0.1f;
+		textBoxWidth = Screen.width * 0.40f;
+		textBoxHeight = textBoxWidth / 8;
+		submitButtonWidth = textBoxWidth / 4;
+		submitButtonHeight = textBoxHeight * 0.8f;
 	}
 	
-	// Update is called once per frame
-	void Update () {
+	void OnGUI()
+	{
+		if (screen != Screens.None) {
+			socialWindowRect = GUILayout.Window(0, socialWindowRect, SocialWindow, "");
+		}
+	}
 	
+	void SocialWindow(int windowID)
+	{
+		switch(screen) {
+			case Screens.Login:
+				LoginScreen();
+				break;
+			case Screens.Registration:
+				RegistrationScreen();
+				break;
+			case Screens.Achievements:
+				// AchievementsScreen();
+				break;
+			case Screens.Leaderboards:
+				// LeaderboardsScreen();
+				break;
+			case Screens.User:
+				// UserScreen();
+				break;
+			default:
+				// None;
+				break;
+		}
 	}
 }

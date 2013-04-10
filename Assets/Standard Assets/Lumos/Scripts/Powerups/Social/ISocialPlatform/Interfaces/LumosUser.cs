@@ -38,15 +38,23 @@ public class LumosUser : ILocalUser {
 		this.authenticated = authenticated;
 	}
 	
-	public void Authenticate(Action<bool> callback) {
-		AuthenticateUser(callback);
+	public void Authenticate(Action<bool> callback)
+	{
+		AuthenticateUser(null, callback);
 	}
 	
-	public void LoadFriends(Action<bool> callback) {
+	public void Authenticate(string username, string password, Action<bool> callback)
+	{
+		this.userID = username;
+		AuthenticateUser(password, callback);
+	}
+	
+	public void LoadFriends(Action<bool> callback)
+	{
 		FetchFriends(callback);
 	}
 	
-	void AuthenticateUser(Action<bool> callback)
+	void AuthenticateUser(string password, Action<bool> callback)
 	{
 		// The id should be set prior to this call if 
 		// the developer intends to use a login system
@@ -54,12 +62,14 @@ public class LumosUser : ILocalUser {
 			userID = LumosCore.playerId;
 		}
 
-		var api = url + "/" + userID;
+		var api = url + "/" + userID + "?method=GET";
 		
 		// need to get the password some how
 		// but can't add it to the localUser interface
 		// May need to create a new type of interface?
-		var password = "default";
+		if (password == null) {
+			password = "default";
+		}
 		
 		var parameters = new Dictionary<string, object>() {
 			{ "player_id", LumosCore.playerId },
@@ -69,6 +79,26 @@ public class LumosUser : ILocalUser {
 		LumosRequest.Send(api, parameters, delegate {
 			var response = LumosRequest.lastResponse as Hashtable;
 			UpdateUser(response);
+			callback(true);
+		});
+	}
+	
+	public void Register(string username, string pass, string email, Action<bool> callback)
+	{
+		var api = url + "/" + username + "?method=PUT";
+		
+		var parameters = new Dictionary<string, object>() {
+			{ "player_id", LumosCore.playerId },
+			{ "password", pass },
+			{ "email", email }
+		};
+		
+		LumosRequest.Send(api, parameters, delegate {
+			var response = LumosRequest.lastResponse;
+			var info = response as Hashtable;
+			this.email = email;
+			this.userID = username;
+			this.authenticated = true;
 			callback(true);
 		});
 	}
