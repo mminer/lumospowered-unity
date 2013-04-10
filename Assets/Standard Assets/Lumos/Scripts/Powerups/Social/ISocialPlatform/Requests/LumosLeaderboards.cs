@@ -17,7 +17,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		};
 		
 		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse;
+			var response = LumosRequest.lastResponse as Hashtable;
 			var message = (bool)response["message"];
 			callback(message);
 		});
@@ -33,7 +33,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		};
 		
 		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse;
+			var response = LumosRequest.lastResponse as Hashtable;
 			var info = response["leaderboard"] as Hashtable;
 			var scores = ParseScores(info);
 			callback(scores);

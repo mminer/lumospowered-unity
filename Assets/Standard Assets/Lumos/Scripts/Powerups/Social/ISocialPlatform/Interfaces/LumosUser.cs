@@ -75,9 +75,9 @@ public class LumosUser : ILocalUser {
 			{ "player_id", LumosCore.playerId },
 			{ "password", password }
 		};
-		
+
 		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Hashtable;
+			var response = LumosRequest.lastResponse as Dictionary<string, object>;
 			UpdateUser(response);
 			callback(true);
 		});
@@ -115,7 +115,7 @@ public class LumosUser : ILocalUser {
 		});
 	}
 	
-	void UpdateUser(Hashtable info)
+	void UpdateUser(Dictionary<string, object> info)
 	{
 		userID = info["username"].ToString();
 		

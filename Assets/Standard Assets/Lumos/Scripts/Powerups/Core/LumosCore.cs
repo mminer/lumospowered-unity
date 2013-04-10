@@ -65,7 +65,7 @@ public class LumosCore
 		var api = url + "/players";
 		
 		LumosRequest.Send(api, delegate {
-			var response = LumosRequest.lastResponse;
+			var response = LumosRequest.lastResponse as Hashtable;
 			LumosCore.playerId = response["player_id"].ToString();
 			Lumos.Log("Using new player " + LumosCore.playerId);
 			LumosCore.Ping();
@@ -85,7 +85,7 @@ public class LumosCore
 		};
 
 		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse;
+			var response = LumosRequest.lastResponse as Hashtable;
 			
 			if (response["message"] == null) {
 				Lumos.LogWarning("Something went wrong!");

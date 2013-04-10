@@ -17,8 +17,7 @@ public class LumosRequest
 	/// <summary>
 	/// The last response returned by the server.
 	/// </summary>
-	public static IDictionary lastResponse { get; private set; }
-	
+	public static object lastResponse { get; private set; }
 	
 	/// <summary>
 	/// Sends data to Lumos' servers.
@@ -91,8 +90,6 @@ public class LumosRequest
 		
 		var json = LumosJSON.Json.Serialize(parameters);
 		
-		Debug.Log("call being made...");
-		
 		// All requests (including GET) are sent as POST
 		// and require parameters to be sent
 		if (json == null) {
@@ -113,24 +110,15 @@ public class LumosRequest
 				throw new Exception(www.error);
 			}
 
-			var response = LumosJSON.Json.Deserialize(www.text) as IDictionary;
-			lastResponse = response;
-			
-			Debug.Log("call returned " + www.text);
-
-			// Display returned info if there is any
-			if (response.Count != 0 && response.Contains("result")) {
-				var result = response["result"];
-				Lumos.Log("Success: " + result);
-			}
+			var response = LumosJSON.Json.Deserialize(www.text);
+			lastResponse = response;			
 
 			if (successCallback != null) {
-				Debug.Log("callback is being called");
 				successCallback();
 			}
 		} catch (Exception e) {
 			Lumos.LogError("Failure: " + e.Message);
-
+			
 			if (errorCallback != null) {
 				errorCallback();
 			}

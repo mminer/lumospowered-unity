@@ -91,7 +91,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		};
 		
 		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse;
+			var response = LumosRequest.lastResponse as Hashtable;
 			var info = response["achievement"] as Hashtable;
 			var achievement = HashtableToAchievement(info);
 			UpdateAchievement(achievement);

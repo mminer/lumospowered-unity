@@ -26,9 +26,8 @@ public class LumosSocial
 		Social.Active = new LumosSocialPlatform();
 		
 		if (username != null) {
-			(Social.localUser as LumosUser).Authenticate(username, password, delegate {
-				callback(true);
-			});
+			(Social.localUser as LumosUser).Authenticate(username, password, callback);
+				//callback(true);
 			Debug.Log("call made...");
 		} else {
 			Social.localUser.Authenticate(ProcessAuthentication);	
