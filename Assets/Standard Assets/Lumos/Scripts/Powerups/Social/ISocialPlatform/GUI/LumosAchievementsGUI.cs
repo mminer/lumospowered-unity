@@ -20,14 +20,60 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 		
-		achievementScrollPos = GUILayout.BeginScrollView(achievementScrollPos, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height));
+		GUILayout.Space(smallMargin);
+		
+		// Achievements
+		achievementScrollPos = GUILayout.BeginScrollView(achievementScrollPos);
 		
 		int column = 0;
 		
-		foreach (var achievement in LumosSocial.achievements) {
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		
+		foreach (var achievement in LumosSocial.achievementDescriptions) {
+			bool isLast = false;
 			
+			if (achievement.id == LumosSocial.achievementDescriptions[LumosSocial.achievementDescriptions.Length - 1].id) {
+				isLast = true;
+			}
+			
+			GUILayout.Label(defaultAchievementIcon);
+			
+			GUILayout.BeginVertical();
+				GUILayout.Label(achievement.title, GUILayout.Width(submitButtonWidth * 2));
+				GUILayout.Label(achievement.unachievedDescription, GUILayout.Width(submitButtonWidth * 2), GUILayout.Height(largeMargin));
+			GUILayout.EndVertical();
+			
+			GUILayout.FlexibleSpace();
+			
+			if (column == 0) {
+				column++;
+				
+				if (isLast) {
+					GUILayout.EndHorizontal();
+				}
+			} else {
+				column = 0;
+				GUILayout.EndHorizontal();
+				
+				if (!isLast) {
+					GUILayout.Space(smallMargin);
+					GUILayout.BeginHorizontal();
+					GUILayout.FlexibleSpace();
+				}
+			}
 		}
 		
 		GUILayout.EndScrollView();
+	}
+	
+	public static void ShowAchievements()
+	{
+		instance.screen = Screens.Achievements;
+	}
+	
+	public static Texture2D GetDefaultAchievement()
+	{
+		return instance.defaultAchievementIcon;
 	}
 }

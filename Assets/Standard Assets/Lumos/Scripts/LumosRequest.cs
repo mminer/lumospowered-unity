@@ -103,6 +103,8 @@ public class LumosRequest
 		yield return www;
 		Lumos.Log("Request: " + json);
 		Lumos.Log("Response: " + www.text);
+		
+		Debug.Log(www.text);
 
 		// Parse the response
 		try {
@@ -118,6 +120,7 @@ public class LumosRequest
 			}
 		} catch (Exception e) {
 			Lumos.LogError("Failure: " + e.Message);
+			Debug.Log("Failure: " + e.Message);
 			
 			if (errorCallback != null) {
 				errorCallback();

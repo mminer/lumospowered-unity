@@ -106,7 +106,6 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	
 	void ProcessLogin(bool success)
 	{
-		Debug.Log("call came back to the end");
 		loggingIn = false;
 		
 		if (success) {

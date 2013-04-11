@@ -15,9 +15,27 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	float smallMargin;
 	float largeMargin;
 	
+	/// <summary>
+	/// An instance of this class.
+	/// </summary>
+	public static LumosSocialGUI instance { get; private set; }
+	
+	/// <summary>
+	/// Initializes a new instance of this class.
+	/// </summary>
+	LumosSocialGUI () {}
 	
 	void Awake()
 	{
+		// Prevent multiple instances of LumosSocialGUI from existing.
+		// Necessary because DontDestroyOnLoad keeps the object between scenes.
+		if (instance != null) {
+			Destroy(gameObject);
+			return;
+		}
+		
+		instance = this;
+		
 		screen = Screens.Login;
 		
 		float loginWidth = Screen.width - (Screen.width * 0.33f);
@@ -39,7 +57,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	void OnGUI()
 	{
 		if (screen != Screens.None) {
-			socialWindowRect = GUILayout.Window(0, socialWindowRect, SocialWindow, "");
+			socialWindowRect = GUI.Window(0, socialWindowRect, SocialWindow, "");
 		}
 	}
 	
@@ -53,7 +71,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 				RegistrationScreen();
 				break;
 			case Screens.Achievements:
-				// AchievementsScreen();
+				AchievementsScreen();
 				break;
 			case Screens.Leaderboards:
 				// LeaderboardsScreen();

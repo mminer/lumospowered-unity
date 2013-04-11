@@ -64,7 +64,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 
 	public void ShowAchievementsUI() 
 	{
-		// Do nothing
+		LumosSocialGUI.ShowAchievements();
 	}
 
 	public IAchievement CreateAchievement() 

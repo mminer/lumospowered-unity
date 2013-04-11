@@ -9,7 +9,7 @@ public class LumosSocial
 	
 	public static List<LumosLeaderboard> leaderboards = new List<LumosLeaderboard>();
 	public static List<LumosAchievement> achievements = new List<LumosAchievement>(); 
-	public static IAchievementDescription[] descriptions; 
+	public static IAchievementDescription[] achievementDescriptions; 
 	private static List<LumosAchievement> processingAchievements = new List<LumosAchievement>();
 
 
@@ -27,8 +27,7 @@ public class LumosSocial
 		
 		if (username != null) {
 			(Social.localUser as LumosUser).Authenticate(username, password, callback);
-				//callback(true);
-			Debug.Log("call made...");
+			callback(true);
 		} else {
 			Social.localUser.Authenticate(ProcessAuthentication);	
 		}
@@ -56,7 +55,7 @@ public class LumosSocial
 	public static void LoadAchievements()
 	{
 		Social.LoadAchievementDescriptions(ProcessLoadedAchievements);
-		Social.LoadAchievements(ProcessLoadedPlayerAchievements);
+		//Social.LoadAchievements(ProcessLoadedPlayerAchievements);
 	}
 
     // This function gets called when Authenticate completes
@@ -80,7 +79,7 @@ public class LumosSocial
 		
         Debug.Log ("Loaded " + achievements.Length + " achievements");
 		
-		descriptions = achievements;
+		achievementDescriptions = achievements;
     }
 	
 	// TODO: I think we lose our Lumos specific achievement data here.

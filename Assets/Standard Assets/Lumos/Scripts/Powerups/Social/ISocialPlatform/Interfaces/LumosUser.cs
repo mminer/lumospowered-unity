@@ -79,6 +79,7 @@ public class LumosUser : ILocalUser {
 		LumosRequest.Send(api, parameters, delegate {
 			var response = LumosRequest.lastResponse as Dictionary<string, object>;
 			UpdateUser(response);
+			authenticated = true;
 			callback(true);
 		});
 	}

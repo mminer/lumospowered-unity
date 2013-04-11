@@ -13,7 +13,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 	
 	void FetchPlayerAchievements(Action<IAchievement[]> callback) 
 	{						
-		var api = url + "/achievements/" + localUser.id + "?method=GET";
+		var api = url + "achievements/" + localUser.id + "?method=GET";
 		
 		LumosRequest.Send(api, delegate {
 			var response = LumosRequest.lastResponse as ArrayList;
@@ -30,26 +30,27 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 	
 	void FetchGameAchievements(Action<IAchievementDescription[]> callback) 
 	{			
-		var api = url + "/achievements?method=GET";
+		var api = url + "achievements?method=GET";
 		
 		LumosRequest.Send(api, delegate {
-			var response = LumosRequest.lastResponse as ArrayList;
+			var response = LumosRequest.lastResponse as IList;
 			achievementDescriptions = new List<IAchievementDescription>();
 			
-			foreach (Hashtable info in response) {
+			foreach (Dictionary<string, object> info in response) {
 				Lumos.RunRoutine(AddAchievement(info, response.Count, callback));
 			}
 		});
 	}
 	
-	IEnumerator AddAchievement (Hashtable info, int limit, Action<IAchievementDescription[]> callback) 
+	IEnumerator AddAchievement (Dictionary<string, object> info, int limit, Action<IAchievementDescription[]> callback) 
 	{
-		var id = info["id"] as string;
-		var title = info["title"] as string;
-		var imageLocation = info["image"] as string;
+		var id = info["achievement_id"] as string;
+		var title = info["name"] as string;
+		var imageLocation = (info.ContainsKey("icon") ? info["icon"] as string : "");
 		var achievedDescription = info["achieved_description"] as string;
 		var unachievedDescription = info["unachieved_description"] as string;
-		var hidden = (bool)info["hidden"];
+		var tempHidden = Convert.ToInt32(info["hidden"]);
+		var hidden = Convert.ToBoolean(tempHidden);
 		var points = 0;
 		int.TryParse(info["points"] as string, out points);
 		
@@ -71,6 +72,10 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 			} catch (Exception e) {
 				Debug.Log("Failure: " + e.Message);
 			}	
+		} else {
+			if (LumosSocialGUI.GetDefaultAchievement() != null) {
+				image = LumosSocialGUI.GetDefaultAchievement();
+			}
 		}
 		
 		var achievementDescription = new AchievementDescription(id, title, image, achievedDescription, unachievedDescription, hidden, points);
@@ -84,7 +89,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 	
 	void UpdateAchievementProgress(string achievementId, int progress, Action<bool> callback)
 	{						
-		var api = url + "/achievements/" + localUser.id + "/" + achievementId + "?method=PUT";
+		var api = url + "achievements/" + localUser.id + "/" + achievementId + "?method=PUT";
 		
 		var parameters = new Dictionary<string, object>() {
 			{ "percent_completed", progress }
