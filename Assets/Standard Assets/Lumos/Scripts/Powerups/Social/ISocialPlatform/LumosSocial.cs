@@ -55,7 +55,7 @@ public class LumosSocial
 	public static void LoadAchievements()
 	{
 		Social.LoadAchievementDescriptions(ProcessLoadedAchievements);
-		//Social.LoadAchievements(ProcessLoadedPlayerAchievements);
+		Social.LoadAchievements(ProcessLoadedPlayerAchievements);
 	}
 
     // This function gets called when Authenticate completes
@@ -152,5 +152,20 @@ public class LumosSocial
 	
 	static void SubmittedScore(bool success) {
 		Debug.Log("score submitted: " + success);		
+	}
+	
+	public static bool HasAchievement(string achievementID)
+	{
+		foreach (var achievement in achievements) {
+			if (achievement.id == achievementID) {
+				if (achievement.percentCompleted == 100) {
+					return true;	
+				}
+				
+				return false;
+			}
+		}
+		
+		return false;
 	}
 }

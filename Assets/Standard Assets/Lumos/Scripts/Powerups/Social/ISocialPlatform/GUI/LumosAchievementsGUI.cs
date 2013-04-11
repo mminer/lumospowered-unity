@@ -37,12 +37,18 @@ public partial class LumosSocialGUI : MonoBehaviour {
 				isLast = true;
 			}
 			
+			if (!LumosSocial.HasAchievement(achievement.id)) {
+				GUI.enabled = false;
+			}
+			
 			GUILayout.Label(defaultAchievementIcon);
 			
 			GUILayout.BeginVertical();
 				GUILayout.Label(achievement.title, GUILayout.Width(submitButtonWidth * 2));
 				GUILayout.Label(achievement.unachievedDescription, GUILayout.Width(submitButtonWidth * 2), GUILayout.Height(largeMargin));
 			GUILayout.EndVertical();
+			
+			GUI.enabled = true;
 			
 			GUILayout.FlexibleSpace();
 			

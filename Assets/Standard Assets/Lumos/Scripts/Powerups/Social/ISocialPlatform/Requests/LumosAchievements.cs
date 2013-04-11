@@ -16,11 +16,11 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		var api = url + "achievements/" + localUser.id + "?method=GET";
 		
 		LumosRequest.Send(api, delegate {
-			var response = LumosRequest.lastResponse as ArrayList;
+			var response = LumosRequest.lastResponse as IList;
 			achievements = new List<LumosAchievement>();
 			
-			foreach (Hashtable info in response) {
-				var achievement = HashtableToAchievement(info);
+			foreach (Dictionary<string, object> info in response) {
+				var achievement = DictionaryToAchievement(info);
 				achievements.Add(achievement);
 			}
 			
@@ -96,9 +96,8 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		};
 		
 		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Hashtable;
-			var info = response["achievement"] as Hashtable;
-			var achievement = HashtableToAchievement(info);
+			var response = LumosRequest.lastResponse as Dictionary<string, object>;
+			var achievement = DictionaryToAchievement(response);
 			UpdateAchievement(achievement);
 			callback(true);
 		});
@@ -125,12 +124,20 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		}
 	}
 
-	LumosAchievement HashtableToAchievement(Hashtable info) {
-		var id = info["id"] as string;
-		var percentCompleted = (double)info["percent_completed"];
-		var completed = (bool)info["completed"];
-		var hidden = (bool)info["hidden"];
-		var lastReportedDate = DateTime.Parse(info["last_reported_date"] as string);
+	LumosAchievement DictionaryToAchievement(Dictionary<string, object> info) {
+		var id = info["achievement_id"] as string;
+		var percentCompleted = Convert.ToDouble(info["percent_completed"]);
+		var completed = percentCompleted == 100 ? true : false;
+		var hidden = false;
+		
+		if (info.ContainsKey("hidden")) {
+			var intHidden = Convert.ToInt32(info["hidden"]);
+			hidden = Convert.ToBoolean(intHidden);
+		}
+		
+		
+		var timestamp = Convert.ToDouble(info["updated"]);
+		var lastReportedDate = LumosUtil.UnixTimestampToDateTime(timestamp);
 		var achievement = new LumosAchievement(id, percentCompleted, completed, hidden, lastReportedDate);
 		return achievement;
 	}

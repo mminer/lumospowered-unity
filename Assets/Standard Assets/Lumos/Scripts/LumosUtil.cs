@@ -11,6 +11,13 @@ using UnityEngine;
 /// </summary>
 public static class LumosUtil
 {
+	
+	public static DateTime UnixTimestampToDateTime(double timestamp)
+	{
+		var dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+		return dateTime.AddSeconds(timestamp);
+	}
+	
 #if !UNITY_FLASH
 
 	/// <summary>

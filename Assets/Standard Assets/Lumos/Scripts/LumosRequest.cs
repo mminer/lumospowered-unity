@@ -107,7 +107,7 @@ public class LumosRequest
 		Debug.Log(www.text);
 
 		// Parse the response
-		try {
+		//try {
 			if (www.error != null) {
 				throw new Exception(www.error);
 			}
@@ -118,14 +118,14 @@ public class LumosRequest
 			if (successCallback != null) {
 				successCallback();
 			}
-		} catch (Exception e) {
-			Lumos.LogError("Failure: " + e.Message);
-			Debug.Log("Failure: " + e.Message);
+	//	} catch (Exception e) {
+//			Lumos.LogError("Failure: " + e.Message);
+//			Debug.Log("Failure: " + e.Message);
 			
 			if (errorCallback != null) {
 				errorCallback();
 			}
-		}
+	//	}
 	}
 
 #else
