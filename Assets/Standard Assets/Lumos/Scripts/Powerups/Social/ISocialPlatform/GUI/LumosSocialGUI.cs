@@ -3,7 +3,7 @@ using System.Collections;
 
 public partial class LumosSocialGUI : MonoBehaviour {
 
-	enum Screens { None, Login, Registration, Achievements, Leaderboards, User };
+	enum Screens { None, Login, Registration, Achievements, Leaderboards, Scores, User };
 	Screens screen;
 	
 	float labelWidth;
@@ -74,7 +74,10 @@ public partial class LumosSocialGUI : MonoBehaviour {
 				AchievementsScreen();
 				break;
 			case Screens.Leaderboards:
-				// LeaderboardsScreen();
+				LeaderboardsScreen();
+				break;
+			case Screens.Scores:
+				ScoresScreen();
 				break;
 			case Screens.User:
 				// UserScreen();

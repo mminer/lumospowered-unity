@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class LumosSocial
 {
 	
-	public static List<LumosLeaderboard> leaderboards = new List<LumosLeaderboard>();
+	public static List<LumosLeaderboard> leaderboards;
 	public static List<LumosAchievement> achievements = new List<LumosAchievement>(); 
 	public static IAchievementDescription[] achievementDescriptions; 
 	private static List<LumosAchievement> processingAchievements = new List<LumosAchievement>();
@@ -56,6 +56,26 @@ public class LumosSocial
 	{
 		Social.LoadAchievementDescriptions(ProcessLoadedAchievements);
 		Social.LoadAchievements(ProcessLoadedPlayerAchievements);
+	}
+	
+	public static void LoadLeaderboards()
+	{
+		(Social.Active as LumosSocialPlatform).LoadLeaderboardDescriptions(ProcessLeaderboardDescriptions);
+	}
+	
+	public static void LoadLeaderboardScores(LumosLeaderboard leaderboard)
+	{
+		Social.LoadScores(leaderboard.id, ProcessScores);
+	}
+	
+	static void ProcessLeaderboardDescriptions(bool success)
+	{
+		// do nothing
+	}
+			
+	static void ProcessScores(IScore[] scores)
+	{
+		// do nothing
 	}
 
     // This function gets called when Authenticate completes
@@ -137,16 +157,11 @@ public class LumosSocial
 		return null;
 	}
 
-	public static void LoadedScores(IScore[] scores) {
+	static void LoadedScores(IScore[] scores) {
 		
 	}
 	
-	public static void SubmitScore(int score, string leaderboardID) {
-		// Only count new high scores
-		if (!Social.localUser.authenticated) {
-			return;
-		}
-		
+	public static void SubmitScore(int score, string leaderboardID) {		
 		Social.ReportScore(score, leaderboardID, SubmittedScore);
 	}
 	
@@ -167,5 +182,16 @@ public class LumosSocial
 		}
 		
 		return false;
+	}
+	
+	public static LumosLeaderboard GetLeaderboard(string id)
+	{
+		foreach (var leaderboard in leaderboards) {
+			if (leaderboard.id == id) {
+				return leaderboard;
+			}
+		}
+		
+		return null;
 	}
 }

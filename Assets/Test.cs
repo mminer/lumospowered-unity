@@ -16,12 +16,15 @@ public class Test : MonoBehaviour {
 			if (GUILayout.Button("Show achievements")) {
 				Social.ShowAchievementsUI();
 			}
-			
-			if (LumosSocial.achievements.Count < 1) {
-				if (GUILayout.Button("Award Achievement")) {
-					//Social.ReportProgress("unity-client-test", 100
-					LumosSocial.AwardAchievement("unity-client-test", 100);
-				}
+		}
+		
+		if (LumosSocial.leaderboards == null) {
+			if (GUILayout.Button("Get leaderboards")) {
+				LumosSocial.LoadLeaderboards();
+			}
+		} else {
+			if (GUILayout.Button("Show leaderboards")) {
+				Social.ShowLeaderboardUI();
 			}
 		}
 	}

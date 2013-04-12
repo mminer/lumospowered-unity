@@ -25,7 +25,6 @@ public partial class LumosSocialPlatform : ISocialPlatform
 		Social.Active = this;
 	}
 
-
 	#region Users
 
 	public void Authenticate(ILocalUser user, Action<bool> callback) 
@@ -89,12 +88,20 @@ public partial class LumosSocialPlatform : ISocialPlatform
 
 	public void LoadScores(string leaderboardID, Action<IScore[]> callback)
 	{
-		FetchLeaderboardScores(leaderboardID, 100, 0, callback);
+		var leaderboard = LumosSocial.GetLeaderboard(leaderboardID);
+		leaderboard.LoadScores(delegate {
+			callback(leaderboard.scores);
+		});
+	}
+	
+	public void LoadLeaderboardDescriptions(Action<bool> callback)
+	{
+		FetchLeaderboardDescriptions(callback);
 	}
 
 	public void ShowLeaderboardUI() 
 	{
-		// Do nothing
+		LumosSocialGUI.ShowLeaderboardsUI();
 	}
 
 	public ILeaderboard CreateLeaderboard()

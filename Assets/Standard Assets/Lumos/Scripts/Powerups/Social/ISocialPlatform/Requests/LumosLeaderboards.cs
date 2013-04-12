@@ -10,52 +10,53 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 
 	void RecordHighScore(int score, string leaderboardId, Action<bool> callback) 
 	{
-		var api = url + "/leaderboards/" + leaderboardId + "/" + localUser.id;
+		var api = url + "leaderboards/" + leaderboardId + "/" + localUser.id;
 		
 		var parameters = new Dictionary<string, object>() {
-			{ "score", LumosCore.playerId }
+			{ "score", score }
 		};
 		
 		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Hashtable;
-			var message = (bool)response["message"];
-			callback(message);
+			callback(true);
 		});
 	}
 	
-	void FetchLeaderboardScores(string leaderboardId, int limit, int offset, Action<IScore[]> callback)
+	void FetchLeaderboardDescriptions(Action<bool> callback)
 	{
-		var api = url + "/leaderboards/" + leaderboardId;
+		var api = url + "leaderboards/info?method=GET";
 		
-		var parameters = new Dictionary<string, object>() {
-			{ "limit", limit },
-			{ "offset", offset }
-		};
-		
-		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Hashtable;
-			var info = response["leaderboard"] as Hashtable;
-			var scores = ParseScores(info);
-			callback(scores);
+		LumosRequest.Send(api, delegate {
+			var response = LumosRequest.lastResponse as IList;
+			var leaderboards = new List<LumosLeaderboard>();
+			
+			foreach(Dictionary<string, object> info in response) {
+				var leaderboard = ParseLeaderboardInfo(info);
+				leaderboards.Add(leaderboard);
+			}
+			
+			LumosSocial.leaderboards = leaderboards;
+			callback(true);
 		});
 	}
-
-	IScore[] ParseScores(Hashtable info) 
+	
+	LumosLeaderboard ParseLeaderboardInfo(Dictionary<string, object> info)
 	{
-		var scores = new List<IScore>();
-
-		foreach (Hashtable score in info["scores"] as Hashtable) {
-			var value = (int)score["score"];
-			var date = DateTime.Parse(info["created"] as string);
-			var leaderboardID = info["leaderboard_id"] as string;
-			var formattedValue = ""; // Lumos doesn't support this
-			var userID = info["username"] as string;
-			var rank = (int)info["rank"];
-
-			var s = new Score(leaderboardID, value, userID, date, formattedValue, rank);
-			scores.Add(s);
-		}
-
-		return scores.ToArray();
+		var leaderboard = new LumosLeaderboard();
+		leaderboard.id = info["leaderboard_id"] as string;
+		leaderboard.title = info["name"] as string;
+		return leaderboard;
 	}
+	
+	/*
+	 * public string id { get; set; }
+	public UserScope userScope { get; set; }
+	public Range range { get; set; }
+	public TimeScope timeScope { get; set; }
+	public bool loading { get; private set; }
+	public IScore localUserScore { get; private set; }
+	public uint maxRange { get; private set; }
+	public IScore[] scores { get; private set; }
+	public string title { get; private set; }
+
+	*/
 }

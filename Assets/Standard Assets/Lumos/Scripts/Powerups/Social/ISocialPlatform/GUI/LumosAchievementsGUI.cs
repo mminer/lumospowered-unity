@@ -46,9 +46,14 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			GUILayout.BeginVertical();
 				GUILayout.Label(achievement.title, GUILayout.Width(submitButtonWidth * 2));
 				GUILayout.Label(achievement.unachievedDescription, GUILayout.Width(submitButtonWidth * 2), GUILayout.Height(largeMargin));
-			GUILayout.EndVertical();
 			
-			GUI.enabled = true;
+				GUI.enabled = true;
+			
+				if (!LumosSocial.HasAchievement(achievement.id) && GUILayout.Button("Award")) {
+					LumosSocial.AwardAchievement(achievement.id, 100);
+				}
+			
+			GUILayout.EndVertical();
 			
 			GUILayout.FlexibleSpace();
 			
