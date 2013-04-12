@@ -77,6 +77,11 @@ public class LumosSocial
 	{
 		// do nothing
 	}
+	
+	public static void ShowProfileUI()
+	{
+		LumosSocialGUI.ShowProfileUI();
+	}
 
     // This function gets called when Authenticate completes
     // Note that if the operation is successful, Social.localUser will contain data from the server. 

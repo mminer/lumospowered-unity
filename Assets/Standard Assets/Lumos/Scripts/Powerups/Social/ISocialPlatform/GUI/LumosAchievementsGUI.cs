@@ -5,12 +5,12 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	
 	public Texture2D defaultAchievementIcon;
 	
-	int achievementCols = 2;
+	bool gettingAchievements;
 	Vector2 achievementScrollPos = new Vector2(0, 0);
 	
 	
 	void AchievementsScreen()
-	{
+	{		
 		GUILayout.Space(smallMargin);
 		
 		// Title
@@ -21,6 +21,20 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		GUILayout.EndHorizontal();
 		
 		GUILayout.Space(smallMargin);
+		
+		// Load achievements if necessary
+		if (LumosSocial.achievementDescriptions == null) {
+			GUILayout.Label("Loading...");
+			
+			if (!gettingAchievements) {
+				LumosSocial.LoadAchievements();
+				gettingAchievements = true;
+			}
+			
+			return;
+		} else {
+			gettingAchievements = false;
+		}
 		
 		// Achievements
 		achievementScrollPos = GUILayout.BeginScrollView(achievementScrollPos);

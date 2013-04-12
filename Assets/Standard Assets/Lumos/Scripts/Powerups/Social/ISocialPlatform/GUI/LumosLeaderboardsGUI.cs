@@ -12,6 +12,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	Vector2 allScoresScrollPos = new Vector2(0, 0);
 	LumosLeaderboard currentLeaderboard;
 	string newScore = "";
+	bool gettingLeaderboards;
 	
 	
 	void LeaderboardsScreen()
@@ -24,6 +25,17 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			GUILayout.Label("Leaderboards");
 			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
+		
+		if (LumosSocial.leaderboards == null) {
+			GUILayout.Label("Loading...");
+			
+			if (!gettingLeaderboards) {
+				LumosSocial.LoadLeaderboards();
+				gettingLeaderboards = true;
+			}
+		} else {
+			gettingLeaderboards = false;
+		}
 		
 		GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();

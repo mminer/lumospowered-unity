@@ -3,7 +3,7 @@ using System.Collections;
 
 public partial class LumosSocialGUI : MonoBehaviour {
 
-	enum Screens { None, Login, Registration, Achievements, Leaderboards, Scores, User };
+	enum Screens { None, Login, Registration, Achievements, Leaderboards, Scores, Profile, Settings };
 	Screens screen;
 	
 	float labelWidth;
@@ -14,6 +14,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	float margin;
 	float smallMargin;
 	float largeMargin;
+	Resolution currentRes = new Resolution();
 	
 	/// <summary>
 	/// An instance of this class.
@@ -37,21 +38,15 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		instance = this;
 		
 		screen = Screens.Login;
-		
-		float loginWidth = Screen.width - (Screen.width * 0.33f);
-		float loginHeight = Screen.height - (Screen.height * 0.4f);
-		float loginX = (Screen.width - loginWidth) / 2;
-		float loginY = (Screen.height - loginHeight) / 2;
-		socialWindowRect = new Rect(loginX, loginY, loginWidth, loginHeight);
-		
-		margin = socialWindowRect.height * 0.1f;
-		smallMargin = margin / 2;
-		largeMargin = margin * 1.5f;
-		labelWidth = Screen.width * 0.1f;
-		textBoxWidth = Screen.width * 0.40f;
-		textBoxHeight = textBoxWidth / 8;
-		submitButtonWidth = textBoxWidth / 4;
-		submitButtonHeight = textBoxHeight * 0.8f;
+		DetermineGUISizes();
+	}
+	
+	void Update()
+	{
+		if (currentRes.width != Screen.width ||
+			currentRes.height != Screen.height) {
+			DetermineGUISizes();	
+		}
 	}
 	
 	void OnGUI()
@@ -79,12 +74,36 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			case Screens.Scores:
 				ScoresScreen();
 				break;
-			case Screens.User:
-				// UserScreen();
+			case Screens.Profile:
+				ProfileScreen();
+				break;
+			case Screens.Settings:
+				//SettingsScreen();
 				break;
 			default:
 				// None;
 				break;
 		}
+	}
+	
+	void DetermineGUISizes()
+	{
+		currentRes.width = Screen.width;
+		currentRes.height = Screen.height;
+		
+		float loginWidth = Screen.width - (Screen.width * 0.33f);
+		float loginHeight = Screen.height - (Screen.height * 0.4f);
+		float loginX = (Screen.width - loginWidth) / 2;
+		float loginY = (Screen.height - loginHeight) / 2;
+		socialWindowRect = new Rect(loginX, loginY, loginWidth, loginHeight);
+		
+		margin = socialWindowRect.height * 0.1f;
+		smallMargin = margin / 2;
+		largeMargin = margin * 1.5f;
+		labelWidth = Screen.width * 0.1f;
+		textBoxWidth = Screen.width * 0.40f;
+		textBoxHeight = textBoxWidth / 8;
+		submitButtonWidth = textBoxWidth / 4;
+		submitButtonHeight = textBoxHeight * 0.8f;
 	}
 }

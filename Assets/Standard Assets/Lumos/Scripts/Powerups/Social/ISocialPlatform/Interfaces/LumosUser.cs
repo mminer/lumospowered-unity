@@ -128,6 +128,10 @@ public class LumosUser : ILocalUser {
 			userName = info["name"].ToString();
 		}
 		
+		if (info.ContainsKey("email")) {
+			email = info["email"].ToString();
+		}
+		
 		if (info.ContainsKey("image")) {
 			var imageURL = info["image"].ToString();
 			// load in image?
