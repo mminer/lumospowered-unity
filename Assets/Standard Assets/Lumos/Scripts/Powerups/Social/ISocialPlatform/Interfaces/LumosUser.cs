@@ -165,6 +165,21 @@ public class LumosUser : ILocalUser {
 		});
 	}
 	
+	public void RemoveFriend(string friendID, Action<bool> callback)
+	{
+		var api = url + "/" + userID + "/friends?method=DELETE";
+		
+		var parameters = new Dictionary<string, object>() {
+			{ "friend", friendID }
+		};
+		
+		LumosRequest.Send(api, parameters, delegate {
+			var response = LumosRequest.lastResponse as IList;
+			friends = ParseFriends(response);	
+			callback(true);
+		});
+	}
+	
 	void FetchFriends(Action<bool> callback)
 	{
 		var api = url + "/" + userID + "/friends?method=GET";

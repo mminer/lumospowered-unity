@@ -104,7 +104,15 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		
 				if (LumosSocial.localUser.friends != null) {
 					foreach (var friend in LumosSocial.localUser.friends) {
-						GUILayout.Label(friend.id);
+						GUILayout.BeginHorizontal();
+							GUILayout.Label(friend.id);
+				
+							if (GUILayout.Button("Remove")) {
+								LumosSocial.localUser.RemoveFriend(friend.id, delegate {
+								// do something
+								});
+							}
+						GUILayout.EndHorizontal();
 					}
 				}
 		
