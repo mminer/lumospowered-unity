@@ -20,9 +20,8 @@ public class LumosUser : ILocalUser {
 	public UserState state { get; set; }
 	public Texture2D image { get; set; }
 	public IUserProfile[] friends { get; private set; }
+	public IUserProfile[] friendRequests { get; private set; }
 	public string email;
-	// password?
-	// email
 	
 	string url = "localhost:8888/api/1/games/" + Lumos.gameId + "/users";
 
@@ -93,10 +92,8 @@ public class LumosUser : ILocalUser {
 			{ "password", pass },
 			{ "email", email }
 		};
-		
+
 		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse;
-			var info = response as Hashtable;
 			this.email = email;
 			this.userID = username;
 			this.authenticated = true;
@@ -104,14 +101,77 @@ public class LumosUser : ILocalUser {
 		});
 	}
 	
-	void FetchFriends(Action<bool> callback)
+	public void LoadFriendRequests(Action<bool> callback)
+	{
+		var api = url + "/" + userID + "/friend-requests?method=GET";
+		
+		LumosRequest.Send(api, delegate {
+			var response = LumosRequest.lastResponse as IList;
+			
+			if (response != null) {
+				friendRequests = ParseFriends(response);	
+			}
+			
+			callback(true);
+		});
+	}
+	
+	public void SendFriendRequest(string friendID, Action<bool> callback)
+	{
+		var api = url + "/" + userID + "/friend-requests";
+		
+		var parameters = new Dictionary<string, object>() {
+			{ "friend", friendID }
+		};
+		
+		LumosRequest.Send(api, parameters, delegate {
+			callback(true);
+		});
+	}
+	
+	public void AcceptFriendRequest(string friendID, Action<bool> callback)
 	{
 		var api = url + "/" + userID + "/friends";
 		
+		var parameters = new Dictionary<string, object>() {
+			{ "friend", friendID }
+		};
+		
+		LumosRequest.Send(api, parameters, delegate {
+			var response = LumosRequest.lastResponse as Dictionary<string, object>;
+			friends = ParseFriends(response["friends"] as IList);
+			friendRequests = ParseFriends(response["friend_requests"] as IList);
+			callback(true);
+		});
+	}
+	
+	public void DeclineFriendRequest(string friendID, Action<bool> callback)
+	{
+		var api = url + "/" + userID + "/friend-requests";
+		
+		var parameters = new Dictionary<string, object>() {
+			{ "friend", friendID },
+			{ "decline", true }
+		};
+		
+		LumosRequest.Send(api, parameters, delegate {
+			var response = LumosRequest.lastResponse as Dictionary<string, object>;
+			
+			if (response.ContainsKey("friend_requests")) {
+				friendRequests = ParseFriends(response["friend_requests"] as IList);				
+			}
+
+			callback(true);
+		});
+	}
+	
+	void FetchFriends(Action<bool> callback)
+	{
+		var api = url + "/" + userID + "/friends?method=GET";
+		
 		LumosRequest.Send(api, delegate {
-			var response = LumosRequest.lastResponse;
-			var info = response as ArrayList;
-			ParseFriends(info);
+			var response = LumosRequest.lastResponse as IList;
+			friends = ParseFriends(response);
 			callback(true);
 		});
 	}
@@ -138,11 +198,15 @@ public class LumosUser : ILocalUser {
 		}
 	}
 	
-	void ParseFriends(ArrayList friends)
+	IUserProfile[] ParseFriends(IList friends)
 	{
 		var friendList = new List<IUserProfile>();
 		
-		foreach (Hashtable friend in friends) {
+		if (friends == null) {
+			return new IUserProfile[] {};
+		}
+		
+		foreach (Dictionary<string, object> friend in friends) {
 			var id = friend["username"].ToString();
 			string name = null;
 			
@@ -154,6 +218,6 @@ public class LumosUser : ILocalUser {
 			friendList.Add(user);
 		}
 		
-		this.friends = friendList.ToArray();
+		return friendList.ToArray();
 	}
 }

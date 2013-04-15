@@ -11,6 +11,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	Vector2 proOtherScrollPos;
 	Vector2 proFriendsScrollPos;
 	Vector2 proScoresScrollPos;
+	string friendToAdd = "";
 	
 	
 	void ProfileScreen()
@@ -65,8 +66,48 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			
 			// Friend List
 			GUILayout.BeginVertical();
+				GUILayout.Label("Friends");
+		
 				proFriendsScrollPos = GUILayout.BeginScrollView(proFriendsScrollPos);
 				
+				GUILayout.BeginHorizontal();
+					friendToAdd = GUILayout.TextField(friendToAdd, GUILayout.Width(margin));
+					
+					if (GUILayout.Button("Send Request", GUILayout.Width(largeMargin))) {
+						if (friendToAdd.Length > 0) {
+							LumosSocial.localUser.SendFriendRequest(friendToAdd, delegate {
+								// do something
+							});
+						}
+					}
+				GUILayout.EndHorizontal();
+		
+				if (LumosSocial.localUser.friendRequests != null) {
+					foreach (var request in LumosSocial.localUser.friendRequests) {
+						GUILayout.BeginHorizontal();
+							GUILayout.Label(request.id);
+							
+							if (GUILayout.Button("Accept")) {
+								LumosSocial.localUser.AcceptFriendRequest(request.id, delegate {
+									// do something
+								});
+							}
+				
+							if (GUILayout.Button("Decline")) {
+								LumosSocial.localUser.DeclineFriendRequest(request.id, delegate {
+									// do something
+								});
+							}
+						GUILayout.EndHorizontal();
+					}
+				}
+		
+				if (LumosSocial.localUser.friends != null) {
+					foreach (var friend in LumosSocial.localUser.friends) {
+						GUILayout.Label(friend.id);
+					}
+				}
+		
 				GUILayout.EndScrollView();
 			GUILayout.EndVertical();
 		
@@ -86,6 +127,14 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	public static void ShowProfileUI()
 	{
 		instance.screen = Screens.Profile;
+
+		LumosSocial.localUser.LoadFriends(delegate {
+			// do something
+		});
+		
+		LumosSocial.localUser.LoadFriendRequests(delegate {
+		 // do something	
+		});
 	}
 	
 }
