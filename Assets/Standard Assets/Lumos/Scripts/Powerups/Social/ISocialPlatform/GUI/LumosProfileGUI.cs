@@ -123,8 +123,20 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		
 			// Scores
 			GUILayout.BeginVertical();
+				GUILayout.Label("High Scores");
+		
 				proScoresScrollPos = GUILayout.BeginScrollView(proScoresScrollPos);
 				
+				if (LumosSocial.localUser.scores != null) {
+					foreach (var score in LumosSocial.localUser.scores) {
+						GUILayout.Label(score.leaderboardID);
+						GUILayout.BeginHorizontal();
+							GUILayout.Label(score.value.ToString());
+						GUILayout.EndHorizontal();
+						GUILayout.Space(smallMargin);
+					}
+				}
+		
 				GUILayout.EndScrollView();
 			GUILayout.EndVertical();
 		
@@ -141,6 +153,10 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		});
 		
 		LumosSocial.localUser.LoadFriendRequests(delegate {
+		 // do something	
+		});
+		
+		LumosSocial.localUser.LoadFriendLeaderboardScores(delegate {
 		 // do something	
 		});
 	}

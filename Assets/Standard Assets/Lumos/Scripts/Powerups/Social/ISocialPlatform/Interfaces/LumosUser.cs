@@ -21,6 +21,7 @@ public class LumosUser : ILocalUser {
 	public Texture2D image { get; set; }
 	public IUserProfile[] friends { get; private set; }
 	public IUserProfile[] friendRequests { get; private set; }
+	public Score[] scores { get; private set; }
 	public string email;
 	
 	string url = "localhost:8888/api/1/games/" + Lumos.gameId + "/users";
@@ -180,6 +181,29 @@ public class LumosUser : ILocalUser {
 		});
 	}
 	
+	public void LoadFriendLeaderboardScores(Action<bool> callback)
+	{
+		var api = "localhost:8888/api/1/games/" + Lumos.gameId + "/leaderboards/" + userID + "/friends?method=GET";
+		
+		LumosRequest.Send(api, delegate {
+			var response = LumosRequest.lastResponse as IList;
+			var scores = new List<Score>();
+			
+			foreach (Dictionary<string, object> leaderboard in response) {
+				var rawScores = leaderboard["scores"] as IList;
+				var leaderboardID = leaderboard["leaderboard_id"] as string;
+				var score = ParseUserScore(rawScores, leaderboardID);
+				
+				if (score != null) {
+					scores.Add(score);	
+				}
+			}
+			
+			this.scores = scores.ToArray();
+			callback(true);
+		});
+	}
+	
 	void FetchFriends(Action<bool> callback)
 	{
 		var api = url + "/" + userID + "/friends?method=GET";
@@ -234,5 +258,24 @@ public class LumosUser : ILocalUser {
 		}
 		
 		return friendList.ToArray();
+	}
+	
+	Score ParseUserScore(IList scores, string leaderboardID)
+	{
+		foreach (Dictionary<string, object> score in scores) {
+			var username = score["username"] as  string;
+			
+			if (username == userID) {
+				var value = Convert.ToInt32(score["score"]);
+				var rank = Convert.ToInt32(score["rank"]);
+				var timestamp = Convert.ToDouble(score["created"]);
+				var date = LumosUtil.UnixTimestampToDateTime(timestamp);
+				var formattedValue = ""; // Lumos doesn't support this
+				var userScore = new Score(leaderboardID, value, username, date, formattedValue, rank);
+				return userScore;
+			}
+		}
+		
+		return null;
 	}
 }
