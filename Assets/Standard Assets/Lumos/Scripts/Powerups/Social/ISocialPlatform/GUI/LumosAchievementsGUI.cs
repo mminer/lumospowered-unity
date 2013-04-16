@@ -63,7 +63,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			
 				GUI.enabled = true;
 			
-				if (!LumosSocial.HasAchievement(achievement.id) && GUILayout.Button("Award")) {
+				if (!LumosSocial.HasAchievement(achievement.id) && GUILayout.Button("Award", GUILayout.Width(submitButtonWidth))) {
 					LumosSocial.AwardAchievement(achievement.id, 100);
 				}
 			

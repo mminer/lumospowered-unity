@@ -9,6 +9,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	float labelWidth;
 	float textBoxWidth;
 	float textBoxHeight;
+	float bigSubmitButtonWidth;
 	float submitButtonWidth;
 	float submitButtonHeight;
 	float margin;
@@ -58,6 +59,16 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	
 	void SocialWindow(int windowID)
 	{
+		if (LumosSocial.localUser != null && LumosSocial.localUser.authenticated) {
+			GUILayout.BeginHorizontal();
+				if (GUILayout.Button("My Profile", GUILayout.Width(submitButtonWidth))) {
+					LumosSocialGUI.ShowProfileUI();
+				}
+			GUILayout.EndHorizontal();	
+			
+			GUILayout.Space(smallMargin);
+		}
+		
 		switch(screen) {
 			case Screens.Login:
 				LoginScreen();
@@ -78,7 +89,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 				ProfileScreen();
 				break;
 			case Screens.Settings:
-				//SettingsScreen();
+				SettingsScreen();
 				break;
 			default:
 				// None;
@@ -104,6 +115,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		textBoxWidth = Screen.width * 0.40f;
 		textBoxHeight = textBoxWidth / 8;
 		submitButtonWidth = textBoxWidth / 4;
+		bigSubmitButtonWidth = submitButtonWidth * 1.5f;
 		submitButtonHeight = textBoxHeight * 0.8f;
 	}
 }

@@ -38,16 +38,16 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			GUILayout.EndVertical();
 		
 			GUILayout.BeginVertical();
-				if (GUILayout.Button("Achievements")) {
-					screen = Screens.Achievements;
+				if (GUILayout.Button("Achievements", GUILayout.Width(submitButtonWidth))) {
+					LumosSocialGUI.ShowAchievements();
 				}
 		
-				if (GUILayout.Button("Leaderboards")) {
-					screen = Screens.Leaderboards;
+				if (GUILayout.Button("Leaderboards", GUILayout.Width(submitButtonWidth))) {
+					LumosSocialGUI.ShowLeaderboardsUI();
 				}
 		
-				if (GUILayout.Button("Settings")) {
-					screen = Screens.Settings;
+				if (GUILayout.Button("Settings", GUILayout.Width(submitButtonWidth))) {
+					LumosSocialGUI.ShowSettingsUI();
 				}
 			GUILayout.EndVertical();
 		GUILayout.EndHorizontal();
@@ -73,7 +73,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 				GUILayout.BeginHorizontal();
 					friendToAdd = GUILayout.TextField(friendToAdd, GUILayout.Width(margin));
 					
-					if (GUILayout.Button("Send Request", GUILayout.Width(largeMargin))) {
+					if (GUILayout.Button("Send Request", GUILayout.Width(bigSubmitButtonWidth))) {
 						if (friendToAdd.Length > 0) {
 							LumosSocial.localUser.SendFriendRequest(friendToAdd, delegate {
 								// do something
@@ -87,13 +87,13 @@ public partial class LumosSocialGUI : MonoBehaviour {
 						GUILayout.BeginHorizontal();
 							GUILayout.Label(request.id);
 							
-							if (GUILayout.Button("Accept")) {
+							if (GUILayout.Button("Accept", GUILayout.Width(submitButtonWidth))) {
 								LumosSocial.localUser.AcceptFriendRequest(request.id, delegate {
 									// do something
 								});
 							}
 				
-							if (GUILayout.Button("Decline")) {
+							if (GUILayout.Button("Decline", GUILayout.Width(submitButtonWidth))) {
 								LumosSocial.localUser.DeclineFriendRequest(request.id, delegate {
 									// do something
 								});
@@ -105,9 +105,9 @@ public partial class LumosSocialGUI : MonoBehaviour {
 				if (LumosSocial.localUser.friends != null) {
 					foreach (var friend in LumosSocial.localUser.friends) {
 						GUILayout.BeginHorizontal();
-							GUILayout.Label(friend.id);
+							GUILayout.Label(friend.id, GUILayout.Width(submitButtonWidth));
 				
-							if (GUILayout.Button("Remove")) {
+							if (GUILayout.Button("Remove", GUILayout.Width(submitButtonWidth))) {
 								LumosSocial.localUser.RemoveFriend(friend.id, delegate {
 								// do something
 								});

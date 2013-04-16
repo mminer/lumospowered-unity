@@ -78,20 +78,20 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			return;
 		}
 		
-		if (GUILayout.Button("Back")) {
+		if (GUILayout.Button("Leaderboards", GUILayout.Width(submitButtonWidth))) {
 			screen = Screens.Leaderboards;
-		}
-		
-		if (GUILayout.Button("Refresh Scores")) {
-			LumosSocial.LoadLeaderboardScores(currentLeaderboard);
 		}
 		
 		GUILayout.BeginHorizontal();
 			GUILayout.Label("New Score", GUILayout.Width(labelWidth));
-			newScore = GUILayout.TextField(newScore, GUILayout.Width(textBoxWidth / 2));
+			newScore = GUILayout.TextField(newScore, GUILayout.Width(submitButtonWidth));
 			
 			if (GUILayout.Button("Submit Score", GUILayout.Width(submitButtonWidth))) {
 				LumosSocial.SubmitScore(Convert.ToInt32(newScore), currentLeaderboard.id);
+			}
+		
+			if (GUILayout.Button("Refresh Scores", GUILayout.Width(submitButtonWidth))) {
+				LumosSocial.LoadLeaderboardScores(currentLeaderboard);
 			}
 		GUILayout.EndHorizontal();
 		
