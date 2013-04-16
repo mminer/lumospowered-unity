@@ -8,11 +8,12 @@ public partial class LumosSocialGUI : MonoBehaviour {
 	
 	public Texture2D defaultUserIcon;
 	
-	Vector2 friendScoresScrollPos = new Vector2(0, 0);
-	Vector2 allScoresScrollPos = new Vector2(0, 0);
+	Vector2 friendScoresScrollPos;
+	Vector2 allScoresScrollPos;
 	LumosLeaderboard currentLeaderboard;
 	string newScore = "";
 	bool gettingLeaderboards;
+	int offset;
 	
 	
 	void LeaderboardsScreen()
@@ -41,23 +42,24 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		GUILayout.FlexibleSpace();
 		GUILayout.BeginVertical();
 		
-		foreach (var leaderboard in LumosSocial.leaderboards) {
-			
-			if (leaderboard.loading) {
-				GUI.enabled = false;
-			}
-			
-			if (GUILayout.Button(leaderboard.title)) {
-				currentLeaderboard = leaderboard;
-				screen = Screens.Scores;
-				
-				if (currentLeaderboard.scores == null) {
-					LumosSocial.LoadLeaderboardScores(currentLeaderboard);
-					
+		if (LumosSocial.leaderboards != null) {
+			foreach (var leaderboard in LumosSocial.leaderboards) {
+				if (leaderboard.loading) {
+					GUI.enabled = false;
 				}
-			}
-			
-			GUI.enabled = true;
+				
+				if (GUILayout.Button(leaderboard.title)) {
+					currentLeaderboard = leaderboard;
+					screen = Screens.Scores;
+					
+					if (currentLeaderboard.scores == null) {
+						LumosSocial.LoadLeaderboardScores(currentLeaderboard);
+						
+					}
+				}
+				
+				GUI.enabled = true;
+			}	
 		}
 		
 		GUILayout.EndVertical();
@@ -104,30 +106,47 @@ public partial class LumosSocialGUI : MonoBehaviour {
 
 		GUILayout.Space(smallMargin);
 		
+		// Friend Scores
 		if (currentLeaderboard.friendScores != null) {
-			DisplayScores("Friends", currentLeaderboard.friendScores, friendScoresScrollPos);
+			DisplayScoreLabel("Friends");
+			friendScoresScrollPos = GUILayout.BeginScrollView(friendScoresScrollPos);
+			DisplayScoreData(currentLeaderboard.friendScores);
+			GUILayout.EndScrollView();
 		}
 	
-		DisplayScores("All Scores", currentLeaderboard.scores, allScoresScrollPos);
+		// All Scores
+		DisplayScoreLabel("All Scores");
+		allScoresScrollPos = GUILayout.BeginScrollView(allScoresScrollPos);
+		DisplayScoreData(currentLeaderboard.scores);
+		
+		if (GUILayout.Button("More...")) {
+			var length = currentLeaderboard.scores.Length -1;
+			var lastScore = currentLeaderboard.scores[length];
+			
+			currentLeaderboard.LoadScores(1, lastScore.rank, delegate {
+				//do something	
+			});
+		}
+		
+		GUILayout.EndScrollView();
 	}
 	
 	public static void ShowLeaderboardsUI()
-	{
+	{	
 		instance.screen = Screens.Leaderboards;
 	}
 	
-	void DisplayScores(string label, IScore[] scores, Vector2 scrollPosition)
+	void DisplayScoreLabel(string label)
 	{
-		// Label
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			GUILayout.Label(label);
 			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
-		
-		// Scores
-		scrollPosition = GUILayout.BeginScrollView(scrollPosition);
-
+	}
+	
+	void DisplayScoreData(IScore[] scores)
+	{
 		foreach (var score in scores) {
 			GUILayout.BeginHorizontal();
 				GUILayout.Label(score.rank.ToString());
@@ -139,7 +158,5 @@ public partial class LumosSocialGUI : MonoBehaviour {
 				GUILayout.EndVertical();
 			GUILayout.EndHorizontal();
 		}
-		
-		GUILayout.EndScrollView();
 	}
 }

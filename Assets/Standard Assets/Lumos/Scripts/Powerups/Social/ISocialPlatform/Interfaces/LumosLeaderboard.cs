@@ -29,16 +29,24 @@ public class LumosLeaderboard : ILeaderboard {
 
 	public void LoadScores(Action<bool> callback)
 	{
+		LoadScores(1, 0, callback);
+	}
+	
+	public void LoadScores(int limit, int offset, Action<bool> callback)
+	{	
+		if (friendScores == null && !loading) {
+			FetchFriendScores();	
+		}
+		
+		FetchScores(limit, offset, AddScores);
+		
 		loading = true;
 		this.callback = callback;
-		FetchScores(25, 0, AddScores);
-		FetchFriendScores();
 	}
 
 	void AddScores(IScore[] scores)
 	{
 		loading = false;
-		this.scores = scores;
 		this.callback(true);
 		this.callback = null;
 	}
@@ -62,8 +70,7 @@ public class LumosLeaderboard : ILeaderboard {
 				scores.Add(score);
 			}
 			
-			this.scores = scores.ToArray();
-			
+			IndexScores(scores);
 			callback(scores.ToArray());
 		});
 	}
@@ -97,5 +104,39 @@ public class LumosLeaderboard : ILeaderboard {
 
 		var score = new Score(id, value, userID, date, formattedValue, rank);
 		return score;
+	}
+	
+	void IndexScores(List<IScore> newScores)
+	{
+		if (newScores == null || newScores.Count < 1) {
+			Debug.LogWarning("There are no more scores to load.");
+			return;
+		}
+		
+		int lastRank;
+		var updatedScores = new List<IScore>();
+		
+		if (scores != null) {
+			lastRank = scores[scores.Length - 1].rank;
+			
+			foreach (var currentScore in scores) {
+				updatedScores.Add(currentScore);
+			}
+		} else {
+			lastRank = 0;
+		}
+		
+		int newFirstRank = newScores[0].rank;
+		
+		if (newFirstRank - lastRank != 1) {
+			Debug.LogWarning("Loaded scores ranks don't line up with exising scores.");
+			return;
+		}
+		
+		foreach (var newScore in newScores) {
+			updatedScores.Add(newScore);
+		}
+		
+		scores = updatedScores.ToArray();
 	}
 }
