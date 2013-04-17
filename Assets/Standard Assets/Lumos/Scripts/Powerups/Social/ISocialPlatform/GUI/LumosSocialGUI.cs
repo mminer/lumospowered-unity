@@ -112,10 +112,10 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		smallMargin = margin / 2;
 		largeMargin = margin * 1.5f;
 		labelWidth = Screen.width * 0.1f;
-		textBoxWidth = Screen.width * 0.40f;
+		textBoxWidth = Screen.width * 0.2f;
 		textBoxHeight = textBoxWidth / 8;
-		submitButtonWidth = textBoxWidth / 4;
+		submitButtonWidth = textBoxWidth / 2;
 		bigSubmitButtonWidth = submitButtonWidth * 1.5f;
-		submitButtonHeight = textBoxHeight * 0.8f;
+		submitButtonHeight = submitButtonWidth * 0.15f;
 	}
 }

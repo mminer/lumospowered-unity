@@ -20,6 +20,10 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		
 		setScrollPos = GUILayout.BeginScrollView(setScrollPos);
 		
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		GUILayout.BeginVertical();
+		
 		// Name
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
@@ -27,8 +31,6 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			setName = GUILayout.TextField(setName, GUILayout.Width(textBoxWidth));
 			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
-		
-		GUILayout.Space(smallMargin);
 		
 		// Password
 		GUILayout.BeginHorizontal();
@@ -38,8 +40,6 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 		
-		GUILayout.Space(smallMargin);
-		
 		// Confirm Password
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
@@ -48,35 +48,21 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 		
-		GUILayout.Space(smallMargin);
-		
 		// Email
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			GUILayout.Label("Email", GUILayout.Width(labelWidth));
 			setEmail = GUILayout.TextField(setEmail, GUILayout.Width(textBoxWidth));
 			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		// Message
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Space(labelWidth);
-			Color colour = GUI.skin.label.normal.textColor;
-		
-			if (!savingSettings) {
-				GUI.skin.label.normal.textColor = Color.red;
-			}
-		
-			GUILayout.Label(setMessage, GUILayout.Width(textBoxWidth));
-			GUI.skin.label.normal.textColor = colour;
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
+		GUILayout.EndHorizontal();		
 		
 		GUILayout.Space(smallMargin);
 		
-		GUILayout.Label("Other Data");
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			GUILayout.Label("Other");
+			GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
 		
 		GUILayout.Space(smallMargin);
 		
@@ -90,8 +76,10 @@ public partial class LumosSocialGUI : MonoBehaviour {
 			
 			foreach (var entry in tempOther) {
 				GUILayout.BeginHorizontal();
-					GUILayout.Label(entry.Key);
-					LumosSocial.localUser.other[entry.Key] = GUILayout.TextField(entry.Value as string);
+					GUILayout.FlexibleSpace();
+					GUILayout.Label(entry.Key, GUILayout.Width(labelWidth));
+					LumosSocial.localUser.other[entry.Key] = GUILayout.TextField(entry.Value as string, GUILayout.Width(textBoxWidth));
+					GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 			}
 		}
@@ -100,36 +88,70 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		if (!savingSettings && setOther != null && setOther.Count > 0) {
 			foreach (var newEntry in setOther) {
 				GUILayout.BeginHorizontal();
-					newEntry["key"] = GUILayout.TextField(newEntry["key"] as string);
-					newEntry["value"] = GUILayout.TextField(newEntry["value"] as string);
+					GUILayout.FlexibleSpace();
+					newEntry["key"] = GUILayout.TextField(newEntry["key"] as string, GUILayout.Width(labelWidth));
+					newEntry["value"] = GUILayout.TextField(newEntry["value"] as string, GUILayout.Width(textBoxWidth));
+					GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 			}
 		}
 		
-		if (GUILayout.Button("New", GUILayout.Width(submitButtonWidth))) {
-			if (setOther == null) {
-				setOther = new List<Hashtable>();
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			GUILayout.Space(labelWidth + textBoxWidth - submitButtonWidth);
+		
+			if (GUILayout.Button("New", GUILayout.Width(submitButtonWidth))) {
+				if (setOther == null) {
+					setOther = new List<Hashtable>();
+				}
+				
+				var currentKeys = 0;
+				
+				if (LumosSocial.localUser.other != null) {
+					currentKeys = LumosSocial.localUser.other.Count;
+				}
+				
+				var key = "New Entry " + (setOther.Count + currentKeys + 1);
+				var hash = new Hashtable();
+				hash["key"] = key;
+				hash["value"] = "";
+				
+				setOther.Add(hash);
 			}
-			
-			var currentKeys = 0;
-			
-			if (LumosSocial.localUser.other != null) {
-				currentKeys = LumosSocial.localUser.other.Count;
-			}
-			
-			var key = "New Entry " + (setOther.Count + currentKeys);
-			var hash = new Hashtable();
-			hash["key"] = key;
-			hash["value"] = "";
-			
-			setOther.Add(hash);
-		}
+		
+			GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
 		
 		GUILayout.EndScrollView();
 		
-		if (GUILayout.Button("Save Settings", GUILayout.Width(submitButtonWidth))) {
-			SaveSettings();	
-		}
+		GUILayout.EndVertical();
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+		
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			// Message
+			Color colour = GUI.skin.label.normal.textColor;
+		
+			if (!savingSettings) {
+				GUI.skin.label.normal.textColor = Color.red;
+			}
+			
+			GUILayout.Label(setMessage, GUILayout.Width(textBoxWidth));
+			GUI.skin.label.normal.textColor = colour;
+			GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+		
+		// Save
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			if (GUILayout.Button("Save Settings", GUILayout.Width(submitButtonWidth))) {
+				SaveSettings();	
+			}
+			GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+		
+		GUILayout.Space(smallMargin);
 	}
 	
 	void SaveSettings()
@@ -149,9 +171,15 @@ public partial class LumosSocialGUI : MonoBehaviour {
 				LumosSocial.localUser.other = new Dictionary<string, object>();
 			}
 			
-			foreach (var entry in setOther) {
+			foreach (var entry in setOther) {				
 				var key = entry["key"] as string;
 				var value = entry["value"] as string;
+				
+				// Don't save blank data
+				if (value == "") {
+					continue;
+				}
+				
 				LumosSocial.localUser.other[key] = value;
 			}	
 		}
@@ -171,5 +199,6 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		instance.setEmail = LumosSocial.localUser.email;
 		instance.setName = LumosSocial.localUser.userName;
 		instance.screen = Screens.Settings;
+		instance.setOther = null;
 	}
 }
