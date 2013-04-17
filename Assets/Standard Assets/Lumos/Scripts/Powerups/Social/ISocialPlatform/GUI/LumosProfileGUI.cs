@@ -57,9 +57,20 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		GUILayout.BeginHorizontal();
 			// Other info
 			GUILayout.BeginVertical();
-				proOtherScrollPos = GUILayout.BeginScrollView(proOtherScrollPos);
+				GUILayout.Label("Other");
 				
-				GUILayout.EndScrollView();
+				if (LumosSocial.localUser.other != null) {
+					proOtherScrollPos = GUILayout.BeginScrollView(proOtherScrollPos);
+		
+					foreach (var other in LumosSocial.localUser.other) {
+						GUILayout.BeginHorizontal();
+							GUILayout.Label(other.Key, GUILayout.Width(submitButtonWidth));
+							GUILayout.Label(other.Value.ToString(), GUILayout.Width(submitButtonWidth));
+						GUILayout.EndHorizontal();
+					}
+		
+					GUILayout.EndScrollView();
+				}
 			GUILayout.EndVertical();
 		
 			GUILayout.Space(smallMargin);

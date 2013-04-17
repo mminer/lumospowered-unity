@@ -23,6 +23,7 @@ public class LumosUser : ILocalUser {
 	public IUserProfile[] friendRequests { get; private set; }
 	public Score[] scores { get; private set; }
 	public string email;
+	public Dictionary<string, object> other { get; set; }
 	
 	string url = "localhost:8888/api/1/games/" + Lumos.gameId + "/users";
 
@@ -47,6 +48,30 @@ public class LumosUser : ILocalUser {
 	{
 		this.userID = username;
 		AuthenticateUser(password, callback);
+	}
+	
+	public void UpdateInfo(string userName=null, string email=null, string password=null, Dictionary<string, object> other=null, Action<bool> callback=null)
+	{
+		var api = url + "/" + userID + "?method=PUT";
+		
+		var parameters = new Dictionary<string, object>();
+		AddStringParam("name", userName, parameters);
+		AddStringParam("email", email, parameters);
+		AddStringParam("password", password, parameters);
+		
+		if (other != null) {			
+			var json = LumosJSON.Json.Serialize(this.other);
+			parameters["other"] = json;
+		}
+
+		LumosRequest.Send(api, parameters, delegate {
+			var response = LumosRequest.lastResponse as Dictionary<string, object>;
+			UpdateUser(response);
+			
+			if (callback != null) {
+				callback(true);	
+			}
+		});
 	}
 	
 	public void LoadFriends(Action<bool> callback)
@@ -225,6 +250,8 @@ public class LumosUser : ILocalUser {
 		
 		if (info.ContainsKey("name")) {
 			userName = info["name"].ToString();
+		} else {
+			userName = "";
 		}
 		
 		if (info.ContainsKey("email")) {
@@ -234,6 +261,10 @@ public class LumosUser : ILocalUser {
 		if (info.ContainsKey("image")) {
 			var imageURL = info["image"].ToString();
 			// load in image?
+		}
+		
+		if (info.ContainsKey("other")) {
+			this.other = LumosJSON.Json.Deserialize(info["other"] as string) as Dictionary<string, object>;
 		}
 	}
 	
@@ -277,5 +308,12 @@ public class LumosUser : ILocalUser {
 		}
 		
 		return null;
+	}
+	
+	void AddStringParam(string key, string value, Dictionary<string, object> parameters)
+	{
+		if (value != null && value != "") {
+			parameters[key] = value;
+		}
 	}
 }

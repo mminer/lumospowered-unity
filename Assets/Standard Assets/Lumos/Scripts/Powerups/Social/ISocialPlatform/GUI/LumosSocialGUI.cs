@@ -103,7 +103,7 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		currentRes.height = Screen.height;
 		
 		float loginWidth = Screen.width - (Screen.width * 0.33f);
-		float loginHeight = Screen.height - (Screen.height * 0.4f);
+		float loginHeight = Screen.height - (Screen.height * 0.3f);
 		float loginX = (Screen.width - loginWidth) / 2;
 		float loginY = (Screen.height - loginHeight) / 2;
 		socialWindowRect = new Rect(loginX, loginY, loginWidth, loginHeight);
