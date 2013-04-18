@@ -1,4 +1,4 @@
-// Copyright (c) 2012 Rebel Hippo Inc. All rights reserved.
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
 using System;
 using System.Collections;
@@ -18,7 +18,7 @@ public class LumosRequest
 	/// The last response returned by the server.
 	/// </summary>
 	public static object lastResponse { get; private set; }
-	
+
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
@@ -34,7 +34,7 @@ public class LumosRequest
 	{
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, null, null));
 	}
-	
+
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
@@ -64,8 +64,9 @@ public class LumosRequest
 
 #if !UNITY_FLASH
 
-	static readonly Hashtable headers = new Hashtable() {
-		{ "Content-type", "application/json" }
+	static readonly Hashtable headers = new Hashtable()
+	{
+		{ "Content-Type", "application/json" }
 	};
 
 	/// <summary>
@@ -87,15 +88,15 @@ public class LumosRequest
 
 			yield break;
 		}
-		
-		var json = LumosJSON.Json.Serialize(parameters);
-		
+
+		var json = LumosJson.Serialize(parameters);
+
 		// All requests (including GET) are sent as POST
 		// and require parameters to be sent
 		if (json == null) {
 			json = "{}";
 		}
-		
+
 		var postData = Encoding.ASCII.GetBytes(json);
 		var www = new WWW(url, postData, headers);
 
@@ -103,7 +104,7 @@ public class LumosRequest
 		yield return www;
 		Lumos.Log("Request: " + json);
 		Lumos.Log("Response: " + www.text);
-		
+
 		Debug.Log(www.text);
 
 		// Parse the response
@@ -113,7 +114,7 @@ public class LumosRequest
 			}
 
 			var response = LumosJSON.Json.Deserialize(www.text);
-			lastResponse = response;			
+			lastResponse = response;
 
 			if (successCallback != null) {
 				successCallback();
@@ -121,7 +122,7 @@ public class LumosRequest
 	//	} catch (Exception e) {
 //			Lumos.LogError("Failure: " + e.Message);
 //			Debug.Log("Failure: " + e.Message);
-			
+
 			if (errorCallback != null) {
 				errorCallback();
 			}
@@ -135,4 +136,3 @@ public class LumosRequest
 #endif
 
 }
-

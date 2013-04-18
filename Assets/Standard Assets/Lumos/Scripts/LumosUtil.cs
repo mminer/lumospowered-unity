@@ -1,4 +1,4 @@
-// Copyright (c) 2012 Rebel Hippo Inc. All rights reserved.
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
 using System;
 using System.Collections;
@@ -7,17 +7,16 @@ using System.Text;
 using UnityEngine;
 
 /// <summary>
-/// Utility functions.
+/// Miscellaneous utility functions.
 /// </summary>
 public static class LumosUtil
 {
-	
-	public static DateTime UnixTimestampToDateTime(double timestamp)
+	public static DateTime UnixTimestampToDateTime (double timestamp)
 	{
-		var dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
-		return dateTime.AddSeconds(timestamp);
+		var dt = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+		return dt.AddSeconds(timestamp);
 	}
-	
+
 #if !UNITY_FLASH
 
 	/// <summary>
@@ -35,11 +34,11 @@ public static class LumosUtil
 
 		var bytes = Encoding.ASCII.GetBytes(combined);
 
-		// Encrypt bytes
+		// Encrypt bytes.
 		var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
 		var data = md5.ComputeHash(bytes);
 
-		// Convert encrypted bytes back to a string (base 16)
+		// Convert encrypted bytes back to a hex string.
 		var hash = new StringBuilder();
 
 		foreach (var b in data) {
@@ -52,9 +51,10 @@ public static class LumosUtil
 #else
 
 	/// <summary>
-	/// Does nothing. Flash export doesn't yet support the cryptography library.
+	/// Does nothing. Flash export doesn't yet include System.Security.
 	/// </summary>
-	public static string MD5Hash (params string[] strings) {
+	public static string MD5Hash (params string[] strings)
+	{
 		return null;
 	}
 
