@@ -15,11 +15,6 @@ public class LumosRequest
 	public delegate void ErrorHandler(object response);
 
 	/// <summary>
-	/// The last response returned by the server.
-	/// </summary>
-	public static object lastResponse { get; private set; }
-
-	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
 	public static Coroutine Send (string url)
@@ -106,7 +101,6 @@ public class LumosRequest
 
 		// Parse the response.
 		var response = LumosJSON.Json.Deserialize(www.text);
-		lastResponse = response;
 
 		if (www.error != null) {
 			if (successCallback != null) {

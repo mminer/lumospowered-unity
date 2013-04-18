@@ -21,7 +21,7 @@ public class LumosPlayer
 
 		if (PlayerPrefs.HasKey(idPrefsKey)) {
 			Lumos.playerId = PlayerPrefs.GetString(idPrefsKey);
-			Lumos.Log("Using existing player " + playerId);
+			Lumos.Log("Using existing player " + Lumos.playerId);
 			Ping();
 		} else {
 			RequestPlayerId();
@@ -38,7 +38,7 @@ public class LumosPlayer
 
 		LumosRequest.Send(endpoint, delegate (object response) {
 			var resp = response as Dictionary<string, object>;
-			Lumos.playerId = response["player_id"].ToString();
+			Lumos.playerId = resp["player_id"].ToString();
 			Lumos.Log("Using new player " + Lumos.playerId);
 		});
 	}
@@ -48,7 +48,7 @@ public class LumosPlayer
 	/// </summary>
 	static void Ping ()
 	{
-		var endpoint = url + "/players/" + id + "?method=PUT";
+		var endpoint = url + "/players/" + Lumos.playerId + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "player_id", Lumos.playerId },
@@ -57,13 +57,12 @@ public class LumosPlayer
 
 		LumosRequest.Send(endpoint, parameters,
 			delegate (object response) { // Success
-				var resp = repsonse as Dictionary<string, object>;
+				var resp = response as Dictionary<string, object>;
 				Lumos.Log(resp["message"]);
 			},
 			delegate (object response) { // Error
-				var resp = repsonse as Dictionary<string, object>;
-				Lumos.LogWarning("Something went wrong!");
-				Lumos.LogWarning(resp["message"]);
+				var resp = response as Dictionary<string, object>;
+				Lumos.LogError(resp["message"]);
 			});
 	}
 }

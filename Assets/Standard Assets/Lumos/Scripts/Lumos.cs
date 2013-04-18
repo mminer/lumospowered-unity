@@ -31,7 +31,7 @@ public partial class Lumos : MonoBehaviour
 	/// <summary>
 	/// The device-specific player ID.
 	/// </summary>
-	public static LumosPlayer playerId { get; set; }
+	public static string playerId { get; set; }
 
 	#region Inspector Settings
 
