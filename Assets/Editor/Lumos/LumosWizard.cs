@@ -1,15 +1,15 @@
-// Copyright (c) 2012 Rebel Hippo Inc. All rights reserved.
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
 using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// A wizard for instantiating the Lumos game object.
+/// Wizard for instantiating the Lumos game object.
 /// </summary>
 public class LumosWizard : ScriptableWizard
 {
 	const string prefabPath = "Assets/Standard Assets/Lumos/Lumos.prefab";
-	public string secretKey = "";
+	public string apiKey = "";
 
 	/// <summary>
 	/// Called when the "Create" button is pressed.
@@ -21,8 +21,7 @@ public class LumosWizard : ScriptableWizard
 		// Instantiate the Lumos object
 		var prefab = Resources.LoadAssetAtPath(prefabPath, typeof(GameObject));
 		var lumosGameObject = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
-		PrefabUtility.DisconnectPrefabInstance(lumosGameObject);
-		lumosGameObject.GetComponent<Lumos>().secretKey = secretKey;
+		lumosGameObject.GetComponent<Lumos>().apiKey = apiKey;
 	}
 
 	/// <summary>
@@ -38,6 +37,6 @@ public class LumosWizard : ScriptableWizard
 	/// </summary>
 	void OnWizardUpdate ()
 	{
-		helpString = "Fill in your application's secret key below.";
+		helpString = "Fill in your game's API key below.";
 	}
 }

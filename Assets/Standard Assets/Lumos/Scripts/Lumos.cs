@@ -1,16 +1,15 @@
-// Copyright (c) 2012 Rebel Hippo Inc. All rights reserved.
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// The main class for Lumos functionality.
+/// Main class for Lumos functionality.
 /// </summary>
 public partial class Lumos : MonoBehaviour
 {
 	/// <summary>
-	/// The version.
+	/// Version number.
 	/// </summary>
 	public const string version = "1.0";
 
@@ -20,33 +19,30 @@ public partial class Lumos : MonoBehaviour
 	public static Lumos instance { get; private set; }
 
 	/// <summary>
-	/// Displays detailed information about WWW requests / responses when true.
+	/// When true, displays result of web requests and responses.
 	/// </summary>
 	public static bool debug { get; set; }
 
 	/// <summary>
-	/// A unique string that identifies the application.
+	/// A unique string identifying the game.
 	/// </summary>
 	public static string gameId { get; private set; }
 
 	#region Inspector Settings
 
-	public string secretKey;
+	public string apiKey;
 	public bool runInEditor;
-	public bool recordPresetEvents;
-	public bool recordErrors;
-	public bool recordWarnings;
-	public bool recordLogs;
 
 	#endregion
 
 	/// <summary>
-	/// Initializes a new instance of this class.
+	/// Private constructor prevents object being created from class.
+	/// Unity does this in the Awake function instead.
 	/// </summary>
 	Lumos () {}
 
 	/// <summary>
-	/// Sets up Lumos.
+	/// Initializes Lumos.
 	/// </summary>
 	void Awake ()
 	{
@@ -60,16 +56,13 @@ public partial class Lumos : MonoBehaviour
 
 		instance = this;
 		DontDestroyOnLoad(this);
-		gameId = secretKey.Split('-')[0];
+		gameId = apiKey.Substring(0, 8);
 
 		if (gameId == null || gameId == "") {
-			Lumos.Remove("Secret key not set.");
+			Lumos.Remove("The API Key must be set.");
 			return;
 		}
 
-		// Set up debug log redirect.
-		Application.RegisterLogCallback(LumosLogs.Record);
-		
 		LumosCore.Init();
 	}
 
@@ -80,8 +73,7 @@ public partial class Lumos : MonoBehaviour
 	public static Coroutine RunRoutine (IEnumerator routine)
 	{
 		if (instance == null) {
-			Lumos.LogError("Lumos game object must be instantiated " +
-			               "before its methods can be called.");
+			Lumos.LogError("The Lumos game object must be instantiated before its methods can be called.");
 			return null;
 		}
 
@@ -90,8 +82,7 @@ public partial class Lumos : MonoBehaviour
 
 	/// <summary>
 	/// Destroys the instance so that it cannot be used.
-	/// This will be called at the start of the game if it's determined that
-	/// information cannot be sent to the server properly.
+	/// Called on game start if a server connection cannot be established.
 	/// </summary>
 	/// <param name="reason">The reason why the instance is unusable.</param>
 	public static void Remove (string reason)

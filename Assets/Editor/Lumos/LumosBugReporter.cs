@@ -1,4 +1,4 @@
-// Copyright (c) 2012 Rebel Hippo Inc. All rights reserved.
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
 using System;
 using System.Net;
@@ -14,33 +14,33 @@ public class LumosBugReporter : EditorWindow
 	static readonly GUIContent emailLabel  = new GUIContent("Email",  "Your email address (optional).");
 	static readonly GUIContent issueLabel  = new GUIContent("Issue",  "Details about the problem you're running into.");
 	static readonly GUIContent submitLabel = new GUIContent("Submit", "Send your issue.");
-	
+
 	static readonly GUIContent sentNotification  = new GUIContent("Bug Report Sent\nThanks!");
 	static readonly GUIContent errorNotification = new GUIContent("An Error Occurred\nBug Report Not Sent");
-	
+
 	string email = ""; // Optional
 	string issue = "";
-	
+
 	bool inProgress;
 	GUIContent currentNotification;
-	
+
 	static bool debug = false;
 
 	void OnGUI ()
 	{
 		EditorGUILayout.BeginHorizontal();
-		
+
 		EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(false));
 			GUILayout.Label(emailLabel);
 			GUILayout.Label(issueLabel);
 		EditorGUILayout.EndVertical();
-		
+
 		EditorGUILayout.BeginVertical();
 			email = EditorGUILayout.TextField(email);
 			issue = EditorGUILayout.TextArea(issue, GUILayout.ExpandHeight(true));
-			
+
 			GUI.enabled = issue != "";
-			
+
 			if (inProgress) {
 				// Draw progress bar
 				// This doesn't accurately reflect the request's progress, but it indicates that something is happening
@@ -52,16 +52,16 @@ public class LumosBugReporter : EditorWindow
 				}
 			}
 		EditorGUILayout.EndVertical();
-		
+
 		EditorGUILayout.EndHorizontal();
 		EditorGUILayout.Space();
-		
+
 		if (currentNotification != null) {
 			ShowNotification(currentNotification);
 			currentNotification = null;
 		}
 	}
-	
+
 	/// <summary>
 	/// Asynchronously sends the bug report to the server.
 	/// </summary>
@@ -69,13 +69,13 @@ public class LumosBugReporter : EditorWindow
 	{
 		var message = "email=" + email + "&issue=" + issue;
 		var bytes = Encoding.UTF8.GetBytes(message);
-		
+
 		var url = "http://" + (debug ? "localhost:8080" : "www.uselumos.com") + "/report-bug";
 		var request = WebRequest.Create(url);
 		request.Method = "POST";
 		request.ContentLength = bytes.Length;
 		request.ContentType = "application/x-www-form-urlencoded";
-		
+
 		try {
 			var stream = request.GetRequestStream();
 			stream.Write(bytes, 0, bytes.Length);
@@ -87,7 +87,7 @@ public class LumosBugReporter : EditorWindow
 			currentNotification = errorNotification;
 		}
 	}
-	
+
 	/// <summary>
 	/// Called upon completion of the asynchronous request to the server.
 	/// </summary>

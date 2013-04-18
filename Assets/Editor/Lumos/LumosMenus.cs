@@ -1,4 +1,4 @@
-// Copyright (c) 2012 Rebel Hippo Inc. All rights reserved.
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
 using UnityEditor;
 using UnityEngine;
@@ -8,8 +8,8 @@ using UnityEngine;
 /// </summary>
 public static class LumosMenus
 {
-	const string documentationUrl = "http://www.uselumos.com/supports/docs";
-	
+	const string supportUrl = "http://support.lumospowered.com/";
+
 	/// <summary>
 	/// Adds "Add To Scene" menu item to the Window menu.
 	/// This triggers a wizard which prompts the user for their secret key before instantiating the Lumos prefab.
@@ -19,7 +19,7 @@ public static class LumosMenus
 	{
 		ScriptableWizard.DisplayWizard<LumosWizard>("Add Lumos To Scene", "Add", "Cancel");
 	}
-    
+
 	/// <summary>
 	/// Validates the "Add To Scene" menu item, disabling it if a Lumos instance already exists in the scene.
 	/// </summary>
@@ -30,16 +30,16 @@ public static class LumosMenus
 		var go = GameObject.Find("Lumos");
 		return go == null;
 	}
-	
+
 	/// <summary>
-	/// Adds link to Lumos website to Help menu.
+	/// Adds link to Lumos support website to Help menu.
 	/// </summary>
-	[MenuItem("Help/Lumos/Documentation")]
-	static void DisplayWebsite ()
+	[MenuItem("Help/Lumos/Support")]
+	static void DisplaySupportSite ()
 	{
-		Help.BrowseURL(documentationUrl);
+		Help.BrowseURL(supportUrl);
 	}
-	
+
 	/// <summary>
 	/// Adds menu item to open the Lumos bug reporter.
 	/// </summary>
