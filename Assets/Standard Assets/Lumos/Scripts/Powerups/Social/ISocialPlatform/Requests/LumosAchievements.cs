@@ -6,43 +6,43 @@ using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.Impl;
 
 public partial class LumosSocialPlatform : ISocialPlatform {
-	
+
 	public List<IAchievementDescription> achievementDescriptions = new List<IAchievementDescription>();
 	public List<LumosAchievement> achievements = new List<LumosAchievement>();
-	
-	
-	void FetchPlayerAchievements(Action<IAchievement[]> callback) 
-	{						
+
+
+	void FetchPlayerAchievements(Action<IAchievement[]> callback)
+	{
 		var api = url + "achievements/" + localUser.id + "?method=GET";
-		
-		LumosRequest.Send(api, delegate {
-			var response = LumosRequest.lastResponse as IList;
+
+		LumosRequest.Send(api, delegate (object response) {
+			var resp = response as IList;
 			achievements = new List<LumosAchievement>();
-			
-			foreach (Dictionary<string, object> info in response) {
+
+			foreach (Dictionary<string, object> info in resp) {
 				var achievement = DictionaryToAchievement(info);
 				achievements.Add(achievement);
 			}
-			
+
 			callback(achievements.ToArray());
 		});
 	}
-	
-	void FetchGameAchievements(Action<IAchievementDescription[]> callback) 
-	{			
+
+	void FetchGameAchievements(Action<IAchievementDescription[]> callback)
+	{
 		var api = url + "achievements?method=GET";
-		
-		LumosRequest.Send(api, delegate {
-			var response = LumosRequest.lastResponse as IList;
+
+		LumosRequest.Send(api, delegate (object response) {
+			var resp = response as IList;
 			achievementDescriptions = new List<IAchievementDescription>();
-			
-			foreach (Dictionary<string, object> info in response) {
-				Lumos.RunRoutine(AddAchievement(info, response.Count, callback));
+
+			foreach (Dictionary<string, object> info in resp) {
+				Lumos.RunRoutine(AddAchievement(info, resp.Count, callback));
 			}
 		});
 	}
-	
-	IEnumerator AddAchievement (Dictionary<string, object> info, int limit, Action<IAchievementDescription[]> callback) 
+
+	IEnumerator AddAchievement (Dictionary<string, object> info, int limit, Action<IAchievementDescription[]> callback)
 	{
 		var id = info["achievement_id"] as string;
 		var title = info["name"] as string;
@@ -53,67 +53,67 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		var hidden = Convert.ToBoolean(tempHidden);
 		var points = 0;
 		int.TryParse(info["points"] as string, out points);
-		
+
 		// Create a blank texture in DXT1 format
 		var image = new Texture2D(4, 4, TextureFormat.DXT1, false);
-		
+
 		// Load the achievement's image, if it has one
 		if (imageLocation != "") {
-			var imageWWW = new WWW(imageLocation); 
-			
-			yield return imageWWW; 
-			
+			var imageWWW = new WWW(imageLocation);
+
+			yield return imageWWW;
+
 			try {
 				if (imageWWW.error != null) {
 					throw new Exception(imageWWW.error);
 				}
-				
+
 				imageWWW.LoadImageIntoTexture(image);
 			} catch (Exception e) {
 				Debug.Log("Failure: " + e.Message);
-			}	
+			}
 		} else {
 			if (LumosSocialGUI.GetDefaultAchievement() != null) {
 				image = LumosSocialGUI.GetDefaultAchievement();
 			}
 		}
-		
+
 		var achievementDescription = new AchievementDescription(id, title, image, achievedDescription, unachievedDescription, hidden, points);
 		achievementDescriptions.Add(achievementDescription);
-		
+
 		// All achievements have been loaded
 		if (achievementDescriptions.Count == limit) {
-			callback(achievementDescriptions.ToArray());	
+			callback(achievementDescriptions.ToArray());
 		}
 	}
-	
+
 	void UpdateAchievementProgress(string achievementId, int progress, Action<bool> callback)
-	{						
+	{
 		var api = url + "achievements/" + localUser.id + "/" + achievementId + "?method=PUT";
-		
+
 		var parameters = new Dictionary<string, object>() {
 			{ "percent_completed", progress }
 		};
-		
-		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Dictionary<string, object>;
-			var achievement = DictionaryToAchievement(response);
+
+		LumosRequest.Send(api, parameters, delegate (object response) {
+			var resp = response as Dictionary<string, object>;
+			var achievement = DictionaryToAchievement(resp);
 			UpdateAchievement(achievement);
 			callback(true);
 		});
 	}
-	
-	LumosAchievement GetAchievementById(string achievementId) 
+
+	LumosAchievement GetAchievementById(string achievementId)
 	{
 		foreach (var achievement in achievements) {
 			if (achievement.id == achievementId) {
 				return achievement;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	void UpdateAchievement(LumosAchievement achievement) {
 		foreach (LumosAchievement a in achievements) {
 			if (a.id == achievement.id) {
@@ -129,13 +129,13 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		var percentCompleted = Convert.ToDouble(info["percent_completed"]);
 		var completed = percentCompleted == 100 ? true : false;
 		var hidden = false;
-		
+
 		if (info.ContainsKey("hidden")) {
 			var intHidden = Convert.ToInt32(info["hidden"]);
 			hidden = Convert.ToBoolean(intHidden);
 		}
-		
-		
+
+
 		var timestamp = Convert.ToDouble(info["updated"]);
 		var lastReportedDate = LumosUtil.UnixTimestampToDateTime(timestamp);
 		var achievement = new LumosAchievement(id, percentCompleted, completed, hidden, lastReportedDate);

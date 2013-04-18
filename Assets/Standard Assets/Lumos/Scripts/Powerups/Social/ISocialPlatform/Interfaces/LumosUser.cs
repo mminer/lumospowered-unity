@@ -64,9 +64,9 @@ public class LumosUser : ILocalUser {
 			parameters["other"] = json;
 		}
 
-		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Dictionary<string, object>;
-			UpdateUser(response);
+		LumosRequest.Send(api, parameters, delegate (object response) {
+			var resp = response as Dictionary<string, object>;
+			UpdateUser(resp);
 
 			if (callback != null) {
 				callback(true);
@@ -84,7 +84,7 @@ public class LumosUser : ILocalUser {
 		// The id should be set prior to this call if
 		// the developer intends to use a login system
 		if (userID == null) {
-			userID = LumosCore.playerId;
+			userID = Lumos.playerId;
 		}
 
 		var api = url + "/" + userID + "?method=GET";
@@ -97,13 +97,13 @@ public class LumosUser : ILocalUser {
 		}
 
 		var parameters = new Dictionary<string, object>() {
-			{ "player_id", LumosCore.playerId },
+			{ "player_id", Lumos.playerId },
 			{ "password", password }
 		};
 
-		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Dictionary<string, object>;
-			UpdateUser(response);
+		LumosRequest.Send(api, parameters, delegate (object response) {
+			var resp = response as Dictionary<string, object>;
+			UpdateUser(resp);
 			authenticated = true;
 			callback(true);
 		});
@@ -114,7 +114,7 @@ public class LumosUser : ILocalUser {
 		var api = url + "/" + username + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
-			{ "player_id", LumosCore.playerId },
+			{ "player_id", Lumos.playerId },
 			{ "password", pass },
 			{ "email", email }
 		};
@@ -131,11 +131,10 @@ public class LumosUser : ILocalUser {
 	{
 		var api = url + "/" + userID + "/friend-requests?method=GET";
 
-		LumosRequest.Send(api, delegate {
-			var response = LumosRequest.lastResponse as IList;
-
+		LumosRequest.Send(api, delegate (object response) {
 			if (response != null) {
-				friendRequests = ParseFriends(response);
+				var resp = response as IList;
+				friendRequests = ParseFriends(resp);
 			}
 
 			callback(true);
@@ -163,10 +162,10 @@ public class LumosUser : ILocalUser {
 			{ "friend", friendID }
 		};
 
-		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Dictionary<string, object>;
-			friends = ParseFriends(response["friends"] as IList);
-			friendRequests = ParseFriends(response["friend_requests"] as IList);
+		LumosRequest.Send(api, parameters, delegate (object response) {
+			var resp = response as Dictionary<string, object>;
+			friends = ParseFriends(resp["friends"] as IList);
+			friendRequests = ParseFriends(resp["friend_requests"] as IList);
 			callback(true);
 		});
 	}
@@ -180,11 +179,11 @@ public class LumosUser : ILocalUser {
 			{ "decline", true }
 		};
 
-		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Dictionary<string, object>;
+		LumosRequest.Send(api, parameters, delegate (object response) {
+			var resp = response as Dictionary<string, object>;
 
-			if (response.ContainsKey("friend_requests")) {
-				friendRequests = ParseFriends(response["friend_requests"] as IList);
+			if (resp.ContainsKey("friend_requests")) {
+				friendRequests = ParseFriends(resp["friend_requests"] as IList);
 			}
 
 			callback(true);
@@ -199,9 +198,9 @@ public class LumosUser : ILocalUser {
 			{ "friend", friendID }
 		};
 
-		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as IList;
-			friends = ParseFriends(response);
+		LumosRequest.Send(api, parameters, delegate (object response) {
+			var resp = response as IList;
+			friends = ParseFriends(resp);
 			callback(true);
 		});
 	}
@@ -210,11 +209,11 @@ public class LumosUser : ILocalUser {
 	{
 		var api = "localhost:8888/api/1/games/" + Lumos.gameId + "/leaderboards/" + userID + "/friends?method=GET";
 
-		LumosRequest.Send(api, delegate {
-			var response = LumosRequest.lastResponse as IList;
+		LumosRequest.Send(api, delegate (object response) {
+			var resp = response as IList;
 			var scores = new List<Score>();
 
-			foreach (Dictionary<string, object> leaderboard in response) {
+			foreach (Dictionary<string, object> leaderboard in resp) {
 				var rawScores = leaderboard["scores"] as IList;
 				var leaderboardID = leaderboard["leaderboard_id"] as string;
 				var score = ParseUserScore(rawScores, leaderboardID);
@@ -233,9 +232,9 @@ public class LumosUser : ILocalUser {
 	{
 		var api = url + "/" + userID + "/friends?method=GET";
 
-		LumosRequest.Send(api, delegate {
-			var response = LumosRequest.lastResponse as IList;
-			friends = ParseFriends(response);
+		LumosRequest.Send(api, delegate (object response) {
+			var resp = response as IList;
+			friends = ParseFriends(resp);
 			callback(true);
 		});
 	}

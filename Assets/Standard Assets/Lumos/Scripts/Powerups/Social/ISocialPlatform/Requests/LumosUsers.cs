@@ -7,20 +7,20 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public partial class LumosSocialPlatform : ISocialPlatform {
 
-	
+
 	void RegisterUser(string username, string password, string email, Action<bool> callback)
 	{
 		var api = url + "/users/" + username + "?method=PUT";
-		
+
 		var parameters = new Dictionary<string, object>() {
-			{ "player_id", LumosCore.playerId }, 
+			{ "player_id", Lumos.playerId },
 			{ "password", password },
 			{ "email", email }
 		};
-		
-		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Hashtable;
-			var user = ParseLumosUser(response);
+
+		LumosRequest.Send(api, parameters, delegate (object response) {
+			var resp = response as Hashtable;
+			var user = ParseLumosUser(resp);
 			_localUser = user;
 
 			callback(true);
@@ -30,14 +30,14 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 	void FetchUsers(string[] userIds, Action<IUserProfile[]> callback)
 	{
 		var api = url + "/users";
-		
+
 		var parameters = new Dictionary<string, object>() {
 			{ "usernames", userIds }
 		};
-		
-		LumosRequest.Send(api, parameters, delegate {
-			var response = LumosRequest.lastResponse as Dictionary<string, object>;
-			var users = ParseUsers(response);
+
+		LumosRequest.Send(api, parameters, delegate (object response) {
+			var resp = response as Dictionary<string, object>;
+			var users = ParseUsers(resp);
 			callback(users);
 		});
 	}
@@ -59,11 +59,11 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 	{
 		var id = user["username"] as string;
 		string name = null;
-		
+
 		if (user.ContainsKey("name")) {
 			name = user["name"].ToString();
 		}
-		
+
 		var userProfile = new UserProfile(name, id, false);
 
 		return userProfile;
