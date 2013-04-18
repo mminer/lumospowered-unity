@@ -1,13 +1,12 @@
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Collections;
-using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.Impl;
 
-public class LumosUser : ILocalUser {
+public class LumosUser : ILocalUser
+{
 	public bool authenticated { get; private set; }
 	public bool isFriend { get; set; }
 	public bool underage { get; set; }
@@ -25,13 +24,9 @@ public class LumosUser : ILocalUser {
 	public string email;
 	public Dictionary<string, object> other { get; set; }
 
-	string url = "localhost:8888/api/1/games/" + Lumos.gameId + "/users";
+	string url = "http://localhost:8888/api/1/games/" + Lumos.gameId + "/users";
 
-
-	public LumosUser()
-	{
-
-	}
+	public LumosUser () {}
 
 	public LumosUser(string userID, bool authenticated)
 	{
@@ -52,7 +47,7 @@ public class LumosUser : ILocalUser {
 
 	public void UpdateInfo(string userName=null, string email=null, string password=null, Dictionary<string, object> other=null, Action<bool> callback=null)
 	{
-		var api = url + "/" + userID + "?method=PUT";
+		var endpoint = url + "/" + userID + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>();
 		AddStringParam("name", userName, parameters);
@@ -64,7 +59,7 @@ public class LumosUser : ILocalUser {
 			parameters["other"] = json;
 		}
 
-		LumosRequest.Send(api, parameters, delegate (object response) {
+		LumosRequest.Send(endpoint, parameters, delegate (object response) {
 			var resp = response as Dictionary<string, object>;
 			UpdateUser(resp);
 
@@ -87,7 +82,7 @@ public class LumosUser : ILocalUser {
 			userID = Lumos.playerId;
 		}
 
-		var api = url + "/" + userID + "?method=GET";
+		var endpoint = url + "/" + userID + "?method=GET";
 
 		// need to get the password some how
 		// but can't add it to the localUser interface
@@ -101,7 +96,7 @@ public class LumosUser : ILocalUser {
 			{ "password", password }
 		};
 
-		LumosRequest.Send(api, parameters, delegate (object response) {
+		LumosRequest.Send(endpoint, parameters, delegate (object response) {
 			var resp = response as Dictionary<string, object>;
 			UpdateUser(resp);
 			authenticated = true;
@@ -111,7 +106,7 @@ public class LumosUser : ILocalUser {
 
 	public void Register(string username, string pass, string email, Action<bool> callback)
 	{
-		var api = url + "/" + username + "?method=PUT";
+		var endpoint = url + "/" + username + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "player_id", Lumos.playerId },
@@ -119,7 +114,7 @@ public class LumosUser : ILocalUser {
 			{ "email", email }
 		};
 
-		LumosRequest.Send(api, parameters, delegate {
+		LumosRequest.Send(endpoint, parameters, delegate {
 			this.email = email;
 			this.userID = username;
 			this.authenticated = true;
@@ -129,9 +124,9 @@ public class LumosUser : ILocalUser {
 
 	public void LoadFriendRequests(Action<bool> callback)
 	{
-		var api = url + "/" + userID + "/friend-requests?method=GET";
+		var endpoint = url + "/" + userID + "/friend-requests?method=GET";
 
-		LumosRequest.Send(api, delegate (object response) {
+		LumosRequest.Send(endpoint, delegate (object response) {
 			if (response != null) {
 				var resp = response as IList;
 				friendRequests = ParseFriends(resp);
@@ -143,26 +138,26 @@ public class LumosUser : ILocalUser {
 
 	public void SendFriendRequest(string friendID, Action<bool> callback)
 	{
-		var api = url + "/" + userID + "/friend-requests";
+		var endpoint = url + "/" + userID + "/friend-requests";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "friend", friendID }
 		};
 
-		LumosRequest.Send(api, parameters, delegate {
+		LumosRequest.Send(endpoint, parameters, delegate {
 			callback(true);
 		});
 	}
 
 	public void AcceptFriendRequest(string friendID, Action<bool> callback)
 	{
-		var api = url + "/" + userID + "/friends";
+		var endpoint = url + "/" + userID + "/friends";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "friend", friendID }
 		};
 
-		LumosRequest.Send(api, parameters, delegate (object response) {
+		LumosRequest.Send(endpoint, parameters, delegate (object response) {
 			var resp = response as Dictionary<string, object>;
 			friends = ParseFriends(resp["friends"] as IList);
 			friendRequests = ParseFriends(resp["friend_requests"] as IList);
@@ -172,14 +167,14 @@ public class LumosUser : ILocalUser {
 
 	public void DeclineFriendRequest(string friendID, Action<bool> callback)
 	{
-		var api = url + "/" + userID + "/friend-requests";
+		var endpoint = url + "/" + userID + "/friend-requests";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "friend", friendID },
 			{ "decline", true }
 		};
 
-		LumosRequest.Send(api, parameters, delegate (object response) {
+		LumosRequest.Send(endpoint, parameters, delegate (object response) {
 			var resp = response as Dictionary<string, object>;
 
 			if (resp.ContainsKey("friend_requests")) {
@@ -192,13 +187,13 @@ public class LumosUser : ILocalUser {
 
 	public void RemoveFriend(string friendID, Action<bool> callback)
 	{
-		var api = url + "/" + userID + "/friends?method=DELETE";
+		var endpoint = url + "/" + userID + "/friends?method=DELETE";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "friend", friendID }
 		};
 
-		LumosRequest.Send(api, parameters, delegate (object response) {
+		LumosRequest.Send(endpoint, parameters, delegate (object response) {
 			var resp = response as IList;
 			friends = ParseFriends(resp);
 			callback(true);
@@ -207,9 +202,9 @@ public class LumosUser : ILocalUser {
 
 	public void LoadFriendLeaderboardScores(Action<bool> callback)
 	{
-		var api = "localhost:8888/api/1/games/" + Lumos.gameId + "/leaderboards/" + userID + "/friends?method=GET";
+		var endpoint = "localhost:8888/api/1/games/" + Lumos.gameId + "/leaderboards/" + userID + "/friends?method=GET";
 
-		LumosRequest.Send(api, delegate (object response) {
+		LumosRequest.Send(endpoint, delegate (object response) {
 			var resp = response as IList;
 			var scores = new List<Score>();
 
@@ -230,9 +225,9 @@ public class LumosUser : ILocalUser {
 
 	void FetchFriends(Action<bool> callback)
 	{
-		var api = url + "/" + userID + "/friends?method=GET";
+		var endpoint = url + "/" + userID + "/friends?method=GET";
 
-		LumosRequest.Send(api, delegate (object response) {
+		LumosRequest.Send(endpoint, delegate (object response) {
 			var resp = response as IList;
 			friends = ParseFriends(resp);
 			callback(true);

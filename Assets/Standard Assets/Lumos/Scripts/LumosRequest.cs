@@ -78,7 +78,7 @@ public class LumosRequest
 		// Skip out early if there's no internet connection.
 		if (Application.internetReachability == NetworkReachability.NotReachable) {
 			if (errorCallback != null) {
-				errorCallback();
+				errorCallback(null);
 			}
 
 			yield break;
@@ -100,7 +100,7 @@ public class LumosRequest
 		Lumos.Log("Response: " + www.text);
 
 		// Parse the response.
-		var response = LumosJSON.Json.Deserialize(www.text);
+		var response = LumosJson.Deserialize(www.text);
 
 		if (www.error != null) {
 			if (successCallback != null) {
