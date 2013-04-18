@@ -28,6 +28,11 @@ public partial class Lumos : MonoBehaviour
 	/// </summary>
 	public static string gameId { get; private set; }
 
+	/// <summary>
+	/// The device-specific player ID.
+	/// </summary>
+	public static LumosPlayer playerId { get; set; }
+
 	#region Inspector Settings
 
 	public string apiKey;
@@ -63,7 +68,7 @@ public partial class Lumos : MonoBehaviour
 			return;
 		}
 
-		LumosCore.Init();
+		LumosPlayer.Init();
 	}
 
 	/// <summary>
