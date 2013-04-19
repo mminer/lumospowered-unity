@@ -61,13 +61,13 @@ public partial class Lumos : MonoBehaviour
 
 		instance = this;
 		DontDestroyOnLoad(this);
-		gameId = apiKey.Substring(0, 8);
 
-		if (gameId == null || gameId == "") {
+		if (apiKey == null || apiKey == "") {
 			Lumos.Remove("The API Key must be set.");
 			return;
 		}
 
+		gameId = apiKey.Substring(0, 8);
 		LumosPlayer.Init();
 	}
 
@@ -93,8 +93,7 @@ public partial class Lumos : MonoBehaviour
 	public static void Remove (string reason)
 	{
 		if (instance != null) {
-			Debug.LogWarning("[Lumos] " + reason +
-			                 " No information will be recorded.");
+			Lumos.LogWarning(reason + " No information will be recorded.");
 			Destroy(instance.gameObject);
 		}
 	}
