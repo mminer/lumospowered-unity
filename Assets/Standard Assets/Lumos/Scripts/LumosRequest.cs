@@ -101,12 +101,14 @@ public class LumosRequest
 
 		// Parse the response.
 		var response = LumosJson.Deserialize(www.text);
-
-		if (www.error != null) {
+		
+		
+		if (www.error == null) {
 			if (successCallback != null) {
 				successCallback(response);
 			}
 		} else {
+			Lumos.Log("Error: " + www.error);
 			if (errorCallback != null) {
 				errorCallback(response);
 			}

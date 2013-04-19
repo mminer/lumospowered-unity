@@ -96,12 +96,17 @@ public class LumosUser : ILocalUser
 			{ "password", password }
 		};
 
-		LumosRequest.Send(endpoint, parameters, delegate (object response) {
-			var resp = response as Dictionary<string, object>;
-			UpdateUser(resp);
-			authenticated = true;
-			callback(true);
-		});
+		LumosRequest.Send(endpoint, parameters, 
+			delegate (object response) { // Success
+				var resp = response as Dictionary<string, object>;
+				UpdateUser(resp);
+				authenticated = true;
+				callback(true);
+			}, 
+		
+			delegate { // Fail
+				callback(false);
+			});
 	}
 
 	public void Register(string username, string pass, string email, Action<bool> callback)

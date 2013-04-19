@@ -33,7 +33,6 @@ public class LumosSocial
 
 		if (username != null) {
 			localUser.Authenticate(username, password, callback);
-			callback(true);
 		} else {
 			localUser.Authenticate(ProcessAuthentication);
 		}

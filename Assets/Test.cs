@@ -3,6 +3,11 @@ using System.Collections;
 
 public class Test : MonoBehaviour {
 	
+	void Awake()
+	{
+		Lumos.debug = true;	
+	}
+	
 	void OnGUI() {
 		if (!Social.localUser.authenticated) {
 			return;
