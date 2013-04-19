@@ -41,6 +41,15 @@ public partial class LumosSocialPlatform : ISocialPlatform
 	{
 		FetchUsers(userIds, callback);
 	}
+	
+	public void ForgotPassword(string username, Action<bool> callback)
+	{
+		var endpoint = url + "users/" + username + "/password";
+
+		LumosRequest.Send(endpoint, delegate {
+			callback(true);
+		});
+	}
 
 	#endregion
 

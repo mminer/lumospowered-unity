@@ -37,6 +37,15 @@ public class LumosSocial
 			localUser.Authenticate(ProcessAuthentication);
 		}
     }
+	
+	public static void ForgotPassword(string username, Action<bool> callback)
+	{
+		if (platform == null) {
+			Init();		
+		}
+		
+		platform.ForgotPassword(username, callback);
+	}
 
 	/// <summary>
 	/// Awards an achievement.

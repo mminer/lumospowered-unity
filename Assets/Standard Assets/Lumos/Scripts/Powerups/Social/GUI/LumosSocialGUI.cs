@@ -2,7 +2,7 @@ using UnityEngine;
 
 public partial class LumosSocialGUI : MonoBehaviour {
 
-	enum Screens { None, Login, Registration, Achievements, Leaderboards, Scores, Profile, Settings };
+	enum Screens { None, Login, Registration, ForgotPassword, Achievements, Leaderboards, Scores, Profile, Settings };
 	Screens screen;
 
 	float labelWidth;
@@ -71,6 +71,9 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		switch(screen) {
 			case Screens.Login:
 				LoginScreen();
+				break;
+			case Screens.ForgotPassword:
+				ForgotPasswordScreen();
 				break;
 			case Screens.Registration:
 				RegistrationScreen();

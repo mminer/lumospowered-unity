@@ -126,7 +126,7 @@ public class LumosUser : ILocalUser
 			callback(true);
 		});
 	}
-
+	
 	public void LoadFriendRequests(Action<bool> callback)
 	{
 		var endpoint = url + "/" + userID + "/friend-requests?method=GET";

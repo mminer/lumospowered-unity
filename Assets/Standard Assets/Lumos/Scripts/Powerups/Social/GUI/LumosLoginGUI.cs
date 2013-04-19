@@ -9,10 +9,11 @@ public partial class LumosSocialGUI : MonoBehaviour
 	string message = "";
 	bool loggingIn;
 
+
 	void LoginScreen()
 	{
 		GUILayout.Space(margin);
-
+		
        	// Username
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
@@ -54,6 +55,10 @@ public partial class LumosSocialGUI : MonoBehaviour
 
 			if (loggingIn) {
 				GUI.enabled = false;
+			}
+		
+			if (GUILayout.Button("Forgot Password", GUILayout.Width(submitButtonWidth), GUILayout.Height(submitButtonHeight))) {
+				screen = Screens.ForgotPassword;
 			}
 
 			if (GUILayout.Button("Submit", GUILayout.Width(submitButtonWidth), GUILayout.Height(submitButtonHeight))) {
