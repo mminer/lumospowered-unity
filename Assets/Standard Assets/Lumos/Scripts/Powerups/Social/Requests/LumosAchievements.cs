@@ -46,14 +46,16 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 	{
 		var id = info["achievement_id"] as string;
 		var title = info["name"] as string;
-		var imageLocation = (info.ContainsKey("icon") ? info["icon"] as string : "");
+		var imageLocation = info.ContainsKey("icon") ? info["icon"] as string : "";
 		var achievedDescription = info["achieved_description"] as string;
 		var unachievedDescription = info["unachieved_description"] as string;
 		var tempHidden = Convert.ToInt32(info["hidden"]);
 		var hidden = Convert.ToBoolean(tempHidden);
 		var points = 0;
 		int.TryParse(info["points"] as string, out points);
-
+		
+		Debug.Log(imageLocation);
+		
 		// Create a blank texture in DXT1 format
 		var image = new Texture2D(4, 4, TextureFormat.DXT1, false);
 

@@ -54,7 +54,7 @@ public partial class LumosSocialGUI : MonoBehaviour
 				GUI.enabled = false;
 			}
 
-			GUILayout.Label(defaultAchievementIcon);
+			GUILayout.Label(achievement.image, GUILayout.Width(labelWidth), GUILayout.Height(labelWidth));
 
 			GUILayout.BeginVertical();
 				GUILayout.Label(achievement.title, GUILayout.Width(submitButtonWidth * 2));
