@@ -3,7 +3,8 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.SocialPlatforms;
 
-public partial class LumosSocialGUI : MonoBehaviour {
+public partial class LumosSocialGUI : MonoBehaviour 
+{
 
 	
 	public Texture2D defaultUserIcon;

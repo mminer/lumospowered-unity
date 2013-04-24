@@ -3,7 +3,8 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.SocialPlatforms;
 
-public partial class LumosSocialGUI : MonoBehaviour {
+public partial class LumosSocialGUI : MonoBehaviour 
+{
 
 	
 	LumosUser currentUser;
@@ -171,5 +172,4 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		 // do something	
 		});
 	}
-	
 }

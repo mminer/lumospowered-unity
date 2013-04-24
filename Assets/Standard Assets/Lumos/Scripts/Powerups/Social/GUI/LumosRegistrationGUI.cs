@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-public partial class LumosSocialGUI : MonoBehaviour {
+public partial class LumosSocialGUI : MonoBehaviour 
+{
 	
 	string regUsername = "";
 	string regPass = "";

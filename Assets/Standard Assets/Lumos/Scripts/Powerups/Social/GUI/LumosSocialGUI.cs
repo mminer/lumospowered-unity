@@ -1,4 +1,9 @@
+using System;
 using UnityEngine;
+using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.SocialPlatforms;
 
 public partial class LumosSocialGUI : MonoBehaviour {
 

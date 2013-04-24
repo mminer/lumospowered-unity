@@ -7,7 +7,10 @@ public partial class LumosSocialGUI : MonoBehaviour
 
 	bool gettingAchievements;
 	Vector2 achievementScrollPos;
-
+	
+	/// <summary>
+	/// Achievementses the screen.
+	/// </summary>
 	void AchievementsScreen()
 	{
 		GUILayout.Space(smallMargin);

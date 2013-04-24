@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public partial class LumosSocialGUI : MonoBehaviour {
+public partial class LumosSocialGUI : MonoBehaviour 
+{
 	
 	string setPass = "";
 	string setConfirmPass = "";
