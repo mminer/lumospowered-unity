@@ -81,11 +81,12 @@ public class LumosRequest
 			yield break;
 		}
 
-		var json = LumosJson.Serialize(parameters);
+		string json;
 
-		// All requests (including GET) are sent as POST and require a body.
-		if (json == null) {
+		if (parameters == null) {
 			json = "{}";
+		} else {
+			json = LumosJson.Serialize(parameters);
 		}
 
 		var postData = Encoding.ASCII.GetBytes(json);
