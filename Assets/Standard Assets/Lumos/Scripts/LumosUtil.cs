@@ -1,11 +1,8 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using UnityEngine;
 
 /// <summary>
 /// Miscellaneous utility functions.
