@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ public static class LumosUtil
 {
 	public static DateTime UnixTimestampToDateTime (double timestamp)
 	{
-		var dt = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+		var dt = new DateTime(1970, 1, 1, 0, 0, 0, 0);
 		return dt.AddSeconds(timestamp);
 	}
 
@@ -35,7 +36,7 @@ public static class LumosUtil
 		var bytes = Encoding.ASCII.GetBytes(combined);
 
 		// Encrypt bytes.
-		var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+		var md5 = new MD5CryptoServiceProvider();
 		var data = md5.ComputeHash(bytes);
 
 		// Convert encrypted bytes back to a hex string.
