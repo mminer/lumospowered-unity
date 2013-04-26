@@ -1,12 +1,27 @@
 using UnityEngine;
 using System.Diagnostics;
 
+/// <summary>
+/// Lumos social GU.
+/// </summary>
 public partial class LumosSocialGUI : MonoBehaviour
 {
+	/// <summary>
+	/// The forgot username.
+	/// </summary>
 	string forgotUsername = "";
+	/// <summary>
+	/// The forgot message.
+	/// </summary>
 	string forgotMessage;
+	/// <summary>
+	/// The sent email.
+	/// </summary>
 	bool sentEmail;
 	
+	/// <summary>
+	/// Forgots the password screen.
+	/// </summary>
 	void ForgotPasswordScreen()
 	{
 		GUILayout.Space(margin);

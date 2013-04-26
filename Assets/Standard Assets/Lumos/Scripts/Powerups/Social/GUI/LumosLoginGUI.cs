@@ -1,15 +1,35 @@
 using UnityEngine;
 using System.Diagnostics;
 
+/// <summary>
+/// Lumos social GU.
+/// </summary>
 public partial class LumosSocialGUI : MonoBehaviour
 {
+	/// <summary>
+	/// The social window rect.
+	/// </summary>
 	Rect socialWindowRect;
+	/// <summary>
+	/// The username.
+	/// </summary>
 	string username = "";
+	/// <summary>
+	/// The password.
+	/// </summary>
 	string password = "";
+	/// <summary>
+	/// The message.
+	/// </summary>
 	string message = "";
+	/// <summary>
+	/// The logging in.
+	/// </summary>
 	bool loggingIn;
 
-
+	/// <summary>
+	/// Logins the screen.
+	/// </summary>
 	void LoginScreen()
 	{
 		GUILayout.Space(margin);
@@ -91,7 +111,10 @@ public partial class LumosSocialGUI : MonoBehaviour
 			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
     }
-
+	
+	/// <summary>
+	/// Submits the login credentials.
+	/// </summary>
 	void SubmitLoginCredentials()
 	{
 		if (username.Length < 1) {
@@ -108,7 +131,13 @@ public partial class LumosSocialGUI : MonoBehaviour
 		loggingIn = true;
 		LumosSocial.Connect(username, password, ProcessLogin);
 	}
-
+	
+	/// <summary>
+	/// Processes the login.
+	/// </summary>
+	/// <param name='success'>
+	/// Success.
+	/// </param>
 	void ProcessLogin(bool success)
 	{
 		loggingIn = false;

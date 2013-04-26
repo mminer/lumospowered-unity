@@ -4,28 +4,79 @@ using UnityEngine.SocialPlatforms;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Lumos social.
+/// </summary>
 public class LumosSocial
 {
+	/// <summary>
+	/// The local user.
+	/// </summary>
 	public static LumosUser localUser;
+	/// <summary>
+	/// The leaderboards.
+	/// </summary>
 	public static List<LumosLeaderboard> leaderboards;
+	/// <summary>
+	/// The achievements.
+	/// </summary>
 	public static List<LumosAchievement> achievements = new List<LumosAchievement>();
+	/// <summary>
+	/// The achievement descriptions.
+	/// </summary>
 	public static IAchievementDescription[] achievementDescriptions;
+	/// <summary>
+	/// The processing achievements.
+	/// </summary>
 	static List<LumosAchievement> processingAchievements = new List<LumosAchievement>();
+	/// <summary>
+	/// The platform.
+	/// </summary>
 	static LumosSocialPlatform platform;
-
+	
+	/// <summary>
+	/// Init this instance.
+	/// </summary>
 	static void Init()
 	{
 		platform = new LumosSocialPlatform();
 		Social.Active = platform;
 		localUser = Social.localUser as LumosUser;
 	}
-
+	
+	/// <summary>
+	/// Register the specified username, pass, email and callback.
+	/// </summary>
+	/// <param name='username'>
+	/// Username.
+	/// </param>
+	/// <param name='pass'>
+	/// Pass.
+	/// </param>
+	/// <param name='email'>
+	/// Email.
+	/// </param>
+	/// <param name='callback'>
+	/// Callback.
+	/// </param>
 	public static void Register(string username, string pass, string email, Action<bool> callback)
 	{
 		Init();
 		localUser.Register(username, pass, email, callback);
 	}
-
+	
+	/// <summary>
+	/// Connect the specified username, password and callback.
+	/// </summary>
+	/// <param name='username'>
+	/// Username.
+	/// </param>
+	/// <param name='password'>
+	/// Password.
+	/// </param>
+	/// <param name='callback'>
+	/// Callback.
+	/// </param>
 	public static void Connect(string username=null, string password=null, Action<bool> callback=null)
 	{
         // This call needs to be made before we can proceed to other calls in the Social API
@@ -38,6 +89,15 @@ public class LumosSocial
 		}
     }
 	
+	/// <summary>
+	/// Forgots the password.
+	/// </summary>
+	/// <param name='username'>
+	/// Username.
+	/// </param>
+	/// <param name='callback'>
+	/// Callback.
+	/// </param>
 	public static void ForgotPassword(string username, Action<bool> callback)
 	{
 		if (platform == null) {
@@ -65,40 +125,69 @@ public class LumosSocial
 			}
 		}
 	}
-
+	
+	/// <summary>
+	/// Loads the achievements.
+	/// </summary>
 	public static void LoadAchievements()
 	{
 		platform.LoadAchievementDescriptions(ProcessLoadedAchievements);
 		platform.LoadAchievements(ProcessLoadedPlayerAchievements);
 	}
-
+	
+	/// <summary>
+	/// Loads the leaderboards.
+	/// </summary>
 	public static void LoadLeaderboards()
 	{
 		platform.LoadLeaderboardDescriptions(ProcessLeaderboardDescriptions);
 	}
-
+	/// <summary>
+	/// Loads the leaderboard scores.
+	/// </summary>
+	/// <param name='leaderboard'>
+	/// Leaderboard.
+	/// </param>
 	public static void LoadLeaderboardScores(LumosLeaderboard leaderboard)
 	{
 		platform.LoadScores(leaderboard.id, ProcessScores);
 	}
-
+	/// <summary>
+	/// Processes the leaderboard descriptions.
+	/// </summary>
+	/// <param name='success'>
+	/// Success.
+	/// </param>
 	static void ProcessLeaderboardDescriptions(bool success)
 	{
 		// do nothing
 	}
-
+	
+	/// <summary>
+	/// Processes the scores.
+	/// </summary>
+	/// <param name='scores'>
+	/// Scores.
+	/// </param>
 	static void ProcessScores(IScore[] scores)
 	{
 		// do nothing
 	}
-
+	
+	/// <summary>
+	/// Shows the profile U.
+	/// </summary>
 	public static void ShowProfileUI()
 	{
 		LumosSocialGUI.ShowProfileUI();
 	}
 
-    // This function gets called when Authenticate completes
-    // Note that if the operation is successful, Social.localUser will contain data from the server.
+    /// <summary>
+    /// Processes the authentication.
+    /// </summary>
+    /// <param name='success'>
+    /// Success.
+    /// </param>
     static void ProcessAuthentication (bool success)
 	{
         if (success) {
@@ -108,7 +197,12 @@ public class LumosSocial
 		}
     }
 
-    // This function gets called when the LoadAchievement call completes
+    /// <summary>
+    /// Processes the loaded achievements.
+    /// </summary>
+    /// <param name='achievements'>
+    /// Achievements.
+    /// </param>
     static void ProcessLoadedAchievements (IAchievementDescription[] achievements)
 	{
         if (achievements.Length == 0) {
@@ -152,8 +246,9 @@ public class LumosSocial
 		}
 	}
 
-	// Check the pending awarded achievements to see if they
-	// were awarded to the player
+	/// <summary>
+	/// Check the pending awarded achievements to see if they were awarded to the player.
+	/// </summary>
 	static void ValidateAchievementsInProcess()
 	{
 		foreach (var achievement in processingAchievements) {
@@ -164,7 +259,15 @@ public class LumosSocial
 		}
 	}
 
-	// Get an earned achievement by ID
+	/// <summary>
+	/// Get an earned achievement by ID.
+	/// </summary>
+	/// <returns>
+	/// The earned achievement.
+	/// </returns>
+	/// <param name='achievementID'>
+	/// Achievement I.
+	/// </param>
 	static LumosAchievement GetEarnedAchievement(string achievementID)
 	{
 		foreach (var achievement in achievements) {
@@ -175,19 +278,49 @@ public class LumosSocial
 
 		return null;
 	}
-
+	
+	/// <summary>
+	/// Loadeds the scores.
+	/// </summary>
+	/// <param name='scores'>
+	/// Scores.
+	/// </param>
 	static void LoadedScores(IScore[] scores) {
 
 	}
-
+	
+	/// <summary>
+	/// Submits the score.
+	/// </summary>
+	/// <param name='score'>
+	/// Score.
+	/// </param>
+	/// <param name='leaderboardID'>
+	/// Leaderboard I.
+	/// </param>
 	public static void SubmitScore(int score, string leaderboardID) {
 		platform.ReportScore(score, leaderboardID, SubmittedScore);
 	}
-
+	
+	/// <summary>
+	/// Submitteds the score.
+	/// </summary>
+	/// <param name='success'>
+	/// Success.
+	/// </param>
 	static void SubmittedScore(bool success) {
 		Debug.Log("score submitted: " + success);
 	}
-
+	
+	/// <summary>
+	/// Determines whether this instance has achievement the specified achievementID.
+	/// </summary>
+	/// <returns>
+	/// <c>true</c> if this instance has achievement the specified achievementID; otherwise, <c>false</c>.
+	/// </returns>
+	/// <param name='achievementID'>
+	/// If set to <c>true</c> achievement I.
+	/// </param>
 	public static bool HasAchievement(string achievementID)
 	{
 		foreach (var achievement in achievements) {
@@ -202,7 +335,16 @@ public class LumosSocial
 
 		return false;
 	}
-
+	
+	/// <summary>
+	/// Gets the leaderboard.
+	/// </summary>
+	/// <returns>
+	/// The leaderboard.
+	/// </returns>
+	/// <param name='id'>
+	/// Identifier.
+	/// </param>
 	public static LumosLeaderboard GetLeaderboard(string id)
 	{
 		foreach (var leaderboard in leaderboards) {

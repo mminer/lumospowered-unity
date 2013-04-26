@@ -7,6 +7,9 @@ using UnityEngine;
 /// </summary>
 public partial class Lumos
 {
+	/// <summary>
+	/// Message logger.
+	/// </summary>
 	delegate void MessageLogger (object message);
 
 	/// <summary>

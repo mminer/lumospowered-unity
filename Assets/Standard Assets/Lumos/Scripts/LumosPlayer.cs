@@ -8,6 +8,9 @@ using UnityEngine;
 /// </summary>
 public class LumosPlayer
 {
+	/// <summary>
+	/// The URL.
+	/// </summary>
 	static string url = "http://localhost:8888/api/1/games/";//"http://localhost:8888/api/1/games/";
 
 	/// <summary>

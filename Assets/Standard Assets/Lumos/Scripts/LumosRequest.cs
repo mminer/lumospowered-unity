@@ -10,7 +10,13 @@ using UnityEngine;
 /// </summary>
 public class LumosRequest
 {
+	/// <summary>
+	/// Success handler.
+	/// </summary>
 	public delegate void SuccessHandler(object response);
+	/// <summary>
+	/// Error handler.
+	/// </summary>
 	public delegate void ErrorHandler(object response);
 
 	/// <summary>

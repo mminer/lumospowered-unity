@@ -1,11 +1,22 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Lumos social GU.
+/// </summary>
 public partial class LumosSocialGUI : MonoBehaviour
 {
+	/// <summary>
+	/// The default achievement icon.
+	/// </summary>
 	public Texture2D defaultAchievementIcon;
-
+	/// <summary>
+	/// The getting achievements.
+	/// </summary>
 	bool gettingAchievements;
+	/// <summary>
+	/// The achievement scroll position.
+	/// </summary>
 	Vector2 achievementScrollPos;
 	
 	/// <summary>
@@ -93,12 +104,21 @@ public partial class LumosSocialGUI : MonoBehaviour
 
 		GUILayout.EndScrollView();
 	}
-
+	
+	/// <summary>
+	/// Shows the achievements.
+	/// </summary>
 	public static void ShowAchievements()
 	{
 		instance.screen = Screens.Achievements;
 	}
-
+	
+	/// <summary>
+	/// Gets the default achievement.
+	/// </summary>
+	/// <returns>
+	/// The default achievement.
+	/// </returns>
 	public static Texture2D GetDefaultAchievement()
 	{
 		return instance.defaultAchievementIcon;

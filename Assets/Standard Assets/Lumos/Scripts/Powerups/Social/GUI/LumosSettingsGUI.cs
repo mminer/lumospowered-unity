@@ -2,20 +2,51 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Lumos social GU.
+/// </summary>
 public partial class LumosSocialGUI : MonoBehaviour 
 {
-	
+	/// <summary>
+	/// The set pass.
+	/// </summary>
 	string setPass = "";
+	/// <summary>
+	/// The set confirm pass.
+	/// </summary>
 	string setConfirmPass = "";
+	/// <summary>
+	/// The set email.
+	/// </summary>
 	string setEmail = "";
+	/// <summary>
+	/// The name of the set.
+	/// </summary>
 	string setName = "";
+	/// <summary>
+	/// The set message.
+	/// </summary>
 	string setMessage = "";
+	/// <summary>
+	/// The set underage.
+	/// </summary>
 	bool setUnderage;
+	/// <summary>
+	/// The saving settings.
+	/// </summary>
 	bool savingSettings;
+	/// <summary>
+	/// The set other.
+	/// </summary>
 	List<Hashtable> setOther;
+	/// <summary>
+	/// The set scroll position.
+	/// </summary>
 	Vector2 setScrollPos;
 	
-	
+	/// <summary>
+	/// Settingses the screen.
+	/// </summary>
 	void SettingsScreen()
 	{		
 		
@@ -155,6 +186,9 @@ public partial class LumosSocialGUI : MonoBehaviour
 		GUILayout.Space(smallMargin);
 	}
 	
+	/// <summary>
+	/// Saves the settings.
+	/// </summary>
 	void SaveSettings()
 	{
 		if (setPass.Length > 0) {
@@ -188,6 +222,12 @@ public partial class LumosSocialGUI : MonoBehaviour
 		LumosSocial.localUser.UpdateInfo(setName, setEmail, setPass, LumosSocial.localUser.other, ProcessSaveSettings);
 	}
 	
+	/// <summary>
+	/// Processes the save settings.
+	/// </summary>
+	/// <param name='success'>
+	/// Success.
+	/// </param>
 	void ProcessSaveSettings(bool success)
 	{
 		savingSettings = false;
@@ -195,6 +235,9 @@ public partial class LumosSocialGUI : MonoBehaviour
 		setMessage = "Settings saved.";
 	}
 	
+	/// <summary>
+	/// Shows the settings U.
+	/// </summary>
 	public static void ShowSettingsUI()
 	{
 		instance.setEmail = LumosSocial.localUser.email;

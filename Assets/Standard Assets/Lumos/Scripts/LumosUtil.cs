@@ -9,6 +9,15 @@ using System.Text;
 /// </summary>
 public static class LumosUtil
 {
+	/// <summary>
+	/// Unixs the timestamp to date time.
+	/// </summary>
+	/// <returns>
+	/// The timestamp to date time.
+	/// </returns>
+	/// <param name='timestamp'>
+	/// Timestamp.
+	/// </param>
 	public static DateTime UnixTimestampToDateTime (double timestamp)
 	{
 		var dt = new DateTime(1970, 1, 1, 0, 0, 0, 0);

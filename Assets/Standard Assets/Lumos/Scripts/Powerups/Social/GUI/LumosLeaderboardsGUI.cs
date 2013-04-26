@@ -3,20 +3,43 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.SocialPlatforms;
 
+/// <summary>
+/// Lumos social GU.
+/// </summary>
 public partial class LumosSocialGUI : MonoBehaviour 
 {
-
-	
+	/// <summary>
+	/// The default user icon.
+	/// </summary>
 	public Texture2D defaultUserIcon;
-	
+	/// <summary>
+	/// The friend scores scroll position.
+	/// </summary>
 	Vector2 friendScoresScrollPos;
+	/// <summary>
+	/// All scores scroll position.
+	/// </summary>
 	Vector2 allScoresScrollPos;
+	/// <summary>
+	/// The current leaderboard.
+	/// </summary>
 	LumosLeaderboard currentLeaderboard;
+	/// <summary>
+	/// The new score.
+	/// </summary>
 	string newScore = "";
+	/// <summary>
+	/// The getting leaderboards.
+	/// </summary>
 	bool gettingLeaderboards;
+	/// <summary>
+	/// The offset.
+	/// </summary>
 	int offset;
 	
-	
+	/// <summary>
+	/// Leaderboardses the screen.
+	/// </summary>
 	void LeaderboardsScreen()
 	{
 		GUILayout.Space(smallMargin);
@@ -68,6 +91,9 @@ public partial class LumosSocialGUI : MonoBehaviour
 		GUILayout.EndHorizontal();
 	}
 	
+	/// <summary>
+	/// Scoreses the screen.
+	/// </summary>
 	void ScoresScreen()
 	{
 		if (currentLeaderboard == null) {
@@ -132,11 +158,20 @@ public partial class LumosSocialGUI : MonoBehaviour
 		GUILayout.EndScrollView();
 	}
 	
+	/// <summary>
+	/// Shows the leaderboards U.
+	/// </summary>
 	public static void ShowLeaderboardsUI()
 	{	
 		instance.screen = Screens.Leaderboards;
 	}
 	
+	/// <summary>
+	/// Displaies the score label.
+	/// </summary>
+	/// <param name='label'>
+	/// Label.
+	/// </param>
 	void DisplayScoreLabel(string label)
 	{
 		GUILayout.BeginHorizontal();
@@ -146,6 +181,12 @@ public partial class LumosSocialGUI : MonoBehaviour
 		GUILayout.EndHorizontal();
 	}
 	
+	/// <summary>
+	/// Displaies the score data.
+	/// </summary>
+	/// <param name='scores'>
+	/// Scores.
+	/// </param>
 	void DisplayScoreData(IScore[] scores)
 	{
 		foreach (var score in scores) {

@@ -1,17 +1,40 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Lumos social GU.
+/// </summary>
 public partial class LumosSocialGUI : MonoBehaviour 
 {
-	
+	/// <summary>
+	/// The reg username.
+	/// </summary>
 	string regUsername = "";
+	/// <summary>
+	/// The reg pass.
+	/// </summary>
 	string regPass = "";
+	/// <summary>
+	/// The reg confirm pass.
+	/// </summary>
 	string regConfirmPass = "";
+	/// <summary>
+	/// The reg email.
+	/// </summary>
 	string regEmail = "";
 	
+	/// <summary>
+	/// The reg message.
+	/// </summary>
 	string regMessage = "";
+	/// <summary>
+	/// The registering.
+	/// </summary>
 	bool registering;
 	
+	/// <summary>
+	/// Registrations the screen.
+	/// </summary>
 	void RegistrationScreen()
 	{
 		GUILayout.Space(margin);
@@ -103,6 +126,9 @@ public partial class LumosSocialGUI : MonoBehaviour
 		GUILayout.EndHorizontal();
 	}
 	
+	/// <summary>
+	/// Registers the new user.
+	/// </summary>
 	void RegisterNewUser()
 	{
 		if (regUsername.Length < 1 || regPass.Length < 1 || regConfirmPass.Length < 1 || regEmail.Length < 1) {
@@ -120,7 +146,13 @@ public partial class LumosSocialGUI : MonoBehaviour
 		
 		LumosSocial.Register(regUsername, regPass, regEmail, ProcessRegistration);
 	}
-			
+		
+	/// <summary>
+	/// Processes the registration.
+	/// </summary>
+	/// <param name='success'>
+	/// Success.
+	/// </param>
 	void ProcessRegistration(bool success)
 	{
 		registering = false;

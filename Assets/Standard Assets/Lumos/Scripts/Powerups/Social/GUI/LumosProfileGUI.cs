@@ -3,16 +3,36 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.SocialPlatforms;
 
+/// <summary>
+/// Lumos social GU.
+/// </summary>
 public partial class LumosSocialGUI : MonoBehaviour 
 {
+	/// <summary>
+	/// The current user.
+	/// </summary>
 	LumosUser currentUser;
 	
+	/// <summary>
+	/// The pro other scroll position.
+	/// </summary>
 	Vector2 proOtherScrollPos;
+	/// <summary>
+	/// The pro friends scroll position.
+	/// </summary>
 	Vector2 proFriendsScrollPos;
+	/// <summary>
+	/// The pro scores scroll position.
+	/// </summary>
 	Vector2 proScoresScrollPos;
+	/// <summary>
+	/// The friend to add.
+	/// </summary>
 	string friendToAdd = "";
 	
-	
+	/// <summary>
+	/// Profiles the screen.
+	/// </summary>
 	void ProfileScreen()
 	{
 		if (currentUser == null) {
@@ -154,6 +174,9 @@ public partial class LumosSocialGUI : MonoBehaviour
 		GUILayout.EndHorizontal();
 	}
 	
+	/// <summary>
+	/// Shows the profile U.
+	/// </summary>
 	public static void ShowProfileUI()
 	{
 		instance.screen = Screens.Profile;
