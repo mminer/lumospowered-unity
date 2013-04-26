@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LumosPlayer</name>
+    </assembly>
+    <members>
+        <member name="T:LumosPlayer">
+            <summary>
+            Player-related functionality.
+            </summary>
+        </member>
+        <member name="M:LumosPlayer.Init">
+            <summary>
+            Fetches an existing player ID or creates a new one.
+            </summary>
+        </member>
+        <member name="M:LumosPlayer.RequestPlayerId">
+            <summary>
+            Notifies the server to generate and return a new Player ID.
+            </summary>
+        </member>
+        <member name="M:LumosPlayer.Ping">
+            <summary>
+            Notifies the server that the player is playing.
+            </summary>
+        </member>
+    </members>
+</doc>

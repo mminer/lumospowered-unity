@@ -93,7 +93,7 @@ public partial class Lumos : MonoBehaviour
 	public static void Remove (string reason)
 	{
 		if (instance != null) {
-			Lumos.LogWarning(reason + " No information will be recorded.");
+			Debug.LogWarning("[Lumos] " + reason + " No information will be recorded.");
 			Destroy(instance.gameObject);
 		}
 	}

@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class LumosPlayer
 {
-	static string url = "http://localhost:8888/api/1/games/";
+	static string url = "https://www.lumospowered.com/api/1/games/";//"http://localhost:8888/api/1/games/";
 
 	/// <summary>
 	/// Fetches an existing player ID or creates a new one.

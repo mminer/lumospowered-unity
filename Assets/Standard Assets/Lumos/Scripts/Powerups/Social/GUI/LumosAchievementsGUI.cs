@@ -7,7 +7,10 @@ public partial class LumosSocialGUI : MonoBehaviour
 
 	bool gettingAchievements;
 	Vector2 achievementScrollPos;
-
+	
+	/// <summary>
+	/// Achievementses the screen.
+	/// </summary>
 	void AchievementsScreen()
 	{
 		GUILayout.Space(smallMargin);
@@ -54,7 +57,7 @@ public partial class LumosSocialGUI : MonoBehaviour
 				GUI.enabled = false;
 			}
 
-			GUILayout.Label(defaultAchievementIcon);
+			GUILayout.Label(achievement.image, GUILayout.Width(labelWidth), GUILayout.Height(labelWidth));
 
 			GUILayout.BeginVertical();
 				GUILayout.Label(achievement.title, GUILayout.Width(submitButtonWidth * 2));

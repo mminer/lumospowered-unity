@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LumosRequest</name>
+    </assembly>
+    <members>
+        <member name="T:LumosRequest">
+            <summary>
+            Functionality for communicating with Lumos' servers.
+            </summary>
+        </member>
+        <member name="M:LumosRequest.Send(System.String)">
+            <summary>
+            Sends data to Lumos' servers.
+            </summary>
+        </member>
+        <member name="M:LumosRequest.Send(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Sends data to Lumos' servers.
+            </summary>
+        </member>
+        <member name="M:LumosRequest.Send(System.String,LumosRequest.SuccessHandler)">
+            <summary>
+            Sends data to Lumos' servers.
+            </summary>
+        </member>
+        <member name="M:LumosRequest.Send(System.String,System.Collections.Generic.Dictionary{System.String,System.Object},LumosRequest.SuccessHandler)">
+            <summary>
+            Sends data to Lumos' servers.
+            </summary>
+            <param name="successCallback">Callback to run on successful response.</param>
+        </member>
+        <member name="M:LumosRequest.Send(System.String,System.Collections.Generic.Dictionary{System.String,System.Object},LumosRequest.SuccessHandler,LumosRequest.ErrorHandler)">
+            <summary>
+            Sends data to Lumos' servers.
+            </summary>
+            <param name="successCallback">Callback to run on successful response.</param>
+            <param name="errorCallback">Callback to run on failed response.</param>
+        </member>
+        <member name="M:LumosRequest.SendCoroutine(System.String,System.Collections.Generic.Dictionary{System.String,System.Object},LumosRequest.SuccessHandler,LumosRequest.ErrorHandler)">
+            <summary>
+            Sends data to Lumos' servers.
+            </summary>
+            <param name="successCallback">Callback to run on successful response.</param>
+            <param name="errorCallback">Callback to run on failed response.</param>
+        </member>
+    </members>
+</doc>

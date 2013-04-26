@@ -2,10 +2,11 @@ using UnityEngine;
 using System.Collections;
 
 public class Test : MonoBehaviour {
-
-	void Awake() {
+	void Awake()
+	{
 		Lumos.debug = true;
 	}
+
 	void OnGUI() {
 		if (!Social.localUser.authenticated) {
 			return;

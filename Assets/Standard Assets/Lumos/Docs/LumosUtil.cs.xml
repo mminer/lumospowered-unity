@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LumosUtil</name>
+    </assembly>
+    <members>
+        <member name="T:LumosUtil">
+            <summary>
+            Miscellaneous utility functions.
+            </summary>
+        </member>
+        <member name="M:LumosUtil.MD5Hash(System.String[])">
+            <summary>
+            Generates an MD5 hash of a string.
+            </summary>
+            <param name="strings">The strings to create a hash from.</param>
+            <returns>The hash.</returns>
+        </member>
+    </members>
+</doc>
