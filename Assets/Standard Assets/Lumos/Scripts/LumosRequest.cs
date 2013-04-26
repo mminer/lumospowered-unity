@@ -1,6 +1,5 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -57,8 +56,6 @@ public class LumosRequest
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, successCallback, errorCallback));
 	}
 
-#if !UNITY_FLASH
-
 	static readonly Hashtable headers = new Hashtable()
 	{
 		{ "Content-Type", "application/json" }
@@ -84,11 +81,12 @@ public class LumosRequest
 			yield break;
 		}
 
-		var json = LumosJson.Serialize(parameters);
+		string json;
 
-		// All requests (including GET) are sent as POST and require a body.
-		if (json == null) {
+		if (parameters == null) {
 			json = "{}";
+		} else {
+			json = LumosJson.Serialize(parameters);
 		}
 
 		var postData = Encoding.ASCII.GetBytes(json);
@@ -114,11 +112,4 @@ public class LumosRequest
 			}
 		}
 	}
-
-#else
-
-	static IEnumerator SendCoroutine (string method, Dictionary<string, object> parameters, SuccessHandler successCallback, ErrorHandler errorCallback) { yield break; }
-
-#endif
-
 }

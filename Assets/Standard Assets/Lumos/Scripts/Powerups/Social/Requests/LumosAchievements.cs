@@ -1,3 +1,5 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System;
 using System.Collections.Generic;
 using System.Collections;
@@ -116,7 +118,8 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		return null;
 	}
 
-	void UpdateAchievement(LumosAchievement achievement) {
+	void UpdateAchievement(LumosAchievement achievement)
+	{
 		foreach (LumosAchievement a in achievements) {
 			if (a.id == achievement.id) {
 				a.percentCompleted = achievement.percentCompleted;
@@ -126,7 +129,8 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		}
 	}
 
-	LumosAchievement DictionaryToAchievement(Dictionary<string, object> info) {
+	LumosAchievement DictionaryToAchievement(Dictionary<string, object> info)
+	{
 		var id = info["achievement_id"] as string;
 		var percentCompleted = Convert.ToDouble(info["percent_completed"]);
 		var completed = percentCompleted == 100 ? true : false;

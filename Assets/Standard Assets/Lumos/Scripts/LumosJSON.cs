@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using UnityEngine;
 
 /// <summary>
 /// JSON encoder and decoder. Based on MiniJSON and others (see below).
