@@ -5,8 +5,8 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.Impl;
 
-public partial class LumosSocialPlatform : ISocialPlatform {
-
+public partial class LumosSocialPlatform : ISocialPlatform 
+{
 
 	void RegisterUser(string username, string password, string email, Action<bool> callback)
 	{

@@ -48,6 +48,19 @@ def merge_social_gui(social_gui, root):
         fout.write('\n}')
 
 
+def merge_lumos(lumos, root):
+    """Merges the core Lumos partial classes."""
+    # Remove the closing brace before merge
+    remove_closing_brace(lumos)
+    
+    with open(lumos, 'a') as fout:  
+        debug = '%s/LumosDebug.cs' % (root)
+        merge_file(debug, 9, fout)
+
+        # Add closing brace back in
+        fout.write('\n}')
+
+
 def remove_closing_brace(file):
     """Removes the last line of a file"""
     # Remove line from file
@@ -103,6 +116,8 @@ if __name__ == '__main__':
     root = 'Scripts'
     dest_root = '/Users/Dagoth/Desktop/UnityLumosScripts'
     gui_dir = '%s/Scripts/Powerups/Social/GUI' % (dest_root)
+    lumos_dir = '%s/Scripts' % (dest_root)
+    lumos = '%s/Lumos.cs' % (lumos_dir)
     social_gui = '%s/LumosSocialGUI.cs' % (gui_dir)
     unity_dll = '-r:/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEngine.dll'
     
@@ -111,6 +126,9 @@ if __name__ == '__main__':
     
     # Merge partial social GUI classes
     merge_social_gui(social_gui, gui_dir)
+    
+    # Merge core Lumos partial classes
+    merge_lumos(lumos, lumos_dir)
     
     # Create XML documentation of the resulting .cs files
     create_documentation(dest_root, unity_dll)

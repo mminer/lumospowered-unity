@@ -5,8 +5,6 @@ using UnityEngine.SocialPlatforms;
 
 public partial class LumosSocialGUI : MonoBehaviour 
 {
-
-	
 	LumosUser currentUser;
 	
 	Vector2 proOtherScrollPos;
