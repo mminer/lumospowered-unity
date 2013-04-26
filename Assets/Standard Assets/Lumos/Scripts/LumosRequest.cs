@@ -57,8 +57,6 @@ public class LumosRequest
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, successCallback, errorCallback));
 	}
 
-#if !UNITY_FLASH
-
 	static readonly Hashtable headers = new Hashtable()
 	{
 		{ "Content-Type", "application/json" }
@@ -112,11 +110,4 @@ public class LumosRequest
 			}
 		}
 	}
-
-#else
-
-	static IEnumerator SendCoroutine (string method, Dictionary<string, object> parameters, SuccessHandler successCallback, ErrorHandler errorCallback) { yield break; }
-
-#endif
-
 }

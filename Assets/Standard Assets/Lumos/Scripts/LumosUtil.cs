@@ -18,8 +18,6 @@ public static class LumosUtil
 		return dt.AddSeconds(timestamp);
 	}
 
-#if !UNITY_FLASH
-
 	/// <summary>
 	/// Generates an MD5 hash of a string.
 	/// </summary>
@@ -48,16 +46,4 @@ public static class LumosUtil
 
 		return hash.ToString();
 	}
-
-#else
-
-	/// <summary>
-	/// Does nothing. Flash export doesn't yet include System.Security.
-	/// </summary>
-	public static string MD5Hash (params string[] strings)
-	{
-		return null;
-	}
-
-#endif
 }
