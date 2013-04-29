@@ -39,8 +39,10 @@ public class LumosPlayer
 		var endpoint = url + "/players";
 
 		LumosRequest.Send(endpoint, delegate (object response) {
+			var idPrefsKey = "lumospowered_" + Lumos.gameId + "_playerid";
 			var resp = response as Dictionary<string, object>;
 			Lumos.playerId = resp["player_id"].ToString();
+			PlayerPrefs.SetString(idPrefsKey, Lumos.playerId);
 			Lumos.Log("Using new player " + Lumos.playerId);
 		});
 	}

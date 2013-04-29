@@ -30,7 +30,7 @@ public class LumosRequest
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	public static Coroutine Send (string url, Dictionary<string, object> parameters)
+	public static Coroutine Send (string url, object parameters)
 	{
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, null, null));
 	}
@@ -47,7 +47,7 @@ public class LumosRequest
 	/// Sends data to Lumos' servers.
 	/// </summary>
 	/// <param name="successCallback">Callback to run on successful response.</param>
-	public static Coroutine Send (string url, Dictionary<string, object> parameters, SuccessHandler successCallback)
+	public static Coroutine Send (string url, object parameters, SuccessHandler successCallback)
 	{
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, successCallback, null));
 	}
@@ -57,7 +57,7 @@ public class LumosRequest
 	/// </summary>
 	/// <param name="successCallback">Callback to run on successful response.</param>
 	/// <param name="errorCallback">Callback to run on failed response.</param>
-	public static Coroutine Send (string url, Dictionary<string, object> parameters, SuccessHandler successCallback, ErrorHandler errorCallback)
+	public static Coroutine Send (string url, object parameters, SuccessHandler successCallback, ErrorHandler errorCallback)
 	{
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, successCallback, errorCallback));
 	}
@@ -72,7 +72,7 @@ public class LumosRequest
 	/// </summary>
 	/// <param name="successCallback">Callback to run on successful response.</param>
 	/// <param name="errorCallback">Callback to run on failed response.</param>
-	static IEnumerator SendCoroutine (string url, Dictionary<string, object> parameters, SuccessHandler successCallback, ErrorHandler errorCallback)
+	static IEnumerator SendCoroutine (string url, object parameters, SuccessHandler successCallback, ErrorHandler errorCallback)
 	{
 		if (Application.isEditor && !Lumos.instance.runInEditor) {
 			yield break;
