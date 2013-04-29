@@ -44,29 +44,29 @@ public class LumosEvents : MonoBehaviour
 	/// <summary>
 	/// Records an event.
 	/// </summary>
-	/// <param name="name">The name of the event.</param>
+	/// <param name="eventID">The name of the event.</param>
 	/// <param name="value">An arbitrary value to send with the event.</param>
 	/// <param name="repeatable">
 	/// Whether this event should only be logged once.
 	/// </param>
-	public static void Record (string name, float? value, bool repeatable)
+	public static void Record (string eventID, float? value, bool repeatable)
 	{
-		if (name == null || name == "") {
+		if (eventID == null || eventID == "") {
 			Lumos.LogWarning("Name must be sent. Event not recorded.");
 			return;
 		}
 
 		// Ensure unrepeatable event hasn't been logged before.
 		if (!repeatable) {
-			if (RecordedUnique(name)) {
+			if (RecordedUnique(eventID)) {
 				return;
 			}
 
-			unsentUniqueEvents.Add(name);
+			unsentUniqueEvents.Add(eventID);
 		}
 
 		var parameters = new Dictionary<string, object>() {
-			{ "name", name },
+			{ "event_id", eventID },
 			{ "level", Application.loadedLevelName },
 		};
 
@@ -146,7 +146,7 @@ public class LumosEvents : MonoBehaviour
 	void Awake ()
 	{
 		levelStartTime = Time.time;
-		LumosEvents.Record("Level Started", 1, false);
+		LumosEvents.Record("Level Started", 1, true);
 	}
 	
 	/// <summary>
@@ -154,9 +154,9 @@ public class LumosEvents : MonoBehaviour
 	/// </summary>
 	void OnLevelWasLoaded ()
 	{
-		LumosEvents.Record("Level Completion Time", Time.time - levelStartTime, false);
+		LumosEvents.Record("Level Completion Time", Time.time - levelStartTime, true);
 		levelStartTime = Time.time;
-		LumosEvents.Record("Level Started", 1, false);
+		LumosEvents.Record("Level Started", 1, true);
 	}
 	
 	/// <summary>
