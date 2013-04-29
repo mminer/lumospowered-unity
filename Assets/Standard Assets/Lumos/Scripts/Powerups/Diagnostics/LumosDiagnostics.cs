@@ -56,12 +56,6 @@ public class LumosDiagnostics : MonoBehaviour
 		
 		// Set up debug log redirect.
 		Application.RegisterLogCallback(LumosLogs.Record);
-		
-		var key = "lumospowered_" + Lumos.gameId + "_" + Lumos.playerId + "_sent_specs";
-
-		if (!PlayerPrefs.HasKey(key)) {
-			LumosSpecs.Record();
-		}
 	}
 	
 	/// <summary>
@@ -69,6 +63,12 @@ public class LumosDiagnostics : MonoBehaviour
 	/// </summary>
 	void Start ()
 	{
+		var key = "lumospowered_" + Lumos.gameId + "_" + Lumos.playerId + "_sent_specs";
+
+		if (!PlayerPrefs.HasKey(key)) {
+			LumosSpecs.Record();
+		}
+		
 		Lumos.RunRoutine(SendQueuedLogs());
 	}
 	

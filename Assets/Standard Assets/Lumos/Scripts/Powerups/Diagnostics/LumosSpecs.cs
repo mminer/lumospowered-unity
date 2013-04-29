@@ -68,7 +68,7 @@ public class LumosSpecs
 	/// </param>
 	static void SendSpecs (Dictionary<string, object> parameters)
 	{
-		var endpoint = url + "/specs/" + Lumos.playerId;
+		var endpoint = url + "/specs/" + Lumos.playerId + "?method=PUT";
 
 		LumosRequest.Send(endpoint, parameters, 
 			delegate { // Success

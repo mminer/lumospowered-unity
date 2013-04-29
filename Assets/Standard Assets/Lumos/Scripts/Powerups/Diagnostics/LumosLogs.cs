@@ -124,7 +124,6 @@ public class LumosLogs
 	public static void Send ()
 	{
 		if (logs.Count == 0) {
-			Debug.Log("no logs!");
 			return;
 		}
 		
