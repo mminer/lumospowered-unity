@@ -105,7 +105,7 @@ public class LumosUser : ILocalUser
 	/// <summary>
 	/// The URL.
 	/// </summary>
-	string url = "http://localhost:8888/api/1/games/" + Lumos.gameId + "/users";
+	string url = "http://localhost:8888/api/1/users";
 	
 	/// <summary>
 	/// Initializes a new instance of the <see cref="LumosUser"/> class.

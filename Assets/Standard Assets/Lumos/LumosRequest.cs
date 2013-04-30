@@ -1,7 +1,9 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 
@@ -62,7 +64,7 @@ public class LumosRequest
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, successCallback, errorCallback));
 	}
 
-	static readonly Hashtable headers = new Hashtable()
+	static Hashtable headers = new Hashtable()
 	{
 		{ "Content-Type", "application/json" }
 	};
@@ -94,8 +96,18 @@ public class LumosRequest
 		} else {
 			json = LumosJson.Serialize(parameters);
 		}
-
+		
 		var postData = Encoding.ASCII.GetBytes(json);
+		var secret = Encoding.ASCII.GetBytes(Lumos.instance.apiKey);
+		
+		var hmac = new HMACSHA1(secret);
+		hmac.Initialize();
+		var hash = hmac.ComputeHash(postData);
+		var auth = Convert.ToBase64String(hash);
+		
+		headers["Authentication"] = "Lumos " + Lumos.gameId + ":" + auth;
+		headers["X-Lumos-Game-ID"] = Lumos.gameId;
+
 		var www = new WWW(url, postData, headers);
 
 		// Send info to server.

@@ -11,7 +11,7 @@ public class LumosLogs
 	/// <summary>
 	/// The URL.
 	/// </summary>
-	static string url = "http://localhost:8888/api/1/games/" + Lumos.gameId + "/diagnostics";
+	static string url = "http://localhost:8888/api/1/diagnostics";
 	
 	/// <summary>
 	/// Log messages that Lumos should ignore.

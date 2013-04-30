@@ -17,7 +17,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 	/// <summary>
 	/// The URL.
 	/// </summary>
-	string url = "localhost:8888/api/1/games/" + Lumos.gameId + "/";
+	string url = "localhost:8888/api/1/";
 	/// <summary>
 	/// The _local user.
 	/// </summary>

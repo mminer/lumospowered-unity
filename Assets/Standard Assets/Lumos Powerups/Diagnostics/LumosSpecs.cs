@@ -13,7 +13,7 @@ public class LumosSpecs
 	/// <summary>
 	/// The URL.
 	/// </summary>
-	static string url = "http://localhost:8888/api/1/games/" + Lumos.gameId + "/diagnostics";
+	static string url = "http://localhost:8888/api/1/diagnostics";
 
 #if !UNITY_IPHONE
 

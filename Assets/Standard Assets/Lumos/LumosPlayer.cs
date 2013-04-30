@@ -12,7 +12,7 @@ public class LumosPlayer
 	/// <summary>
 	/// The URL.
 	/// </summary>
-	static string url = "http://localhost:8888/api/1/games/";//"http://localhost:8888/api/1/games/";
+	static string url = "http://localhost:8888/api/1";
 
 	/// <summary>
 	/// Fetches an existing player ID or creates a new one.

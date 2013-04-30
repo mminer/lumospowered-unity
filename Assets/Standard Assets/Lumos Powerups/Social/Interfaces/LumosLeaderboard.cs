@@ -89,7 +89,7 @@ public class LumosLeaderboard : ILeaderboard {
 	/// <summary>
 	/// The URL.
 	/// </summary>
-	string url = "http://localhost:8888/api/1/games/" + Lumos.gameId + "/";
+	string url = "http://localhost:8888/api/1/";
 	
 	/// <summary>
 	/// Sets the user filter.

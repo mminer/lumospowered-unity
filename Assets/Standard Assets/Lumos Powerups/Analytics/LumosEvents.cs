@@ -12,7 +12,7 @@ public class LumosEvents : MonoBehaviour
 	/// <summary>
 	/// The URL.
 	/// </summary>
-	static string url;
+	static string url = "http://localhost:8888/api/1/events";
 	
 	/// <summary>
 	/// The level start time.
@@ -38,7 +38,6 @@ public class LumosEvents : MonoBehaviour
 	{
 		levelStartTime = Time.time;
 		LumosEvents.Record("Level Started", 1, true);
-		Lumos.OnReady += OnLumosReady;
 		Lumos.OnTimerReady += LumosEvents.Send;
 	}
 	
@@ -50,14 +49,6 @@ public class LumosEvents : MonoBehaviour
 		LumosEvents.Record("Level Completion Time", Time.time - levelStartTime, true);
 		levelStartTime = Time.time;
 		LumosEvents.Record("Level Started", 1, true);
-	}
-	
-	/// <summary>
-	/// Raises the lumos ready event.
-	/// </summary>
-	void OnLumosReady ()
-	{
-		url = "http://localhost:8888/api/1/games/" + Lumos.gameId + "/events";
 	}
 
 	/// <summary>
