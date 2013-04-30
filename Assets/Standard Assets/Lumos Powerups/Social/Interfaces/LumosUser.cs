@@ -414,7 +414,7 @@ public class LumosUser : ILocalUser
 	/// </param>
 	public void LoadFriendLeaderboardScores(Action<bool> callback)
 	{
-		var endpoint = "localhost:8888/api/1/games/" + Lumos.gameId + "/leaderboards/" + userID + "/friends?method=GET";
+		var endpoint = "localhost:8888/api/1/leaderboards/" + userID + "/friends?method=GET";
 
 		LumosRequest.Send(endpoint, delegate (object response) {
 			var resp = response as IList;
