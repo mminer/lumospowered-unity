@@ -105,7 +105,7 @@ public class LumosRequest
 		var hash = hmac.ComputeHash(postData);
 		var auth = Convert.ToBase64String(hash);
 		
-		headers["Authentication"] = "Lumos " + Lumos.gameId + ":" + auth;
+		headers["Authorization"] = "Lumos " + Lumos.gameId + ":" + auth;
 		headers["X-Lumos-Game-ID"] = Lumos.gameId;
 
 		var www = new WWW(url, postData, headers);

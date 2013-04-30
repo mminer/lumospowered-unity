@@ -19,7 +19,6 @@ public class LumosPlayer
 	/// </summary>
 	public static void Init (Action<bool> callback)
 	{
-		url += Lumos.gameId;
 		var idPrefsKey = "lumospowered_" + Lumos.gameId + "_playerid";
 
 		if (PlayerPrefs.HasKey(idPrefsKey)) {
