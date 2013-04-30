@@ -1,5 +1,6 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +17,7 @@ public class LumosPlayer
 	/// <summary>
 	/// Fetches an existing player ID or creates a new one.
 	/// </summary>
-	public static void Init ()
+	public static void Init (Action<bool> callback)
 	{
 		url += Lumos.gameId;
 		var idPrefsKey = "lumospowered_" + Lumos.gameId + "_playerid";
@@ -24,16 +25,17 @@ public class LumosPlayer
 		if (PlayerPrefs.HasKey(idPrefsKey)) {
 			Lumos.playerId = PlayerPrefs.GetString(idPrefsKey);
 			Lumos.Log("Using existing player " + Lumos.playerId);
+			callback(true);
 			Ping();
 		} else {
-			RequestPlayerId();
+			RequestPlayerId(callback);
 		}
 	}
 
 	/// <summary>
 	/// Notifies the server to generate and return a new Player ID.
 	/// </summary>
-	static void RequestPlayerId()
+	static void RequestPlayerId(Action<bool> callback)
 	{
 		// Get a new player ID from Lumos.
 		var endpoint = url + "/players";
@@ -44,6 +46,7 @@ public class LumosPlayer
 			Lumos.playerId = resp["player_id"].ToString();
 			PlayerPrefs.SetString(idPrefsKey, Lumos.playerId);
 			Lumos.Log("Using new player " + Lumos.playerId);
+			callback(true);
 		});
 	}
 

@@ -1,5 +1,6 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -32,6 +33,38 @@ public partial class Lumos : MonoBehaviour
 	/// The device-specific player ID.
 	/// </summary>
 	public static string playerId { get; set; }
+	
+	/// <summary>
+	/// Lumos ready handler.
+	/// </summary>
+	public delegate void LumosReadyHandler ();
+	/// <summary>
+	/// Occurs when on ready.
+	/// </summary>
+	public static event LumosReadyHandler OnReady;
+	
+	/// <summary>
+	/// Timer handler.
+	/// </summary>
+	public delegate void TimerHandler ();
+	/// <summary>
+	/// Occurs when on timer ready.
+	/// </summary>
+	public static event TimerHandler OnTimerReady;
+	
+	static uint _timerInterval = 5;
+	/// <summary>
+	/// The interval (in seconds) at which queued data is sent to the server.
+	/// </summary>
+	static uint timerInterval {
+		get { return _timerInterval; }
+		set { _timerInterval = value; }
+	}
+
+	/// <summary>
+	/// Whether the data sending timer is paused.
+	/// </summary>
+	static bool timerPaused;
 
 	#region Inspector Settings
 
@@ -68,7 +101,15 @@ public partial class Lumos : MonoBehaviour
 		}
 
 		gameId = apiKey.Substring(0, 8);
-		LumosPlayer.Init();
+	}
+	
+	void Start() {
+		LumosPlayer.Init(delegate {
+			if (OnReady != null) {
+				OnReady();
+				Lumos.RunRoutine(SendQueuedData());
+			}
+		});
 	}
 
 	/// <summary>
@@ -96,5 +137,36 @@ public partial class Lumos : MonoBehaviour
 			Debug.LogWarning("[Lumos] " + reason + " No information will be recorded.");
 			Destroy(instance.gameObject);
 		}
+	}
+	
+	/// <summary>
+	/// Sends queued data on an interval.
+	/// </summary>
+	static IEnumerator SendQueuedData ()
+	{
+		yield return new WaitForSeconds((float)timerInterval);
+
+		if (!timerPaused) {
+			// Raise the timer ready event
+			OnTimerReady();
+		}
+		
+		Lumos.RunRoutine(SendQueuedData());
+	}
+	
+	/// <summary>
+	/// Pauses the queued data send timer.
+	/// </summary>
+	public static void PauseTimer ()
+	{
+		timerPaused = true;
+	}
+
+	/// <summary>
+	/// Resumes the queued data send timer.
+	/// </summary>
+	public static void ResumeTimer ()
+	{
+		timerPaused = false;
 	}
 }

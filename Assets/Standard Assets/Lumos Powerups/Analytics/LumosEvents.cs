@@ -14,25 +14,15 @@ public class LumosEvents : MonoBehaviour
 	/// </summary>
 	static string url;
 	
-	static uint _timerInterval = 5;
 	/// <summary>
-	/// The interval (in seconds) at which queued data is sent to the server.
+	/// The level start time.
 	/// </summary>
-	static uint timerInterval {
-		get { return _timerInterval; }
-		set { _timerInterval = value; }
-	}
-
-	/// <summary>
-	/// Whether the data sending timer is paused.
-	/// </summary>
-	static bool timerPaused;
+	float levelStartTime;
 	
 	/// <summary>
 	/// The stored events.
 	/// </summary>
-	static List<Dictionary<string, object>> events =
-		new List<Dictionary<string, object>>();
+	static List<Dictionary<string, object>> events = new List<Dictionary<string, object>>();
 
 	/// <summary>
 	/// Names of unique (non-repeated) events that have yet to be recorded.
@@ -40,6 +30,35 @@ public class LumosEvents : MonoBehaviour
 	static List<string> unsentUniqueEvents = new List<string>();
 
 	LumosEvents () {}
+
+	/// <summary>
+	/// Awake this instance.
+	/// </summary>
+	void Awake ()
+	{
+		levelStartTime = Time.time;
+		LumosEvents.Record("Level Started", 1, true);
+		Lumos.OnReady += OnLumosReady;
+		Lumos.OnTimerReady += LumosEvents.Send;
+	}
+	
+	/// <summary>
+	/// Raises the level was loaded event.
+	/// </summary>
+	void OnLevelWasLoaded ()
+	{
+		LumosEvents.Record("Level Completion Time", Time.time - levelStartTime, true);
+		levelStartTime = Time.time;
+		LumosEvents.Record("Level Started", 1, true);
+	}
+	
+	/// <summary>
+	/// Raises the lumos ready event.
+	/// </summary>
+	void OnLumosReady ()
+	{
+		url = "http://localhost:8888/api/1/games/" + Lumos.gameId + "/events";
+	}
 
 	/// <summary>
 	/// Records an event.
@@ -133,77 +152,5 @@ public class LumosEvents : MonoBehaviour
 					             " Will try again at next timer interval.");
 			}
 		);
-	}
-	
-	/// <summary>
-	/// The level start time.
-	/// </summary>
-	float levelStartTime;
-
-	/// <summary>
-	/// Awake this instance.
-	/// </summary>
-	void Awake ()
-	{
-		levelStartTime = Time.time;
-		LumosEvents.Record("Level Started", 1, true);
-	}
-	
-	/// <summary>
-	/// Raises the level was loaded event.
-	/// </summary>
-	void OnLevelWasLoaded ()
-	{
-		LumosEvents.Record("Level Completion Time", Time.time - levelStartTime, true);
-		levelStartTime = Time.time;
-		LumosEvents.Record("Level Started", 1, true);
-	}
-	
-	/// <summary>
-	/// Extra setup that needs to occur after Awake.
-	/// </summary>
-	void Start ()
-	{
-		url = "http://localhost:8888/api/1/games/" + Lumos.gameId + "/events";
-		Lumos.RunRoutine(SendQueuedEvents());
-	}
-	
-	/// <summary>
-	/// Sends queued data on an interval.
-	/// </summary>
-	IEnumerator SendQueuedEvents ()
-	{
-		yield return new WaitForSeconds((float)timerInterval);
-
-		if (!timerPaused) {
-			SendQueued();
-		}
-		
-		Lumos.RunRoutine(SendQueuedEvents());
-	}
-	
-	/// <summary>
-	/// Sends queued data.
-	/// Currently the only data that accumulates is debug logs.
-	/// </summary>
-	public void SendQueued ()
-	{
-		LumosEvents.Send();
-	}
-
-	/// <summary>
-	/// Pauses the queued data send timer.
-	/// </summary>
-	public static void PauseTimer ()
-	{
-		timerPaused = true;
-	}
-
-	/// <summary>
-	/// Resumes the queued data send timer.
-	/// </summary>
-	public static void ResumeTimer ()
-	{
-		timerPaused = false;
 	}
 }
