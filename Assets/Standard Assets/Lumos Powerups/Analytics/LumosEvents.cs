@@ -28,6 +28,20 @@ public class LumosEvents : MonoBehaviour
 	/// Names of unique (non-repeated) events that have yet to be recorded.
 	/// </summary>
 	static List<string> unsentUniqueEvents = new List<string>();
+	
+	#region Inspector Variables
+	
+	public bool useLevelsAsCategories = false;
+	
+	#endregion
+	
+	/// <summary>
+	/// Gets or sets the instance.
+	/// </summary>
+	/// <value>
+	/// The instance.
+	/// </value>
+	public static LumosEvents instance { get; private set; }
 
 	LumosEvents () {}
 
@@ -36,6 +50,13 @@ public class LumosEvents : MonoBehaviour
 	/// </summary>
 	void Awake ()
 	{
+		// Prevent multiple instances of Lumos from existing.
+		// Necessary because DontDestroyOnLoad keeps the object between scenes.
+		if (instance != null) {
+			return;
+		}
+
+		instance = this;
 		levelStartTime = Time.time;
 		LumosEvents.Record("Level Started", 1, true);
 		Lumos.OnTimerReady += LumosEvents.Send;
@@ -59,7 +80,7 @@ public class LumosEvents : MonoBehaviour
 	/// <param name="repeatable">
 	/// Whether this event should only be logged once.
 	/// </param>
-	public static void Record (string eventID, float? value, bool repeatable)
+	public static void Record (string eventID, float? value, bool repeatable, string category="default")
 	{
 		if (eventID == null || eventID == "") {
 			Lumos.LogWarning("Name must be sent. Event not recorded.");
@@ -75,9 +96,13 @@ public class LumosEvents : MonoBehaviour
 			unsentUniqueEvents.Add(eventID);
 		}
 
+		if (instance.useLevelsAsCategories) {
+			category = Application.loadedLevelName;
+		}
+		
 		var parameters = new Dictionary<string, object>() {
 			{ "event_id", eventID },
-			{ "level", Application.loadedLevelName },
+			{ "category", category },
 		};
 
 		if (value.HasValue) {
