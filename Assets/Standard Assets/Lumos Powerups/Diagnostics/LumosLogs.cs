@@ -66,6 +66,11 @@ public class LumosLogs
 		if (message.StartsWith("[Lumos]")) {
 			return;
 		}
+		
+		// Don't record empty messages
+		if (message == null || message == "") {
+			return;	
+		}
 
 		// Only log message types that the user specifies.
 		if ((type == LogType.Log       && !LumosDiagnostics.instance.recordLogs)     ||
