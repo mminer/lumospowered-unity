@@ -130,4 +130,34 @@ public class LumosRequest
 			}
 		}
 	}
+	
+	public static byte[] GetJSON (object parameters=null)
+	{
+		string json;
+
+		if (parameters == null) {
+			json = "{}";
+		} else {
+			json = LumosJson.Serialize(parameters);
+		}
+		
+		var postData = Encoding.ASCII.GetBytes(json);
+
+		return postData;
+	}
+	
+	public static Hashtable GetHeaders (byte[] postData)
+	{
+		var secret = Encoding.ASCII.GetBytes("72b6ff39-aec1-4939-8fb4-fa3a6ec2ea50");
+		
+		var hmac = new HMACSHA1(secret);
+		hmac.Initialize();
+		
+		var hash = hmac.ComputeHash(postData);
+		var auth = Convert.ToBase64String(hash);
+		
+		headers["Authorization"] = "Lumos " + "72b6ff39" + ":" + auth;
+		
+		return headers;
+	}
 }
