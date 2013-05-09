@@ -1,9 +1,12 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.IO;
+using System.Text;
 
 /// <summary>
 /// Lumos preferences.
@@ -23,9 +26,24 @@ public class LumosPreferences
 		}
 	}
 	
+	static bool _selectiveImporting = false;
+	static bool selectiveImporting {
+		get { return _selectiveImporting; }
+		set {
+			_selectiveImporting = value;
+			EditorPrefs.SetBool("lumos-updates-selective", value);
+		}
+	}
+	
 	static List<string> importing = new List<string>();
 	static bool checkingUpdates;
+	static List<Dictionary<string, object>> installedPowerups = new List<Dictionary<string, object>>();
 	static List<Dictionary<string, object>> tempUpdates = new List<Dictionary<string, object>>();
+	
+	/// <summary>
+	/// The file path where we store info on which powerups have been installed.
+	/// </summary>
+	static string filePath;
 	
 	/// <summary>
 	/// Runs the first time this UI is displayed.
@@ -33,14 +51,17 @@ public class LumosPreferences
 	public static void Start ()
 	{
 		EditorApplication.update += Update;
-		
+		filePath = Application.dataPath + "/Editor/Lumos/powerups.json";
+		selectiveImporting = EditorPrefs.GetBool("lumos-updates-selective", false);
 		var data = EditorPrefs.GetString("lumos-updates", "{[]}");
 		var fileList = LumosJson.Deserialize(data) as IList;
 		var files = new List<Dictionary<string, object>>();
 
-		foreach (Dictionary<string, object> file in fileList) {
-			files.Add(file);
-		}	
+		if (fileList != null) {
+			foreach (Dictionary<string, object> file in fileList) {
+				files.Add(file);
+			}		
+		}
 		
 		updates = files;
 	}
@@ -50,10 +71,18 @@ public class LumosPreferences
 	/// </summary>
 	public static void Update ()
 	{
-		// Done here to get around main thread issues with Async calls
 		if (tempUpdates.Count > 0) {
+			// Done here to get around main thread issues with Async calls
 			updates = tempUpdates;
 			tempUpdates = new List<Dictionary<string, object>>();
+			installedPowerups = GetInstalledPowerups();
+			
+			for (var i = 0; i < updates.Count; i++) {
+				if (HasLatestPowerup(updates[i])) {
+					updates.RemoveAt(i);
+					i--;
+				}
+			}
 		}
 		
 		// Done here to get around main thread issues with Async calls
@@ -69,6 +98,15 @@ public class LumosPreferences
 		if (updates == null) {
 			Start();
 		}
+		
+		var isSelectiveImport = selectiveImporting;
+		isSelectiveImport = GUILayout.Toggle(isSelectiveImport, "Selective Importing");
+		
+		// This ensures the editor prefs are only updated when the value is toggled
+		if (isSelectiveImport != selectiveImporting) {
+			selectiveImporting = isSelectiveImport;
+		}
+		
 		
 		if (checkingUpdates) {
 			GUILayout.Label("Checking for updates...");
@@ -143,6 +181,9 @@ public class LumosPreferences
 	{
 		var file = GetFile(powerupID);
 		var tempName = "Temp/" + file["powerup_id"].ToString() + ".unitypackage";
+		installedPowerups.Add(file);
+		AddNewerPowerup(file);
+		SaveInstalledPowerups(installedPowerups);
 		updates.Remove(file);
 		
 		using (var client = new WebClient()) {
@@ -163,9 +204,60 @@ public class LumosPreferences
 	static void ImportPackage (string name)
 	{
 		var path = Application.dataPath + "/../" + name;
-		AssetDatabase.ImportPackage(path, true);
-		
+		AssetDatabase.ImportPackage(path, selectiveImporting);
 	}
+	
+	/// <summary>
+	/// Saves the installed powerups.
+	/// </summary>
+	/// <param name='powerups'>
+	/// Powerups.
+	/// </param>
+	static void SaveInstalledPowerups (List<Dictionary<string, object>> powerups)
+	{
+		var json = LumosJson.Serialize(powerups);
+		
+		if (File.Exists(filePath)) {
+        	File.Delete(filePath);
+        }
+		
+		// Create the file. 
+        using (FileStream fs = File.Create(filePath)) {
+            Byte[] info = new UTF8Encoding(true).GetBytes(json);
+            fs.Write(info, 0, info.Length);
+        }
+	}
+	
+	/// <summary>
+	/// Gets the installed powerups.
+	/// </summary>
+	/// <returns>
+	/// The installed powerups.
+	/// </returns>
+	static List<Dictionary<string, object>> GetInstalledPowerups ()
+	{
+		var json = "{[]}";
+		
+		if (File.Exists(filePath)) {
+        	// Open the stream and read it back. 
+	        using (StreamReader sr = File.OpenText(filePath)) {
+	            json = sr.ReadToEnd();
+	        }
+        }
+		
+		var powerups = LumosJson.Deserialize(json) as IList;
+		var installedPowerups = new List<Dictionary<string, object>>();
+		
+		if (powerups != null) {
+			foreach (Dictionary<string, object> powerup in powerups) {
+				installedPowerups.Add(powerup);
+			}
+		}
+		
+		return installedPowerups;
+	}
+	
+	#region Helper Functions
 	
 	/// <summary>
 	/// Gets the file.
@@ -222,4 +314,57 @@ public class LumosPreferences
 		
 		return false;
 	}
+	
+	/// <summary>
+	/// Determines whether this instance has latest powerup the specified powerup.
+	/// </summary>
+	/// <returns>
+	/// <c>true</c> if this instance has latest powerup the specified powerup; otherwise, <c>false</c>.
+	/// </returns>
+	/// <param name='powerup'>
+	/// If set to <c>true</c> powerup.
+	/// </param>
+	static bool HasLatestPowerup (Dictionary<string, object> powerup)
+	{
+		var powerupID = powerup["powerup_id"].ToString();
+		
+		foreach (var installed in installedPowerups) {
+			Debug.Log(powerupID + " Vs. " + installed["powerup_id"].ToString());
+			
+			if (powerupID == installed["powerup_id"].ToString()) {
+				var currentVersion = float.Parse(installed["version"].ToString());
+				var latestVersion = float.Parse(powerup["version"].ToString());
+				
+				if (currentVersion < latestVersion) {
+					break;
+				} else {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	/// <summary>
+	/// Adds the newer powerup.
+	/// </summary>
+	/// <param name='powerup'>
+	/// Powerup.
+	/// </param>
+	static void AddNewerPowerup (Dictionary<string, object> powerup)
+	{
+		var powerupID = powerup["powerup_id"].ToString();
+		
+		for (var i = 0; i > installedPowerups.Count; i++) {
+			var currentID = installedPowerups[i]["powerup_id"].ToString();
+			
+			if (currentID == powerupID) {
+				installedPowerups[i] = powerup;
+				break;
+			}
+		}
+	}
+	
+	#endregion
 }
