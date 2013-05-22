@@ -106,7 +106,7 @@ public class LumosEvents : MonoBehaviour
 		};
 
 		if (value.HasValue) {
-			parameters.Add("value_str", value.Value.ToString());
+			parameters.Add("value", value.Value);
 		}
 
 		events.Add(parameters);

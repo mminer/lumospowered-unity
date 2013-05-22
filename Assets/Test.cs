@@ -5,6 +5,8 @@ public class Test : MonoBehaviour {
 	void Awake()
 	{
 		Lumos.debug = true;
+		LumosEvents.Record("what_up", 0, true, "levels");
+		LumosEvents.Record("event_test", Time.time, true, "loading");
 	}
 
 	void OnGUI() {
