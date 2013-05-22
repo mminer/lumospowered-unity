@@ -13,12 +13,12 @@ public class LumosEvents : MonoBehaviour
 	/// The URL.
 	/// </summary>
 	static string url = "http://localhost:8888/api/1/events";
-	
+
 	/// <summary>
 	/// The level start time.
 	/// </summary>
 	float levelStartTime;
-	
+
 	/// <summary>
 	/// The stored events.
 	/// </summary>
@@ -28,13 +28,13 @@ public class LumosEvents : MonoBehaviour
 	/// Names of unique (non-repeated) events that have yet to be recorded.
 	/// </summary>
 	static List<string> unsentUniqueEvents = new List<string>();
-	
+
 	#region Inspector Variables
-	
+
 	public bool useLevelsAsCategories = false;
-	
+
 	#endregion
-	
+
 	/// <summary>
 	/// Gets or sets the instance.
 	/// </summary>
@@ -61,7 +61,7 @@ public class LumosEvents : MonoBehaviour
 		LumosEvents.Record("Level Started", 1, true);
 		Lumos.OnTimerReady += LumosEvents.Send;
 	}
-	
+
 	/// <summary>
 	/// Raises the level was loaded event.
 	/// </summary>
@@ -99,10 +99,10 @@ public class LumosEvents : MonoBehaviour
 		if (instance.useLevelsAsCategories) {
 			category = Application.loadedLevelName;
 		}
-		
+
 		var parameters = new Dictionary<string, object>() {
-			{ "event_id", eventID },
 			{ "category", category },
+			{ "event_id", eventID },
 		};
 
 		if (value.HasValue) {
@@ -150,8 +150,8 @@ public class LumosEvents : MonoBehaviour
 		if (events.Count == 0) {
 			return;
 		}
-		
-		LumosRequest.Send(url, events, 
+
+		LumosRequest.Send(url, events,
 			delegate { // Success
 				// Save unrepeatable events to player prefs with a timestamp.
 			foreach (var eventName in unsentUniqueEvents) {
@@ -162,7 +162,7 @@ public class LumosEvents : MonoBehaviour
 			unsentUniqueEvents.Clear();
 			events.Clear();
 			},
-			
+
 			delegate { // Failure
 				Lumos.LogWarning("Events not sent. " +
 					             " Will try again at next timer interval.");
