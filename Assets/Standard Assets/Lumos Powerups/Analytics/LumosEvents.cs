@@ -58,7 +58,7 @@ public class LumosEvents : MonoBehaviour
 
 		instance = this;
 		levelStartTime = Time.time;
-		LumosEvents.Record("Level Started", 1, true);
+		LumosEvents.Record("level_started", 1, true);
 		Lumos.OnTimerReady += LumosEvents.Send;
 	}
 
@@ -67,9 +67,9 @@ public class LumosEvents : MonoBehaviour
 	/// </summary>
 	void OnLevelWasLoaded ()
 	{
-		LumosEvents.Record("Level Completion Time", Time.time - levelStartTime, true);
+		LumosEvents.Record("level_completion_time", Time.time - levelStartTime, true);
 		levelStartTime = Time.time;
-		LumosEvents.Record("Level Started", 1, true);
+		LumosEvents.Record("level_started", 1, true);
 	}
 
 	/// <summary>
