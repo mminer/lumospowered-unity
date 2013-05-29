@@ -160,7 +160,10 @@ public class LumosPreferences
 	{
 		checkingUpdates = true;
 		var uri = new System.Uri("http://localhost:8888/api/1/powerups?engine=unity");
-		var headers = LumosRequest.GetHeaders(new byte[]{});
+		var headers = new Hashtable()
+		{
+			{ "Authorization", LumosRequest.GenerateAuthorizationHeader(credentials, new byte[] {}) }
+		};
 
 		using (var client = new WebClient()) {
 			AddHashtableToHeaders(client, headers);

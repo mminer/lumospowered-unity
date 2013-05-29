@@ -89,35 +89,17 @@ public class LumosRequest
 			yield break;
 		}
 
-		string json;
-
-		if (parameters == null) {
-			json = "{}";
-		} else {
-			json = LumosJson.Serialize(parameters);
-		}
-
-		var postData = Encoding.ASCII.GetBytes(json);
-		var secret = Encoding.ASCII.GetBytes(Lumos.credentials.apiKey);
-
-		var hmac = new HMACSHA1(secret);
-		hmac.Initialize();
-
-		var hash = hmac.ComputeHash(postData);
-		var auth = Convert.ToBase64String(hash);
-
-		headers["Authorization"] = "Lumos " + Lumos.credentials.gameID + ":" + auth;
-
+		var postData = SerializePostData(parameters);
+		headers["Authorization"] = GenerateAuthorizationHeader(Lumos.credentials, postData);
 		var www = new WWW(url, postData, headers);
 
 		// Send info to server.
 		yield return www;
-		Lumos.Log("Request: " + json);
+		Lumos.Log("Request: " + postData);
 		Lumos.Log("Response: " + www.text);
 
 		// Parse the response.
 		var response = LumosJson.Deserialize(www.text);
-
 
 		if (www.error == null) {
 			if (successCallback != null) {
@@ -131,7 +113,12 @@ public class LumosRequest
 		}
 	}
 
-	public static byte[] GetJSON (object parameters=null)
+	/// <summary>
+	/// Converts parameters into a JSON string to put in POST request's body.
+	/// </summary>
+	/// <param name="parameters">Information to send in the request.</param>
+	/// <returns>A byte array suitable for sending over the wire.</returns>
+	public static byte[] SerializePostData (object parameters)
 	{
 		string json;
 
@@ -142,20 +129,22 @@ public class LumosRequest
 		}
 
 		var postData = Encoding.ASCII.GetBytes(json);
-
 		return postData;
 	}
 
-	public static Hashtable GetHeaders (byte[] postData)
+	/// <summary>
+	/// Creates an authorization header.
+	/// </summary>
+	/// <param name="credentials">Lumos credentials object.</param>
+	/// <param name="postData">The POST body.</param>
+	/// <returns>A string suitable for the HTTP Authorization header.</returns>
+	public static string GenerateAuthorizationHeader (LumosCredentials credentials, byte[] postData)
 	{
-		var secret = Encoding.ASCII.GetBytes(Lumos.credentials.apiKey);
+		var secret = Encoding.ASCII.GetBytes(credentials.apiKey);
 		var hmac = new HMACSHA1(secret);
-		hmac.Initialize();
-
 		var hash = hmac.ComputeHash(postData);
 		var auth = Convert.ToBase64String(hash);
-
-		headers["Authorization"] = "Lumos " + Lumos.credentials.gameID + ":" + auth;
-		return headers;
+		var header = "Lumos " + credentials.gameID + ":" + auth;
+		return header;
 	}
 }
