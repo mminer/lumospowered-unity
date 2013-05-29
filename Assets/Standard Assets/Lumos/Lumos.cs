@@ -19,21 +19,18 @@ public partial class Lumos : MonoBehaviour
 	/// </summary>
 	public static Lumos instance { get; private set; }
 
+	public static LumosCredentials credentials { get; private set; }
+
 	/// <summary>
 	/// When true, displays result of web requests and responses.
 	/// </summary>
 	public static bool debug { get; set; }
 
 	/// <summary>
-	/// A unique string identifying the game.
-	/// </summary>
-	public static string gameId { get; private set; }
-
-	/// <summary>
 	/// The device-specific player ID.
 	/// </summary>
 	public static string playerId { get; set; }
-	
+
 	/// <summary>
 	/// Lumos ready handler.
 	/// </summary>
@@ -42,7 +39,7 @@ public partial class Lumos : MonoBehaviour
 	/// Occurs when on ready.
 	/// </summary>
 	public static event LumosReadyHandler OnReady;
-	
+
 	/// <summary>
 	/// Timer handler.
 	/// </summary>
@@ -51,7 +48,7 @@ public partial class Lumos : MonoBehaviour
 	/// Occurs when on timer ready.
 	/// </summary>
 	public static event TimerHandler OnTimerReady;
-	
+
 	static uint _timerInterval = 5;
 	/// <summary>
 	/// The interval (in seconds) at which queued data is sent to the server.
@@ -68,7 +65,6 @@ public partial class Lumos : MonoBehaviour
 
 	#region Inspector Settings
 
-	public string apiKey;
 	public bool runInEditor;
 
 	#endregion
@@ -94,15 +90,11 @@ public partial class Lumos : MonoBehaviour
 
 		instance = this;
 		DontDestroyOnLoad(this);
+		credentials = Resources.Load("Credentials", typeof(LumosCredentials)) as LumosCredentials;
 
-		if (apiKey == null || apiKey == "") {
-			Lumos.Remove("The API Key must be set.");
-			return;
-		}
-
-		gameId = apiKey.Substring(0, 8);
+		Debug.Log("Game ID: " + credentials.gameID);
 	}
-	
+
 	void Start() {
 		LumosPlayer.Init(delegate {
 			if (OnReady != null) {
@@ -138,7 +130,7 @@ public partial class Lumos : MonoBehaviour
 			Destroy(instance.gameObject);
 		}
 	}
-	
+
 	/// <summary>
 	/// Sends queued data on an interval.
 	/// </summary>
@@ -150,10 +142,10 @@ public partial class Lumos : MonoBehaviour
 			// Raise the timer ready event
 			OnTimerReady();
 		}
-		
+
 		Lumos.RunRoutine(SendQueuedData());
 	}
-	
+
 	/// <summary>
 	/// Pauses the queued data send timer.
 	/// </summary>

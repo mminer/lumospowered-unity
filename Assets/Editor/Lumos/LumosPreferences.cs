@@ -15,6 +15,9 @@ using System.Text;
 /// </summary>
 public class LumosPreferences
 {
+	static bool prefsLoaded;
+	static LumosCredentials credentials;
+
 	/// <summary>
 	/// The available powerup package updates.
 	/// </summary>
@@ -52,20 +55,12 @@ public class LumosPreferences
 	/// </summary>
 	public static void Start ()
 	{
+		// Add callback to the editor's update cycle.
 		EditorApplication.update += Update;
+
 		filePath = Application.dataPath + "/Editor/Lumos/powerups.json";
 		selectiveImporting = EditorPrefs.GetBool("lumos-updates-selective", false);
-		var data = EditorPrefs.GetString("lumos-updates", "{[]}");
-		var fileList = LumosJson.Deserialize(data) as IList;
-		var files = new List<Dictionary<string, object>>();
-
-		if (fileList != null) {
-			foreach (Dictionary<string, object> file in fileList) {
-				files.Add(file);
-			}
-		}
-
-		updates = files;
+		updates = GetFiles();
 	}
 
 	/// <summary>
@@ -97,6 +92,19 @@ public class LumosPreferences
     [PreferenceItem("Lumos")]
     public static void PreferencesGUI ()
 	{
+		if (!prefsLoaded) {
+			credentials = Resources.Load("Credentials", typeof(LumosCredentials)) as LumosCredentials;
+
+			if (credentials == null) {
+				credentials = ScriptableObject.CreateInstance<LumosCredentials>();
+				AssetDatabase.CreateAsset(credentials, "Assets/Standard Assets/Lumos/Resources/Credentials.asset");
+			}
+
+			prefsLoaded = true;
+		}
+
+		credentials.apiKey = EditorGUILayout.TextField(credentials.apiKey);
+
 		if (updates == null) {
 			Start();
 		}
@@ -250,6 +258,21 @@ public class LumosPreferences
 	}
 
 	#region Helper Functions
+
+	static List<Dictionary<string, object>> GetFiles ()
+	{
+		var files = new List<Dictionary<string, object>>();
+		var data = EditorPrefs.GetString("lumos-updates", "{[]}");
+		var fileList = LumosJson.Deserialize(data) as IList;
+
+		if (fileList != null) {
+			foreach (Dictionary<string, object> file in fileList) {
+				files.Add(file);
+			}
+		}
+
+		return files;
+	}
 
 	/// <summary>
 	/// Gets the file.

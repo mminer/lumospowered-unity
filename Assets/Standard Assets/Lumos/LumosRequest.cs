@@ -96,17 +96,17 @@ public class LumosRequest
 		} else {
 			json = LumosJson.Serialize(parameters);
 		}
-		
+
 		var postData = Encoding.ASCII.GetBytes(json);
-		var secret = Encoding.ASCII.GetBytes(Lumos.instance.apiKey);
-		
+		var secret = Encoding.ASCII.GetBytes(Lumos.credentials.apiKey);
+
 		var hmac = new HMACSHA1(secret);
 		hmac.Initialize();
-		
+
 		var hash = hmac.ComputeHash(postData);
 		var auth = Convert.ToBase64String(hash);
-		
-		headers["Authorization"] = "Lumos " + Lumos.gameId + ":" + auth;
+
+		headers["Authorization"] = "Lumos " + Lumos.credentials.gameID + ":" + auth;
 
 		var www = new WWW(url, postData, headers);
 
@@ -117,8 +117,8 @@ public class LumosRequest
 
 		// Parse the response.
 		var response = LumosJson.Deserialize(www.text);
-		
-		
+
+
 		if (www.error == null) {
 			if (successCallback != null) {
 				successCallback(response);
@@ -130,7 +130,7 @@ public class LumosRequest
 			}
 		}
 	}
-	
+
 	public static byte[] GetJSON (object parameters=null)
 	{
 		string json;
@@ -140,24 +140,22 @@ public class LumosRequest
 		} else {
 			json = LumosJson.Serialize(parameters);
 		}
-		
+
 		var postData = Encoding.ASCII.GetBytes(json);
 
 		return postData;
 	}
-	
+
 	public static Hashtable GetHeaders (byte[] postData)
 	{
-		var secret = Encoding.ASCII.GetBytes("72b6ff39-aec1-4939-8fb4-fa3a6ec2ea50");
-		
+		var secret = Encoding.ASCII.GetBytes(Lumos.credentials.apiKey);
 		var hmac = new HMACSHA1(secret);
 		hmac.Initialize();
-		
+
 		var hash = hmac.ComputeHash(postData);
 		var auth = Convert.ToBase64String(hash);
-		
-		headers["Authorization"] = "Lumos " + "72b6ff39" + ":" + auth;
-		
+
+		headers["Authorization"] = "Lumos " + Lumos.credentials.gameID + ":" + auth;
 		return headers;
 	}
 }

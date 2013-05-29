@@ -9,7 +9,6 @@ using UnityEngine;
 public class LumosWizard : ScriptableWizard
 {
 	const string prefabPath = "Assets/Standard Assets/Lumos/Lumos.prefab";
-	public string apiKey = "";
 
 	/// <summary>
 	/// Called when the "Create" button is pressed.
@@ -21,7 +20,6 @@ public class LumosWizard : ScriptableWizard
 		// Instantiate the Lumos object
 		var prefab = Resources.LoadAssetAtPath(prefabPath, typeof(GameObject));
 		var lumosGameObject = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
-		lumosGameObject.GetComponent<Lumos>().apiKey = apiKey;
 	}
 
 	/// <summary>
