@@ -258,13 +258,16 @@ public class LumosPreferences
 	/// <returns>The file.</returns>
 	static Dictionary<string, object> GetFile (string powerupID)
 	{
-		foreach (var file in updates) {
-			if (file["powerup_id"].ToString() == powerupID) {
-				return file;
+		Dictionary<string, object> file = null;
+
+		foreach (var f in updates) {
+			if (f["powerup_id"].ToString() == powerupID) {
+				file = f;
+				break;
 			}
 		}
 
-		return null;
+		return file;
 	}
 
 	/// <summary>
@@ -286,13 +289,16 @@ public class LumosPreferences
 	/// <returns>True if this instance is importing the specified powerup.</returns>
 	static bool IsImporting (string powerupID)
 	{
+		var isImporting = false;
+
 		foreach (var path in importing) {
 			if (path.Contains(powerupID)) {
-				return true;
+				isImporting = true;
+				break;
 			}
 		}
 
-		return false;
+		return isImporting;
 	}
 
 	/// <summary>
@@ -302,6 +308,7 @@ public class LumosPreferences
 	/// <returns>True if this instance has latest powerup the specified powerup.</returns>
 	static bool HasLatestPowerup (Dictionary<string, object> powerup)
 	{
+		var hasLatest = false;
 		var powerupID = powerup["powerup_id"].ToString();
 
 		foreach (var installed in installedPowerups) {
@@ -311,15 +318,15 @@ public class LumosPreferences
 				var currentVersion = float.Parse(installed["version"].ToString());
 				var latestVersion = float.Parse(powerup["version"].ToString());
 
-				if (currentVersion < latestVersion) {
-					break;
-				} else {
-					return true;
+				if (currentVersion == latestVersion) {
+					hasLatest = true;
 				}
+
+				break;
 			}
 		}
 
-		return false;
+		return hasLatest;
 	}
 
 	/// <summary>
