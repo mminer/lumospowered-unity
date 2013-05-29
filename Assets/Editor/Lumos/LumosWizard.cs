@@ -17,9 +17,9 @@ public class LumosWizard : ScriptableWizard
 	{
 		Undo.RegisterSceneUndo("Add Lumos To Scene");
 
-		// Instantiate the Lumos object
+		// Instantiate the Lumos object.
 		var prefab = Resources.LoadAssetAtPath(prefabPath, typeof(GameObject));
-		var lumosGameObject = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+		PrefabUtility.InstantiatePrefab(prefab);
 	}
 
 	/// <summary>
@@ -28,13 +28,5 @@ public class LumosWizard : ScriptableWizard
 	void OnWizardOtherButton ()
 	{
 		Close();
-	}
-
-	/// <summary>
-	/// UI elements.
-	/// </summary>
-	void OnWizardUpdate ()
-	{
-		helpString = "Fill in your game's API key below.";
 	}
 }

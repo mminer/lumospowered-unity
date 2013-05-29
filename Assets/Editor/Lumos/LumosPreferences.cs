@@ -31,14 +31,7 @@ public class LumosPreferences
 		}
 	}
 
-	static bool _selectiveImporting = false;
-	static bool selectiveImporting {
-		get { return _selectiveImporting; }
-		set {
-			_selectiveImporting = value;
-			EditorPrefs.SetBool("lumos-updates-selective", value);
-		}
-	}
+	static bool selectiveImport;
 
 	static List<string> importing = new List<string>();
 	static bool checkingUpdates;
@@ -50,73 +43,16 @@ public class LumosPreferences
 	/// </summary>
 	static string filePath;
 
-	/// <summary>
-	/// Runs the first time this UI is displayed.
-	/// </summary>
-	public static void Start ()
-	{
-		// Add callback to the editor's update cycle.
-		EditorApplication.update += Update;
-
-		filePath = Application.dataPath + "/Editor/Lumos/powerups.json";
-		selectiveImporting = EditorPrefs.GetBool("lumos-updates-selective", false);
-		updates = GetFiles();
-	}
-
-	/// <summary>
-	/// Runs every frame with EditorApplication.update
-	/// </summary>
-	public static void Update ()
-	{
-		if (tempUpdates.Count > 0) {
-			// Done here to get around main thread issues with Async calls
-			updates = tempUpdates;
-			tempUpdates = new List<Dictionary<string, object>>();
-			installedPowerups = GetInstalledPowerups();
-
-			for (var i = 0; i < updates.Count; i++) {
-				if (HasLatestPowerup(updates[i])) {
-					updates.RemoveAt(i);
-					i--;
-				}
-			}
-		}
-
-		// Done here to get around main thread issues with Async calls
-		if (importing.Count > 0) {
-			ImportPackage(importing[0]);
-			importing.RemoveAt(0);
-		}
-	}
-
     [PreferenceItem("Lumos")]
     public static void PreferencesGUI ()
 	{
 		if (!prefsLoaded) {
-			credentials = Resources.Load("Credentials", typeof(LumosCredentials)) as LumosCredentials;
-
-			if (credentials == null) {
-				credentials = ScriptableObject.CreateInstance<LumosCredentials>();
-				AssetDatabase.CreateAsset(credentials, "Assets/Standard Assets/Lumos/Resources/Credentials.asset");
-			}
-
+			Init();
 			prefsLoaded = true;
 		}
 
 		credentials.apiKey = EditorGUILayout.TextField(credentials.apiKey);
-
-		if (updates == null) {
-			Start();
-		}
-
-		var isSelectiveImport = selectiveImporting;
-		isSelectiveImport = GUILayout.Toggle(isSelectiveImport, "Selective Importing");
-
-		// This ensures the editor prefs are only updated when the value is toggled
-		if (isSelectiveImport != selectiveImporting) {
-			selectiveImporting = isSelectiveImport;
-		}
-
+		selectiveImport = GUILayout.Toggle(selectiveImport, "Selective Importing");
 
 		if (checkingUpdates) {
 			GUILayout.Label("Checking for updates...");
@@ -129,7 +65,59 @@ public class LumosPreferences
 		if (updates != null && updates.Count > 0) {
 			DisplayUpdates();
 		}
+
+		// Save changed preferences.
+		if (GUI.changed) {
+			// The API key saves as it's changed, so no need to save it here.
+			EditorPrefs.SetBool("lumos-updates-selective", selectiveImport);
+		}
     }
+
+	/// <summary>
+	/// Runs the first time this UI is displayed.
+	/// </summary>
+	static void Init ()
+	{
+		credentials = Resources.Load("Credentials", typeof(LumosCredentials)) as LumosCredentials;
+
+		if (credentials == null) {
+			credentials = ScriptableObject.CreateInstance<LumosCredentials>();
+			AssetDatabase.CreateAsset(credentials, "Assets/Standard Assets/Lumos/Resources/Credentials.asset");
+		}
+
+		selectiveImport = EditorPrefs.GetBool("lumos-updates-selective", false);
+		filePath = Application.dataPath + "/Editor/Lumos/powerups.json";
+		updates = GetUpdates();
+
+		// Add callback to the editor's update cycle.
+		EditorApplication.update += Update;
+	}
+
+	/// <summary>
+	/// Runs every frame with EditorApplication.update.
+	/// </summary>
+	public static void Update ()
+	{
+		if (tempUpdates.Count > 0) {
+			// Done here to get around main thread issues with async calls.
+			updates = tempUpdates;
+			tempUpdates = new List<Dictionary<string, object>>();
+			installedPowerups = GetInstalledPowerups();
+
+			for (var i = 0; i < updates.Count; i++) {
+				if (HasLatestPowerup(updates[i])) {
+					updates.RemoveAt(i);
+					i--;
+				}
+			}
+		}
+
+		// Done here to get around main thread issues with async calls.
+		if (importing.Count > 0) {
+			ImportPackage(importing[0]);
+			importing.RemoveAt(0);
+		}
+	}
 
 	/// <summary>
 	/// Displays available updates.
@@ -160,10 +148,8 @@ public class LumosPreferences
 	{
 		checkingUpdates = true;
 		var uri = new System.Uri("http://localhost:8888/api/1/powerups?engine=unity");
-		var headers = new Hashtable()
-		{
-			{ "Authorization", LumosRequest.GenerateAuthorizationHeader(credentials, new byte[] {}) }
-		};
+		var headers = new Hashtable();
+		headers["Authorization"] = LumosRequest.GenerateAuthorizationHeader(credentials, new byte[] {});
 
 		using (var client = new WebClient()) {
 			AddHashtableToHeaders(client, headers);
@@ -209,9 +195,8 @@ public class LumosPreferences
 	/// <param name="name">The name of the downloaded file.</param>
 	static void ImportPackage (string name)
 	{
-		// TODO: use more cross-platform friendly file paths.
 		var path = Application.dataPath + "/../" + name;
-		AssetDatabase.ImportPackage(path, selectiveImporting);
+		AssetDatabase.ImportPackage(path, selectiveImport);
 	}
 
 	/// <summary>
@@ -227,9 +212,9 @@ public class LumosPreferences
         }
 
 		// Create the file.
-        using (FileStream fs = File.Create(filePath)) {
+        using (FileStream stream = File.Create(filePath)) {
             Byte[] info = new UTF8Encoding(true).GetBytes(json);
-            fs.Write(info, 0, info.Length);
+            stream.Write(info, 0, info.Length);
         }
 	}
 
@@ -243,8 +228,8 @@ public class LumosPreferences
 
 		if (File.Exists(filePath)) {
         	// Open the stream and read it back.
-	        using (StreamReader sr = File.OpenText(filePath)) {
-	            json = sr.ReadToEnd();
+	        using (StreamReader reader = File.OpenText(filePath)) {
+	            json = reader.ReadToEnd();
 	        }
         }
 
@@ -262,7 +247,7 @@ public class LumosPreferences
 
 	#region Helper Functions
 
-	static List<Dictionary<string, object>> GetFiles ()
+	static List<Dictionary<string, object>> GetUpdates ()
 	{
 		var files = new List<Dictionary<string, object>>();
 		var data = EditorPrefs.GetString("lumos-updates", "{[]}");
