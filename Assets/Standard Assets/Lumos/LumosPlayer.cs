@@ -19,7 +19,7 @@ public class LumosPlayer
 	/// </summary>
 	public static void Init (Action<bool> callback)
 	{
-		var idPrefsKey = "lumospowered_" + Lumos.gameId + "_playerid";
+		var idPrefsKey = "lumospowered_" + Lumos.credentials.gameID + "_playerid";
 
 		if (PlayerPrefs.HasKey(idPrefsKey)) {
 			Lumos.playerId = PlayerPrefs.GetString(idPrefsKey);
@@ -40,7 +40,7 @@ public class LumosPlayer
 		var endpoint = url + "/players";
 
 		LumosRequest.Send(endpoint, delegate (object response) {
-			var idPrefsKey = "lumospowered_" + Lumos.gameId + "_playerid";
+			var idPrefsKey = "lumospowered_" + Lumos.credentials.gameID + "_playerid";
 			var resp = response as Dictionary<string, object>;
 			Lumos.playerId = resp["player_id"].ToString();
 			PlayerPrefs.SetString(idPrefsKey, Lumos.playerId);

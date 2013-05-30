@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 public class LumosSpecs
 {
-	
+
 	/// <summary>
 	/// The URL.
 	/// </summary>
@@ -47,7 +47,7 @@ public class LumosSpecs
 			{ "supports_render_textures", SystemInfo.supportsRenderTextures },
 			{ "supports_image_effects", SystemInfo.supportsImageEffects }
 		};
-		
+
 		SendSpecs(parameters);
 	}
 
@@ -59,7 +59,7 @@ public class LumosSpecs
 	public static void Record () {}
 
 #endif
-	
+
 	/// <summary>
 	/// Sends the specs.
 	/// </summary>
@@ -70,17 +70,17 @@ public class LumosSpecs
 	{
 		var endpoint = url + "/specs/" + Lumos.playerId + "?method=PUT";
 
-		LumosRequest.Send(endpoint, parameters, 
+		LumosRequest.Send(endpoint, parameters,
 			delegate { // Success
-				var key = "lumospowered_" + Lumos.gameId + "_" + Lumos.playerId + "_sent_specs";
+				var key = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_specs";
 				PlayerPrefs.SetString(key, "Sent");
 				Lumos.Log("Specs successfully sent.");
 			},
-			
+
 			delegate { // Failure
 				Lumos.Log("Failed to send specs");
 			}
 		);
 	}
-	
+
 }
