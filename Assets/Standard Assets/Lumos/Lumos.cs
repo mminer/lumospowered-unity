@@ -99,7 +99,6 @@ public partial class Lumos : MonoBehaviour
 		LumosPlayer.Init(delegate {
 			if (OnReady != null) {
 				OnReady();
-				Debug.Log("Lumos started");
 				Lumos.RunRoutine(SendQueuedData());
 			}
 		});
