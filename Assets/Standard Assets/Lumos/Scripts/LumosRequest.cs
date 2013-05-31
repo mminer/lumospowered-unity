@@ -140,6 +140,10 @@ public class LumosRequest
 	/// <returns>A string suitable for the HTTP Authorization header.</returns>
 	public static string GenerateAuthorizationHeader (LumosCredentials credentials, byte[] postData)
 	{
+		if (postData == null) {
+			postData = new byte[] {};
+		}
+
 		var secret = Encoding.ASCII.GetBytes(credentials.apiKey);
 		var hmac = new HMACSHA1(secret);
 		var hash = hmac.ComputeHash(postData);

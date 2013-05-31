@@ -90,7 +90,7 @@ public partial class Lumos : MonoBehaviour
 
 		instance = this;
 		DontDestroyOnLoad(this);
-		credentials = Resources.Load("Credentials", typeof(LumosCredentials)) as LumosCredentials;
+		credentials = LumosCredentials.Load();
 
 		Debug.Log("Game ID: " + credentials.gameID);
 	}

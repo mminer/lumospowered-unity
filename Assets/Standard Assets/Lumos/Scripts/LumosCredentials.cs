@@ -32,4 +32,10 @@ public class LumosCredentials : ScriptableObject
 			return _gameID;
 		}
 	}
+
+	public static LumosCredentials Load ()
+	{
+		var credentials = Resources.Load("Credentials", typeof(LumosCredentials)) as LumosCredentials;
+		return credentials;
+	}
 }
