@@ -13,7 +13,7 @@ public static class LumosPreferences
 	static readonly GUIContent interactiveImportLabel = new GUIContent("Interactive Import", "Preview and select the package's files before importing.");
 
 	static bool prefsLoaded;
-	static string apiKey;
+	static LumosCredentials credentials;
 	static bool interactiveImport;
 
     [PreferenceItem("Lumos")]
@@ -23,14 +23,15 @@ public static class LumosPreferences
 			// Add callback to the editor's update cycle.
 			EditorApplication.update += LumosPackages.MonitorImports;
 
-			apiKey = LumosCredentialsManager.GetCredentials().apiKey;
+			credentials = LumosCredentialsManager.GetCredentials();
 			interactiveImport = EditorPrefs.GetBool("lumos-interactive-import", false);
 			prefsLoaded = true;
+			Debug.Log("Loading prefs");
 		}
 
 		// General settings.
 		GUILayout.Label("General", EditorStyles.boldLabel);
-		apiKey = EditorGUILayout.TextField(apiKeyLabel, apiKey);
+		credentials.apiKey = EditorGUILayout.TextField(apiKeyLabel, credentials.apiKey);
 		interactiveImport = EditorGUILayout.Toggle(interactiveImportLabel, interactiveImport);
 		EditorGUILayout.Space();
 
@@ -62,7 +63,7 @@ public static class LumosPreferences
 
 		// Save changed preferences.
 		if (GUI.changed) {
-			LumosCredentialsManager.GetCredentials().apiKey = apiKey;
+			EditorUtility.SetDirty(credentials);
 			EditorPrefs.SetBool("lumos-interactive-import", interactiveImport);
 		}
     }

@@ -93,9 +93,16 @@ public partial class Lumos : MonoBehaviour
 			return;
 		}
 
+		credentials = LumosCredentials.Load();
+
+		if (credentials == null || credentials.apiKey == null || credentials.apiKey == "") {
+			Debug.LogError("[Lumos] The Lumos API key is not set. Do this in the Lumos pane in Unity's preferences.");
+			Destroy(gameObject);
+			return;
+		}
+
 		instance = this;
 		DontDestroyOnLoad(this);
-		credentials = LumosCredentials.Load();
 
 		Debug.Log("Game ID: " + credentials.gameID);
 	}
