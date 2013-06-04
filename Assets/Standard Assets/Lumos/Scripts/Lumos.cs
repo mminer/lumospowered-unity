@@ -9,16 +9,38 @@ using UnityEngine;
 /// </summary>
 public partial class Lumos : MonoBehaviour
 {
+	#region Events
+
+	/// <summary>
+	/// Lumos ready handler.
+	/// </summary>
+	public delegate void ReadyHandler ();
+
+	/// <summary>
+	/// Timer handler.
+	/// </summary>
+	public delegate void TimerHandler ();
+
+	/// <summary>
+	/// Triggers when Lumos has been initialized.
+	/// </summary>
+	public static event ReadyHandler OnReady;
+
+	/// <summary>
+	/// Occurs when on timer ready.
+	/// </summary>
+	public static event TimerHandler OnTimerFinish;
+
+	#endregion
+
 	/// <summary>
 	/// Version number.
 	/// </summary>
 	public const string version = "1.0";
 
 	/// <summary>
-	/// An instance of this class.
+	/// Server communication credentials.
 	/// </summary>
-	public static Lumos instance { get; private set; }
-
 	public static LumosCredentials credentials { get; private set; }
 
 	/// <summary>
@@ -32,36 +54,19 @@ public partial class Lumos : MonoBehaviour
 	public static string playerId { get; set; }
 
 	/// <summary>
-	/// Lumos ready handler.
-	/// </summary>
-	public delegate void LumosReadyHandler ();
-	/// <summary>
-	/// Occurs when on ready.
-	/// </summary>
-	public static event LumosReadyHandler OnReady;
-
-	/// <summary>
-	/// Timer handler.
-	/// </summary>
-	public delegate void TimerHandler ();
-	/// <summary>
-	/// Occurs when on timer ready.
-	/// </summary>
-	public static event TimerHandler OnTimerReady;
-
-	static uint _timerInterval = 5;
-	/// <summary>
 	/// The interval (in seconds) at which queued data is sent to the server.
 	/// </summary>
-	static uint timerInterval {
-		get { return _timerInterval; }
-		set { _timerInterval = value; }
-	}
+	public static float timerInterval { get; set; }
 
 	/// <summary>
 	/// Whether the data sending timer is paused.
 	/// </summary>
-	static bool timerPaused;
+	public static bool timerPaused { get; set; }
+
+	/// <summary>
+	/// An instance of this class.
+	/// </summary>
+	public static Lumos instance { get; private set; }
 
 	#region Inspector Settings
 
@@ -70,8 +75,8 @@ public partial class Lumos : MonoBehaviour
 	#endregion
 
 	/// <summary>
-	/// Private constructor prevents object being created from class.
-	/// Unity does this in the Awake function instead.
+	/// Private constructor prevents object being created directly.
+	/// It should be instantiated instead.
 	/// </summary>
 	Lumos () {}
 
@@ -95,7 +100,11 @@ public partial class Lumos : MonoBehaviour
 		Debug.Log("Game ID: " + credentials.gameID);
 	}
 
-	void Start() {
+	/// <summary>
+	/// Sends the opening request.
+	/// <summary>
+	void Start ()
+	{
 		LumosPlayer.Init(delegate {
 			if (OnReady != null) {
 				OnReady();
@@ -126,7 +135,8 @@ public partial class Lumos : MonoBehaviour
 	public static void Remove (string reason)
 	{
 		if (instance != null) {
-			Debug.LogWarning("[Lumos] " + reason + " No information will be recorded.");
+			Debug.LogWarning("[Lumos] " + reason +
+			                 " No information will be recorded.");
 			Destroy(instance.gameObject);
 		}
 	}
@@ -136,29 +146,13 @@ public partial class Lumos : MonoBehaviour
 	/// </summary>
 	static IEnumerator SendQueuedData ()
 	{
-		yield return new WaitForSeconds((float)timerInterval);
+		yield return new WaitForSeconds(timerInterval);
 
 		if (!timerPaused) {
-			// Raise the timer ready event
-			OnTimerReady();
+			// Notify subscribers that the timer has completed.
+			OnTimerFinish();
 		}
 
 		Lumos.RunRoutine(SendQueuedData());
-	}
-
-	/// <summary>
-	/// Pauses the queued data send timer.
-	/// </summary>
-	public static void PauseTimer ()
-	{
-		timerPaused = true;
-	}
-
-	/// <summary>
-	/// Resumes the queued data send timer.
-	/// </summary>
-	public static void ResumeTimer ()
-	{
-		timerPaused = false;
 	}
 }

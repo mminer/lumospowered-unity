@@ -12,14 +12,19 @@ using UnityEngine;
 /// </summary>
 public class LumosRequest
 {
+	#region Delegates
+
 	/// <summary>
 	/// Success handler.
 	/// </summary>
-	public delegate void SuccessHandler(object response);
+	public delegate void SuccessHandler (object response);
+
 	/// <summary>
 	/// Error handler.
 	/// </summary>
-	public delegate void ErrorHandler(object response);
+	public delegate void ErrorHandler (object response);
+
+	#endregion
 
 	/// <summary>
 	/// Sends data to Lumos' servers.

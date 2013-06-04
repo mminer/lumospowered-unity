@@ -7,12 +7,6 @@ using System.Collections;
 /// </summary>
 public class LumosDiagnostics : MonoBehaviour
 {
-
-	/// <summary>
-	/// An instance of this class.
-	/// </summary>
-	public static LumosDiagnostics instance { get; private set; }
-
 	#region Inspector Settings
 
 	public bool recordLogs = false;
@@ -21,6 +15,11 @@ public class LumosDiagnostics : MonoBehaviour
 	public bool runInEditor = false;
 
 	#endregion
+
+	/// <summary>
+	/// An instance of this class.
+	/// </summary>
+	public static LumosDiagnostics instance { get; private set; }
 
 	/// <summary>
 	/// Private constructor prevents object being created from class.
@@ -45,7 +44,7 @@ public class LumosDiagnostics : MonoBehaviour
 		Application.RegisterLogCallback(LumosLogs.Record);
 
 		Lumos.OnReady += OnLumosReady;
-		Lumos.OnTimerReady += LumosLogs.Send;
+		Lumos.OnTimerFinish += LumosLogs.Send;
 	}
 
 	/// <summary>
