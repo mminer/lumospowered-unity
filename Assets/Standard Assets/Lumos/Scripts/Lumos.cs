@@ -103,7 +103,6 @@ public partial class Lumos : MonoBehaviour
 
 		instance = this;
 		DontDestroyOnLoad(this);
-
 		Debug.Log("Game ID: " + credentials.gameID);
 	}
 
