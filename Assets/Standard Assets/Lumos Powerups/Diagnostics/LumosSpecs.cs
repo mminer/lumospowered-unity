@@ -9,7 +9,6 @@ using UnityEngine;
 /// </summary>
 public class LumosSpecs
 {
-
 	/// <summary>
 	/// The URL.
 	/// </summary>
@@ -20,35 +19,21 @@ public class LumosSpecs
 	/// <summary>
 	/// Sends system information.
 	/// </summary>
-	public static void Record ()
+	static void Record ()
 	{
-		if (Application.platform == RuntimePlatform.IPhonePlayer) {
-			Debug.LogWarning("[Lumos] Apple's Terms of Service disallows " +
-			                 " recording device data on iOS. " +
-			                 "As such, system info will not be recorded.");
-			return;
-		}
+		var endpoint = url + "/specs/" + Lumos.playerId + "?method=PUT";
+		var specs = GetSpecs();
 
-		var parameters = new Dictionary<string, object>() {
-			{ "player_id", Lumos.playerId },
-			{ "operating_system", SystemInfo.operatingSystem },
-			{ "processor_type", SystemInfo.processorType },
-			{ "processor_count", SystemInfo.processorCount },
-			{ "system_memory_size", SystemInfo.systemMemorySize },
-			{ "graphics_memory_size", SystemInfo.graphicsMemorySize },
-			{ "graphics_device_name", SystemInfo.graphicsDeviceName },
-			{ "graphics_device_vendor", SystemInfo.graphicsDeviceVendor },
-			{ "graphics_device_id", SystemInfo.graphicsDeviceID },
-			{ "graphics_device_vendor_id", SystemInfo.graphicsDeviceVendorID },
-			{ "graphics_device_version", SystemInfo.graphicsDeviceVersion },
-			{ "graphics_shader_level", SystemInfo.graphicsShaderLevel },
-			{ "graphics_pixel_fillrate", SystemInfo.graphicsPixelFillrate },
-			{ "supports_shadows", SystemInfo.supportsShadows },
-			{ "supports_render_textures", SystemInfo.supportsRenderTextures },
-			{ "supports_image_effects", SystemInfo.supportsImageEffects }
-		};
-
-		SendSpecs(parameters);
+		LumosRequest.Send(endpoint, specs,
+			delegate { // Success
+				var key = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_specs";
+				PlayerPrefs.SetInt(key, 1);
+				Lumos.Log("System information successfully sent.");
+			},
+			delegate { // Failure
+				Lumos.Log("Failed to send system information.");
+			}
+		);
 	}
 
 #else
@@ -60,27 +45,26 @@ public class LumosSpecs
 
 #endif
 
-	/// <summary>
-	/// Sends the specs.
-	/// </summary>
-	/// <param name='parameters'>
-	/// Parameters.
-	/// </param>
-	static void SendSpecs (Dictionary<string, object> parameters)
+	static Dictionary<string, object> GetSpecs ()
 	{
-		var endpoint = url + "/specs/" + Lumos.playerId + "?method=PUT";
+		var specs = new Dictionary<string, object>() {
+			{ "os", SystemInfo.operatingSystem },
+			{ "processor", SystemInfo.processorType },
+			{ "processor_count", SystemInfo.processorCount },
+			{ "ram", SystemInfo.systemMemorySize },
+			{ "vram", SystemInfo.graphicsMemorySize },
+			{ "graphics_card_name", SystemInfo.graphicsDeviceName },
+			{ "graphics_card_vendor", SystemInfo.graphicsDeviceVendor },
+			{ "graphics_card_id", SystemInfo.graphicsDeviceID },
+			{ "graphics_card_vendor_id", SystemInfo.graphicsDeviceVendorID },
+			{ "graphics_card_version", SystemInfo.graphicsDeviceVersion },
+			{ "shader_level", SystemInfo.graphicsShaderLevel },
+			{ "pixel_fillrate", SystemInfo.graphicsPixelFillrate },
+			{ "supports_shadows", SystemInfo.supportsShadows },
+			{ "supports_render_textures", SystemInfo.supportsRenderTextures },
+			{ "supports_image_effects", SystemInfo.supportsImageEffects }
+		};
 
-		LumosRequest.Send(endpoint, parameters,
-			delegate { // Success
-				var key = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_specs";
-				PlayerPrefs.SetString(key, "Sent");
-				Lumos.Log("Specs successfully sent.");
-			},
-
-			delegate { // Failure
-				Lumos.Log("Failed to send specs");
-			}
-		);
+		return specs;
 	}
-
 }
