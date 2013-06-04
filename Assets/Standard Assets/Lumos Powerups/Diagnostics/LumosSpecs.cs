@@ -9,17 +9,17 @@ using UnityEngine;
 /// </summary>
 public class LumosSpecs
 {
+#if !UNITY_IPHONE
+
 	/// <summary>
 	/// The URL.
 	/// </summary>
 	static string url = "http://localhost:8888/api/1/diagnostics";
 
-#if !UNITY_IPHONE
-
 	/// <summary>
 	/// Sends system information.
 	/// </summary>
-	static void Record ()
+	public static void Record ()
 	{
 		var endpoint = url + "/specs/" + Lumos.playerId + "?method=PUT";
 		var specs = GetSpecs();
