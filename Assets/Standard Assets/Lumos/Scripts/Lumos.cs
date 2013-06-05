@@ -9,6 +9,12 @@ using UnityEngine;
 /// </summary>
 public partial class Lumos : MonoBehaviour
 {
+	#region Inspector Settings
+
+	public bool runWhileInEditor;
+
+	#endregion
+
 	#region Events
 
 	/// <summary>
@@ -64,15 +70,13 @@ public partial class Lumos : MonoBehaviour
 	public static bool timerPaused { get; set; }
 
 	/// <summary>
-	/// An instance of this class.
+	/// Whether to send data to Lumos during development.
 	/// </summary>
-	public static Lumos instance { get; private set; }
+	public static bool runInEditor {
+		get { return instance.runWhileInEditor; }
+	}
 
-	#region Inspector Settings
-
-	public bool runInEditor;
-
-	#endregion
+	static Lumos instance;
 
 	/// <summary>
 	/// Private constructor prevents object being created directly.

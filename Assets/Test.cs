@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-public class Test : MonoBehaviour {
+public class Test : MonoBehaviour
+{
 	void Awake()
 	{
 		Lumos.debug = true;
@@ -9,12 +10,8 @@ public class Test : MonoBehaviour {
 		LumosEvents.Record("event_test", Time.time, true, "loading");
 	}
 
-	void OnGUI() {
-		if (!Social.localUser.authenticated) {
-			return;
-		}
-
-
+	void OnGUI()
+	{
 		if (GUILayout.Button("Show achievements")) {
 			Social.ShowAchievementsUI();
 		}
@@ -25,6 +22,10 @@ public class Test : MonoBehaviour {
 
 		if (GUILayout.Button("Show Profile")) {
 			LumosSocial.ShowProfileUI();
+		}
+
+		if (GUILayout.Button("Send Events")) {
+			LumosEvents.Send();
 		}
 	}
 }
