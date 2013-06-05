@@ -9,7 +9,7 @@ using UnityEngine;
 [CustomEditor(typeof(Lumos))]
 public class LumosInspector : Editor
 {
-	GUIContent recordInEditorLabel = new GUIContent("Record While In Editor", "Send data to Lumos during development.");
+	GUIContent runInEditorLabel = new GUIContent("Record While In Editor", "Send data to Lumos during development.");
 
 	override public void OnInspectorGUI ()
 	{
@@ -18,7 +18,7 @@ public class LumosInspector : Editor
 		EditorGUIUtility.LookLikeInspector();
 		EditorGUI.indentLevel = 1;
 
-		lumos.runInEditor = EditorGUILayout.Toggle(recordInEditorLabel, lumos.runInEditor);
+		lumos.runWhileInEditor = EditorGUILayout.Toggle(runInEditorLabel, lumos.runWhileInEditor);
 
 		if (GUI.changed) {
 			EditorUtility.SetDirty(lumos);

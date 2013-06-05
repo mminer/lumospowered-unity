@@ -81,7 +81,7 @@ public class LumosRequest
 	/// <param name="errorCallback">Callback to run on failed response.</param>
 	static IEnumerator SendCoroutine (string url, object parameters, SuccessHandler successCallback, ErrorHandler errorCallback)
 	{
-		if (Application.isEditor && !Lumos.instance.runInEditor) {
+		if (Application.isEditor && !Lumos.runInEditor) {
 			yield break;
 		}
 
@@ -100,7 +100,7 @@ public class LumosRequest
 
 		// Send info to server.
 		yield return www;
-		Lumos.Log("Request: " + postData);
+		Lumos.Log("Request: " + Encoding.Default.GetString(postData));
 		Lumos.Log("Response: " + www.text);
 
 		// Parse the response.

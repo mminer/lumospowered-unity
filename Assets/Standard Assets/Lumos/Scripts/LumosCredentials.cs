@@ -21,11 +21,11 @@ public class LumosCredentials : ScriptableObject
 	public string gameID
 	{
 		get {
-			if (_gameID == null) {
+			if (_gameID == null || _gameID == "") {
 				try {
 					_gameID = apiKey.Substring(0, 8);
 				} catch (System.ArgumentOutOfRangeException) {
-					Debug.LogError("The Lumos API key is not set. Do this in the Lumos pane in Unity's preferences.");
+					Debug.LogError("[Lumos] The Lumos API key is not set. Do this in the Lumos pane in Unity's preferences.");
 				}
 			}
 
@@ -33,6 +33,10 @@ public class LumosCredentials : ScriptableObject
 		}
 	}
 
+	/// <summary>
+	/// Loads the Lumos credentials file from Resources.
+	/// </summary>
+	/// <returns>The Lumos credentials object.</returns>
 	public static LumosCredentials Load ()
 	{
 		var credentials = Resources.Load("Credentials", typeof(LumosCredentials)) as LumosCredentials;
