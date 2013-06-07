@@ -95,6 +95,7 @@ public class LumosRequest
 		}
 
 		var postData = SerializePostData(parameters);
+
 		headers["Authorization"] = GenerateAuthorizationHeader(Lumos.credentials, postData);
 		var www = new WWW(url, postData, headers);
 

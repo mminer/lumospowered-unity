@@ -36,6 +36,19 @@ public class LumosAnalytics : MonoBehaviour
 		LumosEvents.levelStartTime = Time.time;
 		LumosEvents.Record("level_started", 1, true);
 		Lumos.OnTimerFinish += LumosEvents.Send;
+		Lumos.OnReady += OnLumosReady;
+	}
+
+	/// <summary>
+	/// Raises the lumos ready event.
+	/// </summary>
+	static void OnLumosReady ()
+	{
+		var key = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_location";
+
+		if (!PlayerPrefs.HasKey(key)) {
+			LumosLocation.Record();
+		}
 	}
 
 	void OnLevelWasLoaded ()
