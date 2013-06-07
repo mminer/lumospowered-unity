@@ -126,13 +126,15 @@ public class LumosLogs
 		};
 
 		logs.Add(newLog);
+		
+		Lumos.Log("logs: added log");
 	}
 
 	/// <summary>
 	/// Sends the queued logs to the server.
 	/// </summary>
 	public static void Send ()
-	{
+	{		
 		if (logs.Count == 0) {
 			return;
 		}

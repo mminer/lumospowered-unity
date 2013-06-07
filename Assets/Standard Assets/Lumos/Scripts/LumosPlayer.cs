@@ -63,11 +63,11 @@ public class LumosPlayer
 
 		LumosRequest.Send(endpoint, parameters,
 			delegate (object response) { // Success
-				var resp = response as Dictionary<string, object>;
+				//var resp = response as Dictionary<string, object>;
 				//Lumos.Log(resp["message"]);
 			},
 			delegate (object response) { // Error
-				var resp = response as Dictionary<string, object>;
+				//var resp = response as Dictionary<string, object>;
 				//Lumos.LogError(resp["message"]);
 			});
 	}
