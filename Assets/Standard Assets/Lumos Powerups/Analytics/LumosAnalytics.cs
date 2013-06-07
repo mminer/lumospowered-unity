@@ -16,7 +16,13 @@ public class LumosAnalytics : MonoBehaviour
 	#endregion
 
 	public static bool levelsAsCategories {
-		get { return instance.useLevelsAsCategories; }
+		get { 
+			if (!instance) {
+				return false;
+			}
+			
+			return instance.useLevelsAsCategories; 
+		}
 	}
 
 	static LumosAnalytics instance;
@@ -25,6 +31,7 @@ public class LumosAnalytics : MonoBehaviour
 
 	void Awake ()
 	{
+		Lumos.Log("events awoke");
 		instance = this;
 		LumosEvents.levelStartTime = Time.time;
 		LumosEvents.Record("level_started", 1, true);
