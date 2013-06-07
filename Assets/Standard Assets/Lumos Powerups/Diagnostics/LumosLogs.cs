@@ -71,6 +71,11 @@ public class LumosLogs
 		if (message == null || message == "") {
 			return;	
 		}
+		
+		// Don't record empty stack traces
+		if (trace == null || trace == "") {
+			return;
+		}
 
 		// Only log message types that the user specifies.
 		if ((type == LogType.Log       && !LumosDiagnostics.instance.recordLogs)     ||

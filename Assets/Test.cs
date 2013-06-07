@@ -9,14 +9,6 @@ public class Test : MonoBehaviour
 		LumosEvents.Record("what_up", 0, true, "levels");
 		LumosEvents.Record("event_test", Time.time, true, "loading");
 	}
-	
-	void Start() {
-		for (var i = 0; i < 100; i++) {
-			Debug.Log("log test like a boss " + i);	
-			Debug.LogError("Error test like a boss " + i);	
-			Debug.LogWarning("Warning test like a boss " + i);
-		}
-	}
 
 	void OnGUI()
 	{
