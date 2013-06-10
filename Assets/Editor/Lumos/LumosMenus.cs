@@ -17,7 +17,10 @@ public static class LumosMenus
 	[MenuItem("GameObject/Create Other/Lumos...")]
 	static void AddToScene ()
 	{
-		ScriptableWizard.DisplayWizard<LumosWizard>("Add Lumos To Scene", "Add", "Cancel");
+        var installWindow = (LumosInstall)EditorWindow.GetWindow(typeof(LumosInstall));
+		installWindow.title = "Add Lumos";
+		installWindow.Init();
+		installWindow.ShowUtility();
 	}
 
 	/// <summary>

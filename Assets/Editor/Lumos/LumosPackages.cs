@@ -21,7 +21,7 @@ public static class LumosPackages
 	/// </summary>
 	public class Package {
 		public readonly string name;
-		public readonly Uri url;
+		public Uri url;
 
 		public Status status { get; set; }
 		public string version { get; set; }
@@ -50,6 +50,8 @@ public static class LumosPackages
 
 	static readonly Uri updatesUrl = new Uri("http://localhost:8888/api/1/powerups?engine=unity");
 	static Dictionary<string, Package> _packages;
+	static bool installUpdates;
+	public static List<Package> updates = new List<Package>();
 
 	/// <summary>
 	/// The powerup packages.
@@ -86,6 +88,19 @@ public static class LumosPackages
 			RecordInstalledPackages(packages);
 		}
 	}
+	
+	public static int CurrentDownloadCount ()
+	{
+		int count = 0;
+		
+		foreach (var package in packages) {
+			if (package.Value.status == Status.Downloading) {
+				count++;
+			}
+		}
+		
+		return count;
+	}
 
 	/// <summary>
 	/// Downloads the latest powerup package.
@@ -94,6 +109,8 @@ public static class LumosPackages
 	public static void UpdatePackage (Package package)
 	{
 		package.status = Status.Downloading;
+		
+		Debug.Log(package.name + " is being downloaded from " + package.url.AbsoluteUri);
 
 		// Construct local filename.
 		var filename = Path.GetFileName(package.url.LocalPath);
@@ -102,7 +119,9 @@ public static class LumosPackages
 		// Download.
 		var client = new WebClient();
 		client.DownloadFileAsync(package.url, path);
-		client.DownloadFileCompleted += delegate {
+		client.DownloadFileCompleted += delegate(object sender, System.ComponentModel.AsyncCompletedEventArgs e) {
+			Debug.Log("finished downloading: " + package.name);
+			Debug.Log("Error: " + e.Error.Message);
 			importQueue.Enqueue(path);
 			package.status = Status.Installed; // To be true soon enough
 			package.version = package.nextVersion;
@@ -123,6 +142,15 @@ public static class LumosPackages
 		client.DownloadStringAsync(updatesUrl);
 		client.DownloadStringCompleted += CheckForUpdatesCallback;
 	}
+	
+	/// <summary>
+	/// Checks for available packages or updates, and installs them.
+	/// </summary>
+	public static void CheckAndInstallUpdates ()
+	{
+		installUpdates = true;
+		CheckForUpdates();
+	}
 
 	/// <summary>
 	/// Parses the results of checking for powerup package updates.
@@ -130,6 +158,7 @@ public static class LumosPackages
 	static void CheckForUpdatesCallback (object sender, DownloadStringCompletedEventArgs e) {
 		Debug.Log(e.Result);
 		var response = LumosJson.Deserialize(e.Result) as IList;
+		Package packageToUpdate = null;
 
 		foreach (Dictionary<string, object> data in response) {
 			var powerupID = data["powerup_id"] as string;
@@ -142,10 +171,16 @@ public static class LumosPackages
 				if (version != package.version) {
 					package.status = Status.UpdateAvailable;
 					package.nextVersion = version;
+					packageToUpdate = package;
 				}
 			} else {
 				// Signal that powerup package is available for downloading.
 				packages[powerupID] = new Package(data, Status.NotInstalled);
+				packageToUpdate = packages[powerupID];
+			}
+			
+			if (installUpdates && packageToUpdate != null) {
+				updates.Add(packageToUpdate);
 			}
 		}
 
@@ -171,6 +206,11 @@ public static class LumosPackages
 		}
 
 		return installedPackages;
+	}
+	
+	public static void SetInstalledPackages () 
+	{
+		_packages = GetInstalledPackages();
 	}
 
 	/// <summary>
