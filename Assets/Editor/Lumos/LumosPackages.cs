@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -106,7 +107,7 @@ public static class LumosPackages
 						installQueue.Remove(package.Key);
 						break;
 					}
-				}	
+				}
 			}
 		}
 		
@@ -119,11 +120,14 @@ public static class LumosPackages
 				
 				if (installQueue.Count == 0 && packages.Count > 0) {
 					installing = false;
+					RunSetupScripts();
 					EditorPrefs.SetBool("lumos-installing", false);
 					EditorPrefs.DeleteKey("lumos-install-queue");
 					EditorApplication.update -= MonitorImports;
 					EditorWindow.GetWindow<LumosInstall>().Close();
 				}
+			} else {
+				RunSetupScripts();
 			}
 		}
 		
@@ -304,6 +308,38 @@ public static class LumosPackages
 		}
 		
 		AssetDatabase.ImportPackage(path, interactive);
+	}
+	
+	static void RunSetupScripts ()
+	{
+		string targetAssembly = "Assembly-CSharp-firstpass";
+		Assembly editor = null;
+		Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+		
+		foreach (var assembly in assemblies) {
+			var name = assembly.GetName().Name;
+			
+			if (name == targetAssembly) {
+				editor = assembly;
+				break;
+			}
+		}
+		
+		if (editor != null) {
+			var q = from t in editor.GetTypes()
+        		where t.IsClass && t.GetInterfaces().Contains(typeof(ILumosSetup))
+        		select t;
+			
+			var setupScripts = q.ToList();
+			
+			if (setupScripts.Count > 0) {
+				foreach (var setup in setupScripts) {
+					var instance = Activator.CreateInstance(setup);
+					Convert.ChangeType(instance, setup);
+					setup.GetMethod("Setup").Invoke(instance, null);
+				}
+			}
+		}
 	}
 
 	/// <summary>

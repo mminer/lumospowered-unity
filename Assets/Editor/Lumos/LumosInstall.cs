@@ -101,5 +101,15 @@ public class LumosInstall : EditorWindow
 		
 		// Install missing or updated powerup scripts, if any.
 		LumosPackages.UpdateAllPackages();
+		
 	}
+	
+	/*void Setup ()
+	{
+		foreach (var info in GetType().GetMethods(BindingFlags.NonPublic|BindingFlags.Instance|BindingFlags.DeclaredOnly)) {
+   			if (info.IsFinal && info.IsPrivate) {
+         		Console.WriteLine("Explicit interface implementation: {0}", info.Name);
+   		}
+  }
+	}*/
 }
