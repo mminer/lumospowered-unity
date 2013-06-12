@@ -307,7 +307,8 @@ public static class LumosPackages
 			interactive = false;
 		}
 		
-		AssetDatabase.ImportPackage(path, interactive);
+		//AssetDatabase.ImportPackage(path, interactive);
+		AssetDatabase.ImportPackage(path, false);
 	}
 	
 	static void RunSetupScripts ()

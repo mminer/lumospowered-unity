@@ -33,7 +33,7 @@ public static class LumosPreferences
 		// General settings.
 		GUILayout.Label("General", EditorStyles.boldLabel);
 		credentials.apiKey = EditorGUILayout.TextField(apiKeyLabel, credentials.apiKey);
-		interactiveImport = EditorGUILayout.Toggle(interactiveImportLabel, interactiveImport);
+		//interactiveImport = EditorGUILayout.Toggle(interactiveImportLabel, interactiveImport);
 		EditorGUILayout.Space();
 
 		// Powerups list.
