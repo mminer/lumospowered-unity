@@ -18,8 +18,7 @@ public static class LumosMenus
 	static void AddToScene ()
 	{
         var installWindow = (LumosInstall)EditorWindow.GetWindow(typeof(LumosInstall));
-		installWindow.title = "Add Lumos";
-		installWindow.Init();
+		installWindow.title = "Install Lumos";
 		installWindow.ShowUtility();
 	}
 

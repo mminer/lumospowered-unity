@@ -25,6 +25,7 @@ public static class LumosPreferences
 
 			credentials = LumosCredentialsManager.GetCredentials();
 			interactiveImport = EditorPrefs.GetBool("lumos-interactive-import", false);
+			LumosPackages.CompareLatestWithInstalled();
 			prefsLoaded = true;
 			Debug.Log("Loading prefs");
 		}

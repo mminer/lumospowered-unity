@@ -9,18 +9,10 @@ public class LumosInstall : EditorWindow
 	const string instructions = "Ensure you complete this installation in the \nscene you want Lumos to first initiate.";
 	LumosCredentials credentials;
 	bool showError;
+	bool initiated;
     
     void OnGUI () 
 	{
-		// Title
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label("Install Lumos");
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		EditorGUILayout.Space();
-		
 		GUILayout.Label(instructions);
 		
 		EditorGUILayout.Space();
@@ -42,10 +34,15 @@ public class LumosInstall : EditorWindow
 			font.textColor = fontColour;
 		}
 		
+		EditorGUILayout.Space();
+		
+		GUILayout.Label(LumosPackages.messageStatus);
+		
 		GUILayout.BeginVertical(GUILayout.ExpandHeight(true), GUILayout.Height(Screen.height));
+			// Push to bottom
 			GUILayout.FlexibleSpace();
 			
-			// Add and Cancel buttons
+			// "Install" & "Cancel" buttons
 			GUILayout.BeginHorizontal();
 				GUILayout.FlexibleSpace();
 			
@@ -61,31 +58,35 @@ public class LumosInstall : EditorWindow
 						showError = true;
 					} else {
 						InstallLumos();
-						this.Close();
 					}
 				}
-		
+				
+				// Margin 
 				EditorGUILayout.Space();
 			GUILayout.EndHorizontal();
 		
 			GUILayout.FlexibleSpace();
 		GUILayout.EndVertical();
+		
+		if (GUI.changed) {
+			EditorUtility.SetDirty(credentials);
+		}
     }
 	
-	// Called on EditorApplication.Update 
-	void ProcessUpdates ()
-	{
-		if (LumosPackages.updates.Count > 0 && LumosPackages.CurrentDownloadCount() < 1) {
-			LumosPackages.UpdatePackage(LumosPackages.updates[0]);
-			LumosPackages.updates.RemoveAt(0);
-		}
-	}
-	
+	/// <summary>
+	/// Initialize this panel.
+	/// </summary>
 	public void Init ()
 	{
 		credentials = LumosCredentialsManager.GetCredentials();
-		LumosPackages.SetInstalledPackages();
-		EditorApplication.update += ProcessUpdates;
+		LumosPackages.CompareLatestWithInstalled();
+		EditorApplication.update += LumosPackages.MonitorImports;
+		initiated = true;
+	}
+	
+	void OnEnable ()
+    {
+		Init();
 	}
 	
 	void InstallLumos ()
@@ -99,6 +100,6 @@ public class LumosInstall : EditorWindow
 		PrefabUtility.InstantiatePrefab(prefab);
 		
 		// Install missing or updated powerup scripts, if any.
-		LumosPackages.CheckAndInstallUpdates();
+		LumosPackages.UpdateAllPackages();
 	}
 }
