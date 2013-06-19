@@ -103,6 +103,30 @@ public class LumosLeaderboard : ILeaderboard {
 	}
 	
 	/// <summary>
+	/// Loads the descriptions of the leaderboard.
+	/// </summary>
+	/// <param name='callback'>
+	/// Callback.
+	/// </param>
+	public void LoadDescription (Action<bool> callback)
+	{
+		if (id == null) {
+			Debug.LogWarning("Leaderboard must have an ID before loading description.");
+			return;
+		}
+		
+		var api = url + "leaderboards/" + id + "?method=GET";
+
+		LumosRequest.Send(api, delegate (object response) {
+			var info = response as Dictionary<string, object>;
+			var leaderboard = ParseLeaderboardInfo(info);
+			this.scores = leaderboard.scores;
+			this.title = leaderboard.title;
+			callback(true);
+		});
+	}
+	
+	/// <summary>
 	/// Loads the scores.
 	/// </summary>
 	/// <param name='callback'>
@@ -138,6 +162,27 @@ public class LumosLeaderboard : ILeaderboard {
 	}
 	
 	/// <summary>
+	/// Loads the scores.
+	/// </summary>
+	/// <param name='limit'>
+	/// Limit.
+	/// </param>
+	/// <param name='offset'>
+	/// Offset.
+	/// </param>
+	/// <param name='callback'>
+	/// Callback.
+	/// </param>
+	public void LoadScoresAroundUser(int limit, Action<IScore[]> callback)
+	{
+		if (limit < 1) {
+			limit = 1;
+		}
+		
+		FetchUserScores(limit, callback);
+	}
+	
+	/// <summary>
 	/// Adds the scores.
 	/// </summary>
 	/// <param name='scores'>
@@ -162,9 +207,9 @@ public class LumosLeaderboard : ILeaderboard {
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	void FetchScores(int limit, int offset, Action<IScore[]> callback)
+	void FetchScores (int limit, int offset, Action<IScore[]> callback)
 	{
-		var api = url + "leaderboards/" + id + "?method=GET";
+		var api = url + "leaderboards/" + id + "/scores?method=GET";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "limit", limit },
@@ -177,7 +222,39 @@ public class LumosLeaderboard : ILeaderboard {
 			var scores = new List<IScore>();
 
 			foreach (Dictionary<string, object> info in scoreList) {
-				var score = ParseScores(info);
+				var score = ParseScore(info);
+				scores.Add(score);
+			}
+
+			IndexScores(scores);
+			callback(scores.ToArray());
+		});
+	}
+	
+	/// <summary>
+	/// Fetches the scores surrounding the playing user.
+	/// </summary>
+	/// <param name='limit'>
+	/// Limit.
+	/// </param>
+	/// <param name='callback'>
+	/// Callback.
+	/// </param>
+	void FetchUserScores (int limit, Action<IScore[]> callback)
+	{
+		var api = url + "users/" + Social.localUser.id + "/scores/" + id + "?method=GET";
+
+		var parameters = new Dictionary<string, object>() {
+			{ "limit", limit }
+		};
+
+		LumosRequest.Send(api, parameters, delegate (object response) {
+			var resp = response as Dictionary<string, object>;
+			var scoreList = resp["scores"] as IList;
+			var scores = new List<IScore>();
+
+			foreach (Dictionary<string, object> info in scoreList) {
+				var score = ParseScore(info);
 				scores.Add(score);
 			}
 
@@ -189,22 +266,57 @@ public class LumosLeaderboard : ILeaderboard {
 	/// <summary>
 	/// Fetchs the friend scores.
 	/// </summary>
-	void FetchFriendScores()
+	void FetchFriendScores ()
 	{
-		var api = url + "leaderboards/" + id + "/" + Social.localUser.id + "/friends?method=GET";
+		var api = url + "users/" + Social.localUser.id + "/friends/scores/" + id + "?method=GET";
 
 		LumosRequest.Send(api, delegate (object response) {
 			var resp = response as Dictionary<string, object>;
 			var scoreList = resp["scores"] as IList;
-			var scores = new List<IScore>();
-
-			foreach (Dictionary<string, object> info in scoreList) {
-				var score = ParseScores(info);
-				scores.Add(score);
-			}
-
-			this.friendScores = scores.ToArray();
+			this.friendScores = ParseScores(scoreList);
 		});
+	}
+	
+	/// <summary>
+	/// Parses the leaderboard info.
+	/// </summary>
+	/// <returns>
+	/// The leaderboard info.
+	/// </returns>
+	/// <param name='info'>
+	/// Info.
+	/// </param>
+	public static LumosLeaderboard ParseLeaderboardInfo (Dictionary<string, object> info)
+	{
+		return ParseLeaderboardInfo(info, false);
+	}
+	
+	/// <summary>
+	/// Parses the leaderboard info.
+	/// </summary>
+	/// <returns>
+	/// The leaderboard info.
+	/// </returns>
+	/// <param name='info'>
+	/// Info.
+	/// </param>
+	public static LumosLeaderboard ParseLeaderboardInfo (Dictionary<string, object> info, bool friendScores)
+	{
+		var leaderboard = new LumosLeaderboard();
+		leaderboard.id = info["leaderboard_id"] as string;
+		leaderboard.title = info["name"] as string;
+		
+		if (info.ContainsKey("scores")) {
+			var scores = LumosLeaderboard.ParseScores(info["scores"] as IList);
+			
+			if (friendScores) {
+				leaderboard.friendScores = scores;
+			} else {
+				leaderboard.scores = scores;
+			}
+		}
+		
+		return leaderboard;
 	}
 	
 	/// <summary>
@@ -213,10 +325,31 @@ public class LumosLeaderboard : ILeaderboard {
 	/// <returns>
 	/// The scores.
 	/// </returns>
+	/// <param name='data'>
+	/// Data.
+	/// </param>
+	public static IScore[] ParseScores (IList data)
+	{
+		var scores = new List<IScore>();
+		
+		foreach (Dictionary<string, object> info in data) {
+			var score = ParseScore(info);
+			scores.Add(score);
+		}
+		
+		return scores.ToArray();
+	}
+	
+	/// <summary>
+	/// Parses a score.
+	/// </summary>
+	/// <returns>
+	/// The scores.
+	/// </returns>
 	/// <param name='info'>
 	/// Info.
 	/// </param>
-	IScore ParseScores(Dictionary<string, object> info)
+	static IScore ParseScore (Dictionary<string, object> info)
 	{
 		var value = Convert.ToInt32(info["score"]);
 		var timestamp = Convert.ToDouble(info["created"]);
@@ -235,7 +368,7 @@ public class LumosLeaderboard : ILeaderboard {
 	/// <param name='newScores'>
 	/// New scores.
 	/// </param>
-	void IndexScores(List<IScore> newScores)
+	void IndexScores (List<IScore> newScores)
 	{
 		if (newScores == null || newScores.Count < 1) {
 			Debug.LogWarning("There are no more scores to load.");

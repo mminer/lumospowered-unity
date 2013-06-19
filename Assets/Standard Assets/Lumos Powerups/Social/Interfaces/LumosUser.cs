@@ -105,7 +105,7 @@ public class LumosUser : ILocalUser
 	/// <summary>
 	/// The URL.
 	/// </summary>
-	string url = "http://localhost:8888/api/1/users";
+	string url = "http://localhost:8888/api/1/users/";
 	
 	/// <summary>
 	/// Initializes a new instance of the <see cref="LumosUser"/> class.
@@ -121,7 +121,7 @@ public class LumosUser : ILocalUser
 	/// <param name='authenticated'>
 	/// Authenticated.
 	/// </param>
-	public LumosUser(string userID, bool authenticated)
+	public LumosUser (string userID, bool authenticated)
 	{
 		this.userID = userID;
 		this.authenticated = authenticated;
@@ -133,7 +133,7 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void Authenticate(Action<bool> callback)
+	public void Authenticate (Action<bool> callback)
 	{
 		AuthenticateUser(null, callback);
 	}
@@ -150,7 +150,7 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void Authenticate(string username, string password, Action<bool> callback)
+	public void Authenticate (string username, string password, Action<bool> callback)
 	{
 		this.userID = username;
 		AuthenticateUser(password, callback);
@@ -174,9 +174,9 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void UpdateInfo(string userName=null, string email=null, string password=null, Dictionary<string, object> other=null, Action<bool> callback=null)
+	public void UpdateInfo (string userName=null, string email=null, string password=null, Dictionary<string, object> other=null, Action<bool> callback=null)
 	{
-		var endpoint = url + "/" + userID + "?method=PUT";
+		var endpoint = url + userID + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>();
 		AddStringParam("name", userName, parameters);
@@ -204,7 +204,7 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void LoadFriends(Action<bool> callback)
+	public void LoadFriends (Action<bool> callback)
 	{
 		FetchFriends(callback);
 	}
@@ -218,7 +218,7 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	void AuthenticateUser(string password, Action<bool> callback)
+	void AuthenticateUser (string password, Action<bool> callback)
 	{
 		// The id should be set prior to this call if
 		// the developer intends to use a login system
@@ -226,7 +226,7 @@ public class LumosUser : ILocalUser
 			userID = Lumos.playerId;
 		}
 
-		var endpoint = url + "/" + userID + "?method=GET";
+		var endpoint = url + userID + "?method=GET";
 
 		// need to get the password some how
 		// but can't add it to the localUser interface
@@ -268,9 +268,9 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void Register(string username, string pass, string email, Action<bool> callback)
+	public void Register (string username, string pass, string email, Action<bool> callback)
 	{
-		var endpoint = url + "/" + username + "?method=PUT";
+		var endpoint = url + username + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "player_id", Lumos.playerId },
@@ -292,9 +292,9 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void LoadFriendRequests(Action<bool> callback)
+	public void LoadFriendRequests (Action<bool> callback)
 	{
-		var endpoint = url + "/" + userID + "/friend-requests?method=GET";
+		var endpoint = url + userID + "/friend-requests?method=GET";
 
 		LumosRequest.Send(endpoint, delegate (object response) {
 			if (response != null) {
@@ -315,9 +315,9 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void SendFriendRequest(string friendID, Action<bool> callback)
+	public void SendFriendRequest (string friendID, Action<bool> callback)
 	{
-		var endpoint = url + "/" + userID + "/friend-requests";
+		var endpoint = url + userID + "/friend-requests";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "friend", friendID }
@@ -337,15 +337,11 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void AcceptFriendRequest(string friendID, Action<bool> callback)
+	public void AcceptFriendRequest (string friendID, Action<bool> callback)
 	{
-		var endpoint = url + "/" + userID + "/friends";
+		var endpoint = url + userID + "/friends/" + friendID + "?method=PUT";
 
-		var parameters = new Dictionary<string, object>() {
-			{ "friend", friendID }
-		};
-
-		LumosRequest.Send(endpoint, parameters, delegate (object response) {
+		LumosRequest.Send(endpoint, delegate (object response) {
 			var resp = response as Dictionary<string, object>;
 			friends = ParseFriends(resp["friends"] as IList);
 			friendRequests = ParseFriends(resp["friend_requests"] as IList);
@@ -362,9 +358,9 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void DeclineFriendRequest(string friendID, Action<bool> callback)
+	public void DeclineFriendRequest (string friendID, Action<bool> callback)
 	{
-		var endpoint = url + "/" + userID + "/friend-requests";
+		var endpoint = url + userID + "/friend-requests";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "friend", friendID },
@@ -391,15 +387,11 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void RemoveFriend(string friendID, Action<bool> callback)
+	public void RemoveFriend (string friendID, Action<bool> callback)
 	{
-		var endpoint = url + "/" + userID + "/friends?method=DELETE";
+		var endpoint = url + userID + "/friends/" + friendID + "?method=DELETE";
 
-		var parameters = new Dictionary<string, object>() {
-			{ "friend", friendID }
-		};
-
-		LumosRequest.Send(endpoint, parameters, delegate (object response) {
+		LumosRequest.Send(endpoint, delegate (object response) {
 			var resp = response as IList;
 			friends = ParseFriends(resp);
 			callback(true);
@@ -412,7 +404,7 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	public void LoadFriendLeaderboardScores(Action<bool> callback)
+	public void LoadFriendLeaderboardScores (Action<bool> callback)
 	{
 		var endpoint = "localhost:8888/api/1/leaderboards/" + userID + "/friends?method=GET";
 
@@ -441,9 +433,9 @@ public class LumosUser : ILocalUser
 	/// <param name='callback'>
 	/// Callback.
 	/// </param>
-	void FetchFriends(Action<bool> callback)
+	void FetchFriends (Action<bool> callback)
 	{
-		var endpoint = url + "/" + userID + "/friends?method=GET";
+		var endpoint = url + userID + "/friends?method=GET";
 
 		LumosRequest.Send(endpoint, delegate (object response) {
 			var resp = response as IList;
@@ -458,7 +450,7 @@ public class LumosUser : ILocalUser
 	/// <param name='info'>
 	/// Info.
 	/// </param>
-	void UpdateUser(Dictionary<string, object> info)
+	void UpdateUser (Dictionary<string, object> info)
 	{
 		userID = info["username"].ToString();
 
@@ -495,7 +487,7 @@ public class LumosUser : ILocalUser
 	/// <param name='friends'>
 	/// Friends.
 	/// </param>
-	IUserProfile[] ParseFriends(IList friends)
+	IUserProfile[] ParseFriends (IList friends)
 	{
 		var friendList = new List<IUserProfile>();
 
@@ -530,7 +522,7 @@ public class LumosUser : ILocalUser
 	/// <param name='leaderboardID'>
 	/// Leaderboard I.
 	/// </param>
-	Score ParseUserScore(IList scores, string leaderboardID)
+	Score ParseUserScore (IList scores, string leaderboardID)
 	{
 		foreach (Dictionary<string, object> score in scores) {
 			var username = score["username"] as  string;
@@ -561,7 +553,7 @@ public class LumosUser : ILocalUser
 	/// <param name='parameters'>
 	/// Parameters.
 	/// </param>
-	void AddStringParam(string key, string value, Dictionary<string, object> parameters)
+	void AddStringParam (string key, string value, Dictionary<string, object> parameters)
 	{
 		if (value != null && value != "") {
 			parameters[key] = value;

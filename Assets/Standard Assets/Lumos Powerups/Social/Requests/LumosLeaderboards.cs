@@ -7,9 +7,9 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public partial class LumosSocialPlatform : ISocialPlatform
 {
-	void RecordHighScore(int score, string leaderboardId, Action<bool> callback)
+	void RecordHighScore (int score, string leaderboardId, Action<bool> callback)
 	{
-		var api = url + "leaderboards/" + leaderboardId + "/" + localUser.id;
+		var api = url + "users/" + localUser.id + "/scores/" + leaderboardId + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "score", score }
@@ -20,7 +20,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 		});
 	}
 
-	void FetchLeaderboardDescriptions(Action<bool> callback)
+	void FetchLeaderboardDescriptions (Action<bool> callback)
 	{
 		var api = url + "leaderboards/info?method=GET";
 
@@ -37,13 +37,34 @@ public partial class LumosSocialPlatform : ISocialPlatform
 			callback(true);
 		});
 	}
-
-	LumosLeaderboard ParseLeaderboardInfo(Dictionary<string, object> info)
+	
+	void FetchAllFriendLeaderboards (Action<bool> callback)
 	{
-		var leaderboard = new LumosLeaderboard();
-		leaderboard.id = info["leaderboard_id"] as string;
-		leaderboard.title = info["name"] as string;
-		return leaderboard;
+		var api = url + "users/" + localUser.id + "/friends/scores?method=GET";
+
+		LumosRequest.Send(api, delegate (object response) {
+			var resp = response as IList;
+			var leaderboards = new List<LumosLeaderboard>();
+
+			foreach(Dictionary<string, object> info in resp) {
+				var leaderboard = LumosLeaderboard.ParseLeaderboardInfo(info);
+				leaderboards.Add(leaderboard);
+			}
+			
+			foreach (var leaderboard in leaderboards) {
+				var current = LumosSocial.GetLeaderboard(leaderboard.id);
+				
+				// Leaderboard already exists, update friend scores only
+				if (current != null) {
+					current.friendScores = leaderboard.friendScores;
+				// Leaderboard doesn't exist yet, add entire leaderboard
+				} else {
+					LumosSocial.leaderboards.Add(leaderboard);
+				}
+			}
+			
+			callback(true);
+		});
 	}
 
 	/*

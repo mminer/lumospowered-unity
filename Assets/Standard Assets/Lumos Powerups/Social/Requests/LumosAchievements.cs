@@ -13,9 +13,9 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 	public List<LumosAchievement> achievements = new List<LumosAchievement>();
 
 
-	void FetchPlayerAchievements(Action<IAchievement[]> callback)
+	void FetchPlayerAchievements (Action<IAchievement[]> callback)
 	{
-		var api = url + "achievements/" + localUser.id + "?method=GET";
+		var api = url + "users/" + localUser.id + "/achievements?method=GET";
 
 		LumosRequest.Send(api, delegate (object response) {
 			var resp = response as IList;
@@ -30,7 +30,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		});
 	}
 
-	void FetchGameAchievements(Action<IAchievementDescription[]> callback)
+	void FetchGameAchievements (Action<IAchievementDescription[]> callback)
 	{
 		var api = url + "achievements?method=GET";
 
@@ -91,9 +91,9 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		}
 	}
 
-	void UpdateAchievementProgress(string achievementId, int progress, Action<bool> callback)
+	void UpdateAchievementProgress (string achievementId, int progress, Action<bool> callback)
 	{
-		var api = url + "achievements/" + localUser.id + "/" + achievementId + "?method=PUT";
+		var api = url + "users/" + localUser.id + "/achievements/" + achievementId + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "percent_completed", progress }
@@ -107,7 +107,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		});
 	}
 
-	LumosAchievement GetAchievementById(string achievementId)
+	LumosAchievement GetAchievementById (string achievementId)
 	{
 		foreach (var achievement in achievements) {
 			if (achievement.id == achievementId) {
@@ -118,7 +118,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		return null;
 	}
 
-	void UpdateAchievement(LumosAchievement achievement)
+	void UpdateAchievement (LumosAchievement achievement)
 	{
 		foreach (LumosAchievement a in achievements) {
 			if (a.id == achievement.id) {
@@ -129,7 +129,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		}
 	}
 
-	LumosAchievement DictionaryToAchievement(Dictionary<string, object> info)
+	LumosAchievement DictionaryToAchievement (Dictionary<string, object> info)
 	{
 		var id = info["achievement_id"] as string;
 		var percentCompleted = Convert.ToDouble(info["percent_completed"]);
