@@ -29,7 +29,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 			var leaderboards = new List<LumosLeaderboard>();
 
 			foreach(Dictionary<string, object> info in resp) {
-				var leaderboard = ParseLeaderboardInfo(info);
+				var leaderboard = LumosLeaderboard.ParseLeaderboardInfo(info);
 				leaderboards.Add(leaderboard);
 			}
 
@@ -56,7 +56,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 				
 				// Leaderboard already exists, update friend scores only
 				if (current != null) {
-					current.friendScores = leaderboard.friendScores;
+					current.SetFriendScores(leaderboard.friendScores);
 				// Leaderboard doesn't exist yet, add entire leaderboard
 				} else {
 					LumosSocial.leaderboards.Add(leaderboard);

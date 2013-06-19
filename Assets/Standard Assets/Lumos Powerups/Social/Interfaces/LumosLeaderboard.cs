@@ -222,7 +222,7 @@ public class LumosLeaderboard : ILeaderboard {
 			var scores = new List<IScore>();
 
 			foreach (Dictionary<string, object> info in scoreList) {
-				var score = ParseScore(info);
+				var score = ParseScore(id, info);
 				scores.Add(score);
 			}
 
@@ -254,7 +254,7 @@ public class LumosLeaderboard : ILeaderboard {
 			var scores = new List<IScore>();
 
 			foreach (Dictionary<string, object> info in scoreList) {
-				var score = ParseScore(info);
+				var score = ParseScore(id, info);
 				scores.Add(score);
 			}
 
@@ -273,8 +273,13 @@ public class LumosLeaderboard : ILeaderboard {
 		LumosRequest.Send(api, delegate (object response) {
 			var resp = response as Dictionary<string, object>;
 			var scoreList = resp["scores"] as IList;
-			this.friendScores = ParseScores(scoreList);
+			this.friendScores = ParseScores(id, scoreList);
 		});
+	}
+	
+	public void SetFriendScores (IScore[] scores)
+	{
+		friendScores = scores;
 	}
 	
 	/// <summary>
@@ -307,7 +312,7 @@ public class LumosLeaderboard : ILeaderboard {
 		leaderboard.title = info["name"] as string;
 		
 		if (info.ContainsKey("scores")) {
-			var scores = LumosLeaderboard.ParseScores(info["scores"] as IList);
+			var scores = LumosLeaderboard.ParseScores(leaderboard.id, info["scores"] as IList);
 			
 			if (friendScores) {
 				leaderboard.friendScores = scores;
@@ -328,12 +333,12 @@ public class LumosLeaderboard : ILeaderboard {
 	/// <param name='data'>
 	/// Data.
 	/// </param>
-	public static IScore[] ParseScores (IList data)
+	public static IScore[] ParseScores (string leaderboardID, IList data)
 	{
 		var scores = new List<IScore>();
 		
 		foreach (Dictionary<string, object> info in data) {
-			var score = ParseScore(info);
+			var score = ParseScore(leaderboardID, info);
 			scores.Add(score);
 		}
 		
@@ -349,7 +354,7 @@ public class LumosLeaderboard : ILeaderboard {
 	/// <param name='info'>
 	/// Info.
 	/// </param>
-	static IScore ParseScore (Dictionary<string, object> info)
+	static IScore ParseScore (string leaderboardID, Dictionary<string, object> info)
 	{
 		var value = Convert.ToInt32(info["score"]);
 		var timestamp = Convert.ToDouble(info["created"]);
@@ -358,7 +363,7 @@ public class LumosLeaderboard : ILeaderboard {
 		var userID = info["username"] as string;
 		var rank = Convert.ToInt32(info["rank"]);
 
-		var score = new Score(id, value, userID, date, formattedValue, rank);
+		var score = new Score(leaderboardID, value, userID, date, formattedValue, rank);
 		return score;
 	}
 	
