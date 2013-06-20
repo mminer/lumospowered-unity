@@ -38,33 +38,9 @@ public partial class LumosSocialPlatform : ISocialPlatform
 		});
 	}
 	
-	void FetchAllFriendLeaderboards (Action<bool> callback)
+	void LoadFriendLeaderboardScores (Action<bool> callback)
 	{
-		var api = url + "users/" + localUser.id + "/friends/scores?method=GET";
-
-		LumosRequest.Send(api, delegate (object response) {
-			var resp = response as IList;
-			var leaderboards = new List<LumosLeaderboard>();
-
-			foreach(Dictionary<string, object> info in resp) {
-				var leaderboard = LumosLeaderboard.ParseLeaderboardInfo(info);
-				leaderboards.Add(leaderboard);
-			}
-			
-			foreach (var leaderboard in leaderboards) {
-				var current = LumosSocial.GetLeaderboard(leaderboard.id);
-				
-				// Leaderboard already exists, update friend scores only
-				if (current != null) {
-					current.SetFriendScores(leaderboard.friendScores);
-				// Leaderboard doesn't exist yet, add entire leaderboard
-				} else {
-					LumosSocial.leaderboards.Add(leaderboard);
-				}
-			}
-			
-			callback(true);
-		});
+		(localUser as LumosUser).LoadFriendLeaderboardScores(callback);
 	}
 
 	/*

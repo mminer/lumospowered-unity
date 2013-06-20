@@ -270,6 +270,8 @@ public class LumosUser : ILocalUser
 	/// </param>
 	public void Register (string username, string pass, string email, Action<bool> callback)
 	{
+		Debug.Log("Registering new user...");
+		
 		var endpoint = url + username + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
@@ -406,23 +408,29 @@ public class LumosUser : ILocalUser
 	/// </param>
 	public void LoadFriendLeaderboardScores (Action<bool> callback)
 	{
-		var endpoint = "localhost:8888/api/1/leaderboards/" + userID + "/friends?method=GET";
+		var api = url + id + "/friends/scores?method=GET";
 
-		LumosRequest.Send(endpoint, delegate (object response) {
+		LumosRequest.Send(api, delegate (object response) {
 			var resp = response as IList;
-			var scores = new List<Score>();
+			var leaderboards = new List<LumosLeaderboard>();
 
-			foreach (Dictionary<string, object> leaderboard in resp) {
-				var rawScores = leaderboard["scores"] as IList;
-				var leaderboardID = leaderboard["leaderboard_id"] as string;
-				var score = ParseUserScore(rawScores, leaderboardID);
-
-				if (score != null) {
-					scores.Add(score);
+			foreach(Dictionary<string, object> info in resp) {
+				var leaderboard = LumosLeaderboard.ParseLeaderboardInfo(info);
+				leaderboards.Add(leaderboard);
+			}
+			
+			foreach (var leaderboard in leaderboards) {
+				var current = LumosSocial.GetLeaderboard(leaderboard.id);
+				
+				// Leaderboard already exists, update friend scores only
+				if (current != null) {
+					current.SetFriendScores(leaderboard.friendScores);
+				// Leaderboard doesn't exist yet, add entire leaderboard
+				} else {
+					LumosSocial.leaderboards.Add(leaderboard);
 				}
 			}
-
-			this.scores = scores.ToArray();
+			
 			callback(true);
 		});
 	}

@@ -116,12 +116,14 @@ public class LumosLeaderboard : ILeaderboard {
 		}
 		
 		var api = url + "leaderboards/" + id + "?method=GET";
-
+		loading = true;
+		
 		LumosRequest.Send(api, delegate (object response) {
 			var info = response as Dictionary<string, object>;
 			var leaderboard = ParseLeaderboardInfo(info);
 			this.scores = leaderboard.scores;
 			this.title = leaderboard.title;
+			loading = false;
 			callback(true);
 		});
 	}
@@ -150,7 +152,7 @@ public class LumosLeaderboard : ILeaderboard {
 	/// Callback.
 	/// </param>
 	public void LoadScores(int limit, int offset, Action<bool> callback)
-	{
+	{	
 		if (friendScores == null && !loading) {
 			FetchFriendScores();
 		}
@@ -209,6 +211,7 @@ public class LumosLeaderboard : ILeaderboard {
 	/// </param>
 	void FetchScores (int limit, int offset, Action<IScore[]> callback)
 	{
+		loading = true;
 		var api = url + "leaderboards/" + id + "/scores?method=GET";
 
 		var parameters = new Dictionary<string, object>() {
@@ -227,6 +230,7 @@ public class LumosLeaderboard : ILeaderboard {
 			}
 
 			IndexScores(scores);
+			loading = false;
 			callback(scores.ToArray());
 		});
 	}
@@ -242,6 +246,7 @@ public class LumosLeaderboard : ILeaderboard {
 	/// </param>
 	void FetchUserScores (int limit, Action<IScore[]> callback)
 	{
+		loading = true;
 		var api = url + "users/" + Social.localUser.id + "/scores/" + id + "?method=GET";
 
 		var parameters = new Dictionary<string, object>() {
@@ -259,6 +264,7 @@ public class LumosLeaderboard : ILeaderboard {
 			}
 
 			IndexScores(scores);
+			loading = false;
 			callback(scores.ToArray());
 		});
 	}
@@ -269,11 +275,13 @@ public class LumosLeaderboard : ILeaderboard {
 	void FetchFriendScores ()
 	{
 		var api = url + "users/" + Social.localUser.id + "/friends/scores/" + id + "?method=GET";
-
+		loading = true;
+		
 		LumosRequest.Send(api, delegate (object response) {
 			var resp = response as Dictionary<string, object>;
 			var scoreList = resp["scores"] as IList;
 			this.friendScores = ParseScores(id, scoreList);
+			loading = false;
 		});
 	}
 	
@@ -310,6 +318,7 @@ public class LumosLeaderboard : ILeaderboard {
 		var leaderboard = new LumosLeaderboard();
 		leaderboard.id = info["leaderboard_id"] as string;
 		leaderboard.title = info["name"] as string;
+		leaderboard.loading = false;
 		
 		if (info.ContainsKey("scores")) {
 			var scores = LumosLeaderboard.ParseScores(leaderboard.id, info["scores"] as IList);
@@ -383,7 +392,7 @@ public class LumosLeaderboard : ILeaderboard {
 		int lastRank;
 		var updatedScores = new List<IScore>();
 
-		if (scores != null) {
+		if (scores != null && scores.Length != 0) {
 			lastRank = scores[scores.Length - 1].rank;
 
 			foreach (var currentScore in scores) {
@@ -394,16 +403,28 @@ public class LumosLeaderboard : ILeaderboard {
 		}
 
 		int newFirstRank = newScores[0].rank;
-
+		
+		// Paging is wrong or they refreshed an existing page
+		// Do not add new scores, but replace old scores, if any
 		if (newFirstRank - lastRank != 1) {
-			Debug.LogWarning("Loaded scores ranks don't line up with exising scores.");
-			return;
-		}
+			// Check if existing scores changed
+			foreach (var newScore in newScores) {
+				for (int x = 0; x < scores.Length; x++) {
+					if (scores[x].userID == newScore.userID) {
+						if (newScore.value > scores[x].value) {
+							scores[x] = newScore;	
+						}
+						
+						break;
+					}
+				}
+			}
+		} else {
+			foreach (var newScore in newScores) {
+				updatedScores.Add(newScore);
+			}
 
-		foreach (var newScore in newScores) {
-			updatedScores.Add(newScore);
+			scores = updatedScores.ToArray();
 		}
-
-		scores = updatedScores.ToArray();
 	}
 }

@@ -17,7 +17,7 @@ public class LumosSocial
 	/// <summary>
 	/// The leaderboards.
 	/// </summary>
-	public static List<LumosLeaderboard> leaderboards;
+	public static List<LumosLeaderboard> leaderboards = new List<LumosLeaderboard>();
 	
 	/// <summary>
 	/// The achievements.
@@ -353,7 +353,7 @@ public class LumosSocial
 	/// Identifier.
 	/// </param>
 	public static LumosLeaderboard GetLeaderboard (string id)
-	{
+	{		
 		foreach (var leaderboard in leaderboards) {
 			if (leaderboard.id == id) {
 				return leaderboard;
