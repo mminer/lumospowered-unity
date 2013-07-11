@@ -49,7 +49,5 @@ public partial class Lumos
 		if (instance == null || !debug) {
 			return;
 		}
-
-		logger("[Lumos] " + message);
 	}
 }

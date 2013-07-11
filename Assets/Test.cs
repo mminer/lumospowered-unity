@@ -18,6 +18,7 @@ public class Test : MonoBehaviour
 		/*
 		LumosEvents.Record("what_up", 0, true, "levels");
 		LumosEvents.Record("event_test", Time.time, true, "loading");
+<<<<<<< HEAD
 		*/
 	}
 
@@ -26,10 +27,23 @@ public class Test : MonoBehaviour
 		LumosAnalytics.baseUrl = devServer;
 		LumosDiagnostics.baseUrl = devServer;
 		LumosSocial.baseUrl = devServer;
+=======
+		LumosEvents.Record("event_test_11", 7, true, "loading");
+>>>>>>> dbd4578c1a1f2aeb41c9fdfb05660f23c36a2b85
 	}
+	
 
 	void OnGUI()
 	{
+		/*
+		if (GUILayout.Button("Delete prefs")) {
+			EditorPrefs.DeleteKey("lumos-installed-packages");
+			EditorPrefs.DeleteKey("lumos-latest-packages");
+			EditorPrefs.SetBool("lumos-installing", false);
+			EditorPrefs.DeleteKey("lumos-install-queue");
+		}
+		*/
+		
 		if (GUILayout.Button("Show achievements")) {
 			Social.ShowAchievementsUI();
 		}

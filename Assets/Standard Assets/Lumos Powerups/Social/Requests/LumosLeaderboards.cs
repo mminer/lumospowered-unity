@@ -7,9 +7,9 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public partial class LumosSocialPlatform : ISocialPlatform
 {
-	void RecordHighScore(int score, string leaderboardId, Action<bool> callback)
+	void RecordHighScore (int score, string leaderboardId, Action<bool> callback)
 	{
-		var api = url + "leaderboards/" + leaderboardId + "/" + localUser.id;
+		var api = url + "users/" + localUser.id + "/scores/" + leaderboardId + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "score", score }
@@ -20,7 +20,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 		});
 	}
 
-	void FetchLeaderboardDescriptions(Action<bool> callback)
+	void FetchLeaderboardDescriptions (Action<bool> callback)
 	{
 		var api = url + "leaderboards/info?method=GET";
 
@@ -29,7 +29,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 			var leaderboards = new List<LumosLeaderboard>();
 
 			foreach(Dictionary<string, object> info in resp) {
-				var leaderboard = ParseLeaderboardInfo(info);
+				var leaderboard = LumosLeaderboard.ParseLeaderboardInfo(info);
 				leaderboards.Add(leaderboard);
 			}
 
@@ -37,13 +37,10 @@ public partial class LumosSocialPlatform : ISocialPlatform
 			callback(true);
 		});
 	}
-
-	LumosLeaderboard ParseLeaderboardInfo(Dictionary<string, object> info)
+	
+	void LoadFriendLeaderboardScores (Action<bool> callback)
 	{
-		var leaderboard = new LumosLeaderboard();
-		leaderboard.id = info["leaderboard_id"] as string;
-		leaderboard.title = info["name"] as string;
-		return leaderboard;
+		(localUser as LumosUser).LoadFriendLeaderboardScores(callback);
 	}
 
 	/*

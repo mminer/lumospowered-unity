@@ -51,9 +51,7 @@ public partial class LumosSocialGUI : MonoBehaviour
 			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 		
-		if (LumosSocial.leaderboards == null) {
-			GUILayout.Label("Loading...");
-			
+		if (LumosSocial.leaderboards.Count == 0) {			
 			if (!gettingLeaderboards) {
 				LumosSocial.LoadLeaderboards();
 				gettingLeaderboards = true;
@@ -63,31 +61,32 @@ public partial class LumosSocialGUI : MonoBehaviour
 		}
 		
 		GUILayout.BeginHorizontal();
-		GUILayout.FlexibleSpace();
-		GUILayout.BeginVertical();
+			GUILayout.FlexibleSpace();
+			GUILayout.BeginVertical();
 		
-		if (LumosSocial.leaderboards != null) {
-			foreach (var leaderboard in LumosSocial.leaderboards) {
-				if (leaderboard.loading) {
-					GUI.enabled = false;
-				}
-				
-				if (GUILayout.Button(leaderboard.title)) {
-					currentLeaderboard = leaderboard;
-					screen = Screens.Scores;
-					
-					if (currentLeaderboard.scores == null) {
-						LumosSocial.LoadLeaderboardScores(currentLeaderboard);
-						
+			if (LumosSocial.leaderboards.Count > 0) {
+				foreach (var leaderboard in LumosSocial.leaderboards) {
+					if (leaderboard.loading) {
+						GUILayout.Label("Loading...");
+						GUI.enabled = false;
 					}
-				}
-				
-				GUI.enabled = true;
-			}	
-		}
+					
+					if (GUILayout.Button(leaderboard.title)) {
+						currentLeaderboard = leaderboard;
+						screen = Screens.Scores;
+						
+						if (currentLeaderboard.scores == null) {
+							LumosSocial.LoadLeaderboardScores(currentLeaderboard);
+							
+						}
+					}
+					
+					GUI.enabled = true;
+				}	
+			}
 		
-		GUILayout.EndVertical();
-		GUILayout.FlexibleSpace();
+			GUILayout.EndVertical();
+			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 	}
 	

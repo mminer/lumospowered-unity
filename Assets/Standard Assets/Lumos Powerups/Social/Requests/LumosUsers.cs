@@ -29,7 +29,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 
 	void FetchUsers(string[] userIds, Action<IUserProfile[]> callback)
 	{
-		var api = url + "/users";
+		var api = url + "/users?method=GET";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "usernames", userIds }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ public static class LumosPackages
 	/// </summary>
 	public class Package {
 		public readonly string name;
+		public readonly string powerupID;
 		public readonly Uri url;
 
 		public Status status { get; set; }
@@ -29,8 +31,8 @@ public static class LumosPackages
 
 		public Package (Dictionary<string, object> data, Status status) {
 			name = data["name"] as string;
+			powerupID = data["powerup_id"] as string;
 			url = new Uri(data["url"] as string);
-
 			version = data["version"] as string;
 			nextVersion = version;
 			this.status = status;
@@ -50,7 +52,12 @@ public static class LumosPackages
 
 	static readonly Uri updatesUrl = new Uri("http://localhost:8888/api/1/powerups?engine=unity");
 	static Dictionary<string, Package> _packages;
-
+	static IList latestPackagesResponse = null;
+	static bool checkedPrefs;
+	static bool installing;
+	static Dictionary<string, bool> installQueue = new Dictionary<string, bool>();
+	public static string messageStatus = "";
+	
 	/// <summary>
 	/// The powerup packages.
 	/// </summary>
@@ -58,7 +65,9 @@ public static class LumosPackages
 		get {
 			if (_packages == null) {
 				_packages = GetInstalledPackages();
+				CompareLatestWithInstalled();
 			}
+			
 			return _packages;
 		}
 	}
@@ -79,12 +88,77 @@ public static class LumosPackages
 	/// </summary>
 	public static void MonitorImports ()
 	{
+		if (latestPackagesResponse != null) {
+			RecordLatestPackages();
+			CompareLatestWithInstalled();
+		}
+		
 		// Done here to get around main thread issues with async calls.
 		while (importQueue.Count > 0) {
 			var path = importQueue.Dequeue();
 			ImportPackage(path);
 			RecordInstalledPackages(packages);
+			
+			if (installing) {
+				messageStatus = "";
+			
+				foreach (var package in installQueue) {
+					if (package.Value) {
+						installQueue.Remove(package.Key);
+						break;
+					}
+				}
+			}
 		}
+		
+		if (!checkedPrefs) {
+			installing = EditorPrefs.GetBool("lumos-installing", false);
+			
+			if (installing) {
+				installQueue = GetInstallQueue();
+				CompareLatestWithInstalled();
+				
+				if (installQueue.Count == 0 && packages.Count > 0) {
+					installing = false;
+					RunSetupScripts();
+					EditorPrefs.SetBool("lumos-installing", false);
+					EditorPrefs.DeleteKey("lumos-install-queue");
+					EditorApplication.update -= MonitorImports;
+					EditorWindow.GetWindow<LumosInstall>().Close();
+				}
+			} else {
+				RunSetupScripts();
+			}
+		}
+		
+		// Used when installing Lumos
+		if (installing && packages.Count > 0) {
+			if (installQueue.Count == 0) {
+				installQueue = GetInstallQueue();
+			} else {
+				if (messageStatus == "") {
+					foreach (var package in installQueue) {
+						var powerupID = package.Key;
+						
+						if (package.Value == false && packages.ContainsKey(powerupID)) {
+							installQueue[package.Key] = true;
+							messageStatus = "Updating " + packages[powerupID].name;
+							UpdatePackage(packages[powerupID]);
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		checkedPrefs = true;
+	}
+	
+	public static void UpdateAllPackages ()
+	{
+		EditorPrefs.SetBool("lumos-installing", true);
+		installing = true;
+		CheckForUpdates();
 	}
 
 	/// <summary>
@@ -129,15 +203,19 @@ public static class LumosPackages
 	/// </summary>
 	static void CheckForUpdatesCallback (object sender, DownloadStringCompletedEventArgs e) {
 		Debug.Log(e.Result);
-		var response = LumosJson.Deserialize(e.Result) as IList;
-
-		foreach (Dictionary<string, object> data in response) {
-			var powerupID = data["powerup_id"] as string;
-
-			if (packages.ContainsKey(powerupID)) {
+		latestPackagesResponse = LumosJson.Deserialize(e.Result) as IList;	
+		checkingForUpdates = false;
+	}
+	
+	public static void CompareLatestWithInstalled ()
+	{
+		var latestPackages = GetLatestPackages();
+		
+		foreach (var latest in latestPackages.Values) {
+			if (packages.ContainsKey(latest.powerupID)) {
 				// Update status of installed package if new version available.
-				var package = packages[powerupID];
-				var version = data["version"] as string;
+				var package = packages[latest.powerupID];
+				var version = latest.version;
 
 				if (version != package.version) {
 					package.status = Status.UpdateAvailable;
@@ -145,11 +223,11 @@ public static class LumosPackages
 				}
 			} else {
 				// Signal that powerup package is available for downloading.
-				packages[powerupID] = new Package(data, Status.NotInstalled);
+				packages[latest.powerupID] = latest;
 			}
 		}
-
-		checkingForUpdates = false;
+		
+		RecordLumosInstallQueue();
 	}
 
 	/// <summary>
@@ -172,6 +250,50 @@ public static class LumosPackages
 
 		return installedPackages;
 	}
+	
+	/// <summary>
+	/// Retrieves from EditorPrefs the latest package info retrieved from the server.
+	/// </summary>
+	/// <returns>The currently installed powerup packages.</returns>
+	static Dictionary<string, Package> GetLatestPackages ()
+	{
+		var latestPackages = new Dictionary<string, Package>();
+
+		if (EditorPrefs.HasKey("lumos-latest-packages")) {
+			var json = EditorPrefs.GetString("lumos-latest-packages");
+			var packageData = LumosJson.Deserialize(json) as IList;
+
+			foreach (Dictionary<string, object> data in packageData) {
+				var powerupID = data["powerup_id"] as string;
+				latestPackages[powerupID] = new Package(data, Status.NotInstalled);
+			}
+		}
+
+		return latestPackages;
+	}
+	
+	static Dictionary<string, bool> GetInstallQueue ()
+	{
+		var queue = new Dictionary<string, bool>();
+
+		if (EditorPrefs.HasKey("lumos-install-queue")) {
+			var json = EditorPrefs.GetString("lumos-install-queue");
+			var packageData = LumosJson.Deserialize(json) as IList;
+			
+			if (packageData != null) {
+				foreach (KeyValuePair<string, bool> data in packageData) {
+					// Already installed, skip
+					if (data.Value) {
+						continue;
+					}
+					
+					queue[data.Key] = data.Value;
+				}
+			}
+		}
+
+		return queue;
+	}
 
 	/// <summary>
 	/// Imports a downloaded package.
@@ -180,7 +302,45 @@ public static class LumosPackages
 	static void ImportPackage (string path)
 	{
 		var interactive = EditorPrefs.GetBool("lumos-interactive-import", false);
-		AssetDatabase.ImportPackage(path, interactive);
+		
+		if (installing) {
+			interactive = false;
+		}
+		
+		//AssetDatabase.ImportPackage(path, interactive);
+		AssetDatabase.ImportPackage(path, false);
+	}
+	
+	static void RunSetupScripts ()
+	{
+		string targetAssembly = "Assembly-CSharp-firstpass";
+		Assembly editor = null;
+		Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+		
+		foreach (var assembly in assemblies) {
+			var name = assembly.GetName().Name;
+			
+			if (name == targetAssembly) {
+				editor = assembly;
+				break;
+			}
+		}
+		
+		if (editor != null) {
+			var q = from t in editor.GetTypes()
+        		where t.IsClass && t.GetInterfaces().Contains(typeof(ILumosSetup))
+        		select t;
+			
+			var setupScripts = q.ToList();
+			
+			if (setupScripts.Count > 0) {
+				foreach (var setup in setupScripts) {
+					var instance = Activator.CreateInstance(setup);
+					Convert.ChangeType(instance, setup);
+					setup.GetMethod("Setup").Invoke(instance, null);
+				}
+			}
+		}
 	}
 
 	/// <summary>
@@ -192,6 +352,10 @@ public static class LumosPackages
 		var toSerialize = new List<Dictionary<string, object>>();
 
 		foreach (var entry in packages) {
+			if (entry.Value.status != Status.Installed) {
+				continue;
+			}
+			
 			var dict = entry.Value.ToDictionary();
 			dict["powerup_id"] = entry.Key;
 			toSerialize.Add(dict);
@@ -199,6 +363,47 @@ public static class LumosPackages
 
 		var json = LumosJson.Serialize(toSerialize);
 		EditorPrefs.SetString("lumos-installed-packages", json);
-		Debug.Log("Editor prefs: " + json);
+	}
+	
+	/// <summary>
+	/// Saves a list of the latest retrieved package information to EditorPrefs.
+	/// </summary>
+	/// <param name="packages">The installed packages.</param>
+	static void RecordLatestPackages ()
+	{
+		var packages = new Dictionary<string, Package>();
+		
+		foreach (Dictionary<string, object> data in latestPackagesResponse) {
+			var powerupID = data["powerup_id"] as string;
+			packages[powerupID] = new Package(data, Status.NotInstalled);
+		}
+		
+		var toSerialize = new List<Dictionary<string, object>>();
+
+		foreach (var entry in packages) {
+			var dict = entry.Value.ToDictionary();
+			dict["powerup_id"] = entry.Key;
+			toSerialize.Add(dict);
+		}
+
+		var json = LumosJson.Serialize(toSerialize);
+		EditorPrefs.SetString("lumos-latest-packages", json);
+		latestPackagesResponse = null;
+	}
+	
+	static void RecordLumosInstallQueue ()
+	{
+		var queue = new Dictionary<string, bool>();
+		
+		foreach (var package in packages.Values) {
+			if (package.status == Status.NotInstalled || package.status == Status.UpdateAvailable) {
+				queue.Add(package.powerupID, false);
+			}
+		}
+		
+		var json = LumosJson.Serialize(queue);
+		EditorPrefs.SetString("lumos-install-queue", json);
+		
+		installQueue = queue;
 	}
 }

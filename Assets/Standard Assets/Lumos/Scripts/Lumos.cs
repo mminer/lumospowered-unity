@@ -111,6 +111,7 @@ public partial class Lumos : MonoBehaviour
 		}
 
 		instance = this;
+		timerInterval = 10;
 		DontDestroyOnLoad(this);
 		Debug.Log("Game ID: " + credentials.gameID);
 	}

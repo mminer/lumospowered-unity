@@ -79,6 +79,8 @@ public class LumosEvents
 			Lumos.LogWarning("An event ID must be supplied. Event not recorded.");
 			return;
 		}
+		
+		Lumos.Log("recording event: " + id);
 
 		if (LumosAnalytics.levelsAsCategories) {
 			category = Application.loadedLevelName;
@@ -107,6 +109,8 @@ public class LumosEvents
 	/// </summary>
 	public static void Send ()
 	{
+		Lumos.Log("events: " + events.Count);
+		
 		if (events.Count == 0) {
 			return;
 		}
