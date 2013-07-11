@@ -1,18 +1,14 @@
 using UnityEngine;
-using UnityEditor;
 using System.Collections;
 
 public class Test : MonoBehaviour
 {
 	void Awake()
 	{
-		
-		
 		Lumos.debug = true;
-		
-		//LumosEvents.Record("what_up", 0, true, "levels");
-		//LumosEvents.Record("event_test", Time.time, true, "loading");
-		//LumosEvents.Record("event_test_11", 7, true, "loading");
+		LumosEvents.Record("what_up", 0, true, "levels");
+		LumosEvents.Record("event_test", Time.time, true, "loading");
+		LumosEvents.Record("event_test_11", 7, true, "loading");
 	}
 	
 
@@ -26,6 +22,7 @@ public class Test : MonoBehaviour
 			EditorPrefs.DeleteKey("lumos-install-queue");
 		}
 		*/
+		
 		if (GUILayout.Button("Show achievements")) {
 			Social.ShowAchievementsUI();
 		}

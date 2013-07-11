@@ -57,4 +57,45 @@ public class LumosAnalytics : MonoBehaviour
 		LumosEvents.levelStartTime = Time.time;
 		LumosEvents.Record("level_started", 1, true);
 	}
+	
+	public static void RecordEvent (string eventID) 
+	{
+		LumosEvents.Record(eventID, null, true, GetCategory());
+	}
+	
+	public static void RecordEvent (string eventID, string category) 
+	{
+		LumosEvents.Record(eventID, null, true, category);
+	}
+	
+	public static void RecordEvent (string eventID, float? val) 
+	{
+		LumosEvents.Record(eventID, val, true, GetCategory());
+	}
+	
+	public static void RecordEvent (string eventID, bool repeatable) 
+	{
+		LumosEvents.Record(eventID, null, repeatable, GetCategory());
+	}
+	
+	public static void RecordEvent (string eventID, float? val, bool repeatable) 
+	{
+		LumosEvents.Record(eventID, val, repeatable, GetCategory());
+	}
+	
+	public static void RecordEvent (string eventID, float? val, bool repeatable, string category) 
+	{
+		LumosEvents.Record(eventID, val, repeatable, category);
+	}
+	
+	static string GetCategory ()
+	{
+		string category = null;
+		
+		if (instance.useLevelsAsCategories) {
+			category = Application.loadedLevelName;
+		}
+		
+		return category;
+	}
 }
