@@ -39,6 +39,8 @@ public partial class Lumos : MonoBehaviour
 
 	#endregion
 
+	static float _timerInterval = 30; // Seconds
+
 	/// <summary>
 	/// Version number.
 	/// </summary>
@@ -62,7 +64,10 @@ public partial class Lumos : MonoBehaviour
 	/// <summary>
 	/// The interval (in seconds) at which queued data is sent to the server.
 	/// </summary>
-	public static float timerInterval { get; set; }
+	public static float timerInterval {
+		private get { return _timerInterval; }
+		set { _timerInterval = value; }
+	}
 
 	/// <summary>
 	/// Whether the data sending timer is paused.

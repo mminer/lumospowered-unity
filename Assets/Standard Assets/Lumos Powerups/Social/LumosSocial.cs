@@ -33,7 +33,17 @@ public class LumosSocial
 	/// The platform.
 	/// </summary>
 	static LumosSocialPlatform platform;
-	
+
+	static string _baseUrl = "https://social.lumospowered.com/api/1";
+
+	/// <summary>
+	/// The API's host domain.
+	/// </summary>
+	public static string baseUrl {
+		get { return _baseUrl; }
+		set { _baseUrl = value; }
+	}
+
 	/// <summary>
 	/// Init this instance.
 	/// </summary>
@@ -43,7 +53,7 @@ public class LumosSocial
 		Social.Active = platform;
 		localUser = Social.localUser as LumosUser;
 	}
-	
+
 	/// <summary>
 	/// Register the specified username, pass, email and callback.
 	/// </summary>
@@ -64,7 +74,7 @@ public class LumosSocial
 		Init();
 		localUser.Register(username, pass, email, callback);
 	}
-	
+
 	/// <summary>
 	/// Connect the specified username, password and callback.
 	/// </summary>
@@ -88,7 +98,7 @@ public class LumosSocial
 			localUser.Authenticate(ProcessAuthentication);
 		}
     }
-	
+
 	/// <summary>
 	/// Forgots the password.
 	/// </summary>
@@ -101,9 +111,9 @@ public class LumosSocial
 	public static void ForgotPassword(string username, Action<bool> callback)
 	{
 		if (platform == null) {
-			Init();		
+			Init();
 		}
-		
+
 		platform.ForgotPassword(username, callback);
 	}
 
@@ -125,7 +135,7 @@ public class LumosSocial
 			}
 		}
 	}
-	
+
 	/// <summary>
 	/// Loads the achievements.
 	/// </summary>
@@ -134,7 +144,7 @@ public class LumosSocial
 		platform.LoadAchievementDescriptions(ProcessLoadedAchievements);
 		platform.LoadAchievements(ProcessLoadedPlayerAchievements);
 	}
-	
+
 	/// <summary>
 	/// Loads the leaderboards.
 	/// </summary>
@@ -162,7 +172,7 @@ public class LumosSocial
 	{
 		// do nothing
 	}
-	
+
 	/// <summary>
 	/// Processes the scores.
 	/// </summary>
@@ -173,7 +183,7 @@ public class LumosSocial
 	{
 		// do nothing
 	}
-	
+
 	/// <summary>
 	/// Shows the profile U.
 	/// </summary>
@@ -278,7 +288,7 @@ public class LumosSocial
 
 		return null;
 	}
-	
+
 	/// <summary>
 	/// Loadeds the scores.
 	/// </summary>
@@ -288,7 +298,7 @@ public class LumosSocial
 	static void LoadedScores(IScore[] scores) {
 
 	}
-	
+
 	/// <summary>
 	/// Submits the score.
 	/// </summary>
@@ -301,7 +311,7 @@ public class LumosSocial
 	public static void SubmitScore(int score, string leaderboardID) {
 		platform.ReportScore(score, leaderboardID, SubmittedScore);
 	}
-	
+
 	/// <summary>
 	/// Submitteds the score.
 	/// </summary>
@@ -311,7 +321,7 @@ public class LumosSocial
 	static void SubmittedScore(bool success) {
 		Debug.Log("score submitted: " + success);
 	}
-	
+
 	/// <summary>
 	/// Determines whether this instance has achievement the specified achievementID.
 	/// </summary>
@@ -335,7 +345,7 @@ public class LumosSocial
 
 		return false;
 	}
-	
+
 	/// <summary>
 	/// Gets the leaderboard.
 	/// </summary>

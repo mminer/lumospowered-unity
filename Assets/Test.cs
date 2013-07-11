@@ -1,13 +1,31 @@
-using UnityEngine;
-using System.Collections;
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
+using System.Collections;
+using UnityEngine;
+
+/// <summary>
+/// Used internally for testing Lumos functionality.
+/// </summary>
 public class Test : MonoBehaviour
 {
-	void Awake()
+	const string devServer = "http://localhost:8888/api/1";
+
+	void Awake ()
 	{
+		SetPowerupUrlsToLocal();
 		Lumos.debug = true;
+
+		/*
 		LumosEvents.Record("what_up", 0, true, "levels");
 		LumosEvents.Record("event_test", Time.time, true, "loading");
+		*/
+	}
+
+	void SetPowerupUrlsToLocal ()
+	{
+		LumosAnalytics.baseUrl = devServer;
+		LumosDiagnostics.baseUrl = devServer;
+		LumosSocial.baseUrl = devServer;
 	}
 
 	void OnGUI()
@@ -26,6 +44,14 @@ public class Test : MonoBehaviour
 
 		if (GUILayout.Button("Send Events")) {
 			LumosEvents.Send();
+		}
+
+		if (GUILayout.Button("Record Error Log")) {
+			Debug.LogError("Oh no, a problem!");
+		}
+
+		if (GUILayout.Button("Send Logs")) {
+			LumosLogs.Send();
 		}
 	}
 }

@@ -1,6 +1,8 @@
-using UnityEngine;
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System;
 using System.Collections;
+using UnityEngine;
 
 /// <summary>
 /// Lumos diagnostics.
@@ -16,15 +18,21 @@ public class LumosDiagnostics : MonoBehaviour
 
 	#endregion
 
+	static string _baseUrl = "https://diagnostics.lumospowered.com/api/1";
+
+	/// <summary>
+	/// The API's host domain.
+	/// </summary>
+	public static string baseUrl {
+		get { return _baseUrl; }
+		set { _baseUrl = value; }
+	}
+
 	/// <summary>
 	/// An instance of this class.
 	/// </summary>
 	public static LumosDiagnostics instance { get; private set; }
 
-	/// <summary>
-	/// Private constructor prevents object being created from class.
-	/// Unity does this in the Awake function instead.
-	/// </summary>
 	LumosDiagnostics () {}
 
 	/// <summary>
