@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// A service that sends debug logs for remote viewing.
 /// </summary>
-public class LumosLogs
+public static class LumosLogs
 {
 	/// <summary>
 	/// Log messages that Lumos should ignore.
@@ -31,8 +31,6 @@ public class LumosLogs
 		{ LogType.Warning, "warning" },
 	};
 
-	LumosLogs () {}
-
 	/// <summary>
 	/// Records a log message.
 	/// </summary>
@@ -42,7 +40,7 @@ public class LumosLogs
 	public static void Record (string message, string trace, LogType type)
 	{
 		// Ignore logs in editor is the option is selected.
-		if (Application.isEditor && !LumosDiagnostics.instance.runInEditor) {
+		if (Application.isEditor && !Lumos.runInEditor) {
 			return;
 		}
 
@@ -63,10 +61,10 @@ public class LumosLogs
 
 		// Only log message types that the user specifies.
 		if (type == LogType.Assert ||
-				(type == LogType.Log && !LumosDiagnostics.instance.recordLogs) ||
-				(type == LogType.Warning && !LumosDiagnostics.instance.recordWarnings) ||
-				(type == LogType.Error && !LumosDiagnostics.instance.recordErrors) ||
-				(type == LogType.Exception && !LumosDiagnostics.instance.recordErrors)) {
+				(type == LogType.Log && !LumosDiagnostics.recordDebugLogs) ||
+				(type == LogType.Warning && !LumosDiagnostics.recordDebugWarnings) ||
+				(type == LogType.Error && !LumosDiagnostics.recordDebugErrors) ||
+				(type == LogType.Exception && !LumosDiagnostics.recordDebugErrors)) {
 			return;
 		}
 

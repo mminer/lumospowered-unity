@@ -9,6 +9,7 @@ using UnityEngine;
 /// </summary>
 public class LumosSpecs
 {
+
 #if !UNITY_IPHONE
 
 	/// <summary>
@@ -16,8 +17,15 @@ public class LumosSpecs
 	/// </summary>
 	public static void Record ()
 	{
+		var prefsKey = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_specs";
+
+		// Only record system information once.
+		if (PlayerPrefs.HasKey(prefsKey)) {
+			return;
+		}
+
 		var endpoint = LumosDiagnostics.baseUrl + "/specs/" + Lumos.playerId + "?method=PUT";
-		var specs = new Dictionary<string, object>() {
+		var payload = new Dictionary<string, object>() {
 			{ "os", SystemInfo.operatingSystem },
 			{ "processor", SystemInfo.processorType },
 			{ "processor_count", SystemInfo.processorCount },
@@ -26,10 +34,9 @@ public class LumosSpecs
 			{ "graphics_card", SystemInfo.graphicsDeviceName }
 		};
 
-		LumosRequest.Send(endpoint, specs,
+		LumosRequest.Send(endpoint, payload,
 			delegate { // Success
-				var key = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_specs";
-				PlayerPrefs.SetString(key, System.DateTime.Now.ToString());
+				PlayerPrefs.SetString(prefsKey, System.DateTime.Now.ToString());
 				Lumos.Log("System information successfully sent.");
 			},
 			delegate { // Failure
@@ -46,4 +53,5 @@ public class LumosSpecs
 	public static void Record () {}
 
 #endif
+
 }

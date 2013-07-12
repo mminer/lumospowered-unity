@@ -1,7 +1,5 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
-using System;
-using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -12,9 +10,12 @@ public class LumosDiagnostics : MonoBehaviour
 	#region Inspector Settings
 
 	public bool recordLogs = false;
-	public bool recordWarnings = false;
-	public bool recordErrors = false;
-	public bool runInEditor = false;
+	public bool recordWarnings = true;
+	public bool recordErrors = true;
+
+	public static bool recordDebugLogs { get { return instance.recordLogs; } }
+	public static bool recordDebugWarnings { get { return instance.recordWarnings; } }
+	public static bool recordDebugErrors { get { return instance.recordErrors; } }
 
 	#endregion
 
@@ -28,42 +29,18 @@ public class LumosDiagnostics : MonoBehaviour
 		set { _baseUrl = value; }
 	}
 
-	/// <summary>
-	/// An instance of this class.
-	/// </summary>
-	public static LumosDiagnostics instance { get; private set; }
-
+	static LumosDiagnostics instance;
 	LumosDiagnostics () {}
 
-	/// <summary>
-	/// Initializes Lumos Diagnostics.
-	/// </summary>
 	void Awake ()
 	{
-		// Prevent multiple instances of Lumos from existing.
-		if (instance != null) {
-			return;
-		}
-
 		instance = this;
 		DontDestroyOnLoad(this);
 
 		// Set up debug log redirect.
 		Application.RegisterLogCallback(LumosLogs.Record);
 
-		Lumos.OnReady += OnLumosReady;
+		Lumos.OnReady += LumosSpecs.Record;
 		Lumos.OnTimerFinish += LumosLogs.Send;
-	}
-
-	/// <summary>
-	/// Raises the lumos ready event.
-	/// </summary>
-	static void OnLumosReady ()
-	{
-		var key = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_specs";
-
-		if (!PlayerPrefs.HasKey(key)) {
-			LumosSpecs.Record();
-		}
 	}
 }

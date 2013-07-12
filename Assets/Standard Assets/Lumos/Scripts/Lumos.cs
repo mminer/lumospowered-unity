@@ -82,16 +82,8 @@ public partial class Lumos : MonoBehaviour
 	}
 
 	static Lumos instance;
-
-	/// <summary>
-	/// Private constructor prevents object being created directly.
-	/// It should be instantiated instead.
-	/// </summary>
 	Lumos () {}
 
-	/// <summary>
-	/// Initializes Lumos.
-	/// </summary>
 	void Awake ()
 	{
 		// Prevent multiple instances of Lumos from existing.
