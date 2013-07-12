@@ -35,12 +35,10 @@ public class LumosDiagnostics : MonoBehaviour
 	void Awake ()
 	{
 		instance = this;
-		DontDestroyOnLoad(this);
+		Lumos.OnReady += LumosSpecs.Record;
+		Lumos.OnTimerFinish += LumosLogs.Send;
 
 		// Set up debug log redirect.
 		Application.RegisterLogCallback(LumosLogs.Record);
-
-		Lumos.OnReady += LumosSpecs.Record;
-		Lumos.OnTimerFinish += LumosLogs.Send;
 	}
 }

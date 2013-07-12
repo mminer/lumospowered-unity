@@ -1,51 +1,43 @@
-// Copyright (c) 2012 Rebel Hippo Inc. All rights reserve
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserve
 
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class LumosLocation 
+/// <summary>
+/// Records the players language and website they're playing from.
+/// <summary>
+public static class LumosLocation
 {
-	/// <summary>
-	/// The URL.
-	/// </summary>
-	static string url = "http://localhost:8888/api/1/location";
-	
 	/// <summary>
 	/// Record this player's location info.
 	/// </summary>
 	public static void Record()
 	{
-		var endpoint = url + "/" + Lumos.playerId + "?method=PUT";
-		var location = GetLocation();
+		var prefsKey = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_location";
 
-		LumosRequest.Send(endpoint, location,
+		// Only record location information once.
+		if (PlayerPrefs.HasKey(prefsKey)) {
+			return;
+		}
+
+		var endpoint = LumosAnalytics.baseUrl + "/location/" + Lumos.playerId + "?method=PUT";
+		var payload = new Dictionary<string, object>() {
+			{ "language", Application.systemLanguage.ToString() }
+		};
+
+		if (Application.isWebPlayer) {
+			payload["origin"] = Application.absoluteURL;
+		}
+
+		LumosRequest.Send(endpoint, payload,
 			delegate { // Success
-				var key = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_location";
-				PlayerPrefs.SetInt(key, 1);
+				PlayerPrefs.SetString(prefsKey, System.DateTime.Now.ToString());
 				Lumos.Log("Location information successfully sent.");
 			},
 			delegate { // Failure
-				Lumos.Log("Failed to send Location information.");
+				Lumos.LogError("Failed to send Location information.");
 			}
 		);
-	}
-	
-	/// <summary>
-	/// Gets the location.
-	/// </summary>
-	/// <returns>
-	/// The location.
-	/// </returns>
-	static Dictionary<string, object> GetLocation ()
-	{
-		var location = new Dictionary<string, object>(); 
-		location.Add("language", Application.systemLanguage.ToString());
-		
-		if (Application.isWebPlayer) {
-			location.Add("origin", Application.absoluteURL);
-		}
-
-		return location;
 	}
 }

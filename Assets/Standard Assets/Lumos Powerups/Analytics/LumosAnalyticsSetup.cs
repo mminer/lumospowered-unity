@@ -1,16 +1,20 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using UnityEngine;
-using System.Collections;
 
-public class LumosAnalyticsSetup : ILumosSetup {
-
+/// <summary>
+/// Sets up the Lumos Analytics powerup.
+/// </summary>
+public class LumosAnalyticsSetup : ILumosSetup
+{
 	public void Setup ()
 	{
 		var lumos = GameObject.Find("Lumos");
-		
+
 		if (lumos.GetComponent<LumosAnalytics>() == null) {
 			lumos.AddComponent<LumosAnalytics>();
 		}
-		
-		Debug.Log("lumos analytics setup complete!");
+
+		Debug.Log("Lumos Analytics setup complete.");
 	}
 }

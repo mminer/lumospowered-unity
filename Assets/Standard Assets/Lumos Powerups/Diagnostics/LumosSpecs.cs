@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// A service that records the player's software and hardware capabilities.
-/// Operating system, RAM, etc.
+/// Records the player's software and hardware capabilities. OS, RAM, etc.
 /// </summary>
-public class LumosSpecs
+public static class LumosSpecs
 {
 
 #if !UNITY_IPHONE
