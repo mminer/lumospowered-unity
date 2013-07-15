@@ -31,13 +31,12 @@ public static class LumosLocation
 		}
 
 		LumosRequest.Send(endpoint, payload,
-			delegate { // Success
+			success => {
 				PlayerPrefs.SetString(prefsKey, System.DateTime.Now.ToString());
 				Lumos.Log("Location information successfully sent.");
 			},
-			delegate { // Failure
+			error => {
 				Lumos.LogError("Failed to send Location information.");
-			}
-		);
+			});
 	}
 }

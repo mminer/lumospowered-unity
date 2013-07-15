@@ -78,7 +78,7 @@ public static class LumosEvents
 		var payload = new List<Dictionary<string, object>>(events.Values);
 
 		LumosRequest.Send(endpoint, payload,
-			delegate { // Success
+			success => {
 				var now = System.DateTime.Now.ToString();
 
 				// Save unrepeatable events to player prefs with a timestamp.
@@ -90,9 +90,8 @@ public static class LumosEvents
 				events.Clear();
 				unsentUniqueEvents.Clear();
 			},
-			delegate { // Failure
+			error => {
 				Lumos.LogWarning("Events not sent. Will try again at next timer interval.");
-			}
-		);
+			});
 	}
 }

@@ -106,10 +106,10 @@ public static class LumosLogs
 		var payload = new List<Dictionary<string, object>>(logs.Values);
 
 		LumosRequest.Send(endpoint, payload,
-			delegate { // Success
+			success => {
 				logs.Clear();
 			},
-			delegate { // Failure
+			error => {
 				Lumos.LogWarning("Log messages not sent. Will try again at next timer interval.");
 			}
 		);

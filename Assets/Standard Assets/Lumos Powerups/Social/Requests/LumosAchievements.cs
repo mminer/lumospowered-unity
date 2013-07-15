@@ -15,33 +15,35 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 
 	void FetchPlayerAchievements (Action<IAchievement[]> callback)
 	{
-		var api = LumosSocial.baseUrl + "/users/" + localUser.id + "/achievements?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/users/" + localUser.id + "/achievements?method=GET";
 
-		LumosRequest.Send(api, delegate (object response) {
-			var resp = response as IList;
-			achievements = new List<LumosAchievement>();
+		LumosRequest.Send(endpoint,
+			success => {
+				var resp = success as IList;
+				achievements = new List<LumosAchievement>();
 
-			foreach (Dictionary<string, object> info in resp) {
-				var achievement = DictionaryToAchievement(info);
-				achievements.Add(achievement);
-			}
+				foreach (Dictionary<string, object> info in resp) {
+					var achievement = DictionaryToAchievement(info);
+					achievements.Add(achievement);
+				}
 
-			callback(achievements.ToArray());
-		});
+				callback(achievements.ToArray());
+			});
 	}
 
 	void FetchGameAchievements (Action<IAchievementDescription[]> callback)
 	{
-		var api = LumosSocial.baseUrl + "/achievements?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/achievements?method=GET";
 
-		LumosRequest.Send(api, delegate (object response) {
-			var resp = response as IList;
-			achievementDescriptions = new List<IAchievementDescription>();
+		LumosRequest.Send(endpoint,
+			success => {
+				var resp = success as IList;
+				achievementDescriptions = new List<IAchievementDescription>();
 
-			foreach (Dictionary<string, object> info in resp) {
-				Lumos.RunRoutine(AddAchievement(info, resp.Count, callback));
-			}
-		});
+				foreach (Dictionary<string, object> info in resp) {
+					Lumos.RunRoutine(AddAchievement(info, resp.Count, callback));
+				}
+			});
 	}
 
 	IEnumerator AddAchievement (Dictionary<string, object> info, int limit, Action<IAchievementDescription[]> callback)
@@ -93,18 +95,27 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 
 	void UpdateAchievementProgress (string achievementId, int progress, Action<bool> callback)
 	{
-		var api = LumosSocial.baseUrl + "/users/" + localUser.id + "/achievements/" + achievementId + "?method=PUT";
+		var endpoint = LumosSocial.baseUrl + "/users/" + localUser.id + "/achievements/" + achievementId + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "percent_completed", progress }
 		};
 
-		LumosRequest.Send(api, parameters, delegate (object response) {
-			var resp = response as Dictionary<string, object>;
-			var achievement = DictionaryToAchievement(resp);
-			UpdateAchievement(achievement);
-			callback(true);
-		});
+		LumosRequest.Send(endpoint, parameters,
+			success => {
+				var resp = response as Dictionary<string, object>;
+				var achievement = DictionaryToAchievement(resp);
+				UpdateAchievement(achievement);
+
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
+			});
 	}
 
 	LumosAchievement GetAchievementById (string achievementId)

@@ -9,10 +9,15 @@ using UnityEngine;
 /// </summary>
 public class LumosPlayer
 {
+	static string _baseUrl = "https://core.lumospowered.com/api/1";
+
 	/// <summary>
-	/// The URL.
+	/// The API's host domain.
 	/// </summary>
-	static string url = "http://localhost:8888/api/1";
+	public static string baseUrl {
+		get { return _baseUrl; }
+		set { _baseUrl = value; }
+	}
 
 	/// <summary>
 	/// Fetches an existing player ID or creates a new one.
@@ -37,16 +42,20 @@ public class LumosPlayer
 	static void RequestPlayerId(Action<bool> callback)
 	{
 		// Get a new player ID from Lumos.
-		var endpoint = url + "/players";
+		var endpoint = baseUrl + "/players";
 
-		LumosRequest.Send(endpoint, delegate (object response) {
-			var idPrefsKey = "lumospowered_" + Lumos.credentials.gameID + "_playerid";
-			var resp = response as Dictionary<string, object>;
-			Lumos.playerId = resp["player_id"].ToString();
-			PlayerPrefs.SetString(idPrefsKey, Lumos.playerId);
-			Lumos.Log("Using new player " + Lumos.playerId);
-			callback(true);
-		});
+		LumosRequest.Send(endpoint,
+			success => {
+				var idPrefsKey = "lumospowered_" + Lumos.credentials.gameID + "_playerid";
+				var resp = success as Dictionary<string, object>;
+				Lumos.playerId = resp["player_id"].ToString();
+				PlayerPrefs.SetString(idPrefsKey, Lumos.playerId);
+				Lumos.Log("Using new player " + Lumos.playerId);
+
+				if (callback != null) {
+					callback(true);
+				}
+			});
 	}
 
 	/// <summary>
@@ -54,20 +63,20 @@ public class LumosPlayer
 	/// </summary>
 	static void Ping ()
 	{
-		var endpoint = url + "/players/" + Lumos.playerId + "?method=PUT";
+		var endpoint = baseUrl + "/players/" + Lumos.playerId + "?method=PUT";
 
-		var parameters = new Dictionary<string, object>() {
+		var payload = new Dictionary<string, object>() {
 			{ "player_id", Lumos.playerId },
 			{ "lumos_version", Lumos.version.ToString() }
 		};
 
-		LumosRequest.Send(endpoint, parameters,
-			delegate (object response) { // Success
-				//var resp = response as Dictionary<string, object>;
+		LumosRequest.Send(endpoint, payload,
+			success => {
+				//var resp = success as Dictionary<string, object>;
 				//Lumos.Log(resp["message"]);
 			},
-			delegate (object response) { // Error
-				//var resp = response as Dictionary<string, object>;
+			error => {
+				//var resp = error as Dictionary<string, object>;
 				//Lumos.LogError(resp["message"]);
 			});
 	}

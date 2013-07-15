@@ -12,20 +12,6 @@ using UnityEngine;
 /// </summary>
 public class LumosRequest
 {
-	#region Delegates
-
-	/// <summary>
-	/// Success handler.
-	/// </summary>
-	public delegate void SuccessHandler (object response);
-
-	/// <summary>
-	/// Error handler.
-	/// </summary>
-	public delegate void ErrorHandler (object response);
-
-	#endregion
-
 	// Without parameters:
 
 	/// <summary>
@@ -39,7 +25,7 @@ public class LumosRequest
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	public static Coroutine Send (string url, SuccessHandler successCallback)
+	public static Coroutine Send (string url, Action<object> successCallback)
 	{
 		return Lumos.RunRoutine(SendCoroutine(url, null, successCallback, null));
 	}
@@ -47,7 +33,7 @@ public class LumosRequest
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	public static Coroutine Send (string url, SuccessHandler successCallback, ErrorHandler errorCallback)
+	public static Coroutine Send (string url, Action<object> successCallback, Action<object> errorCallback)
 	{
 		return Lumos.RunRoutine(SendCoroutine(url, null, successCallback, errorCallback));
 	}
@@ -66,7 +52,7 @@ public class LumosRequest
 	/// Sends data to Lumos' servers.
 	/// </summary>
 	/// <param name="successCallback">Callback to run on successful response.</param>
-	public static Coroutine Send (string url, object parameters, SuccessHandler successCallback)
+	public static Coroutine Send (string url, object parameters, Action<object> successCallback)
 	{
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, successCallback, null));
 	}
@@ -76,7 +62,7 @@ public class LumosRequest
 	/// </summary>
 	/// <param name="successCallback">Callback to run on successful response.</param>
 	/// <param name="errorCallback">Callback to run on failed response.</param>
-	public static Coroutine Send (string url, object parameters, SuccessHandler successCallback, ErrorHandler errorCallback)
+	public static Coroutine Send (string url, object parameters, Action<object> successCallback, Action<object> errorCallback)
 	{
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, successCallback, errorCallback));
 	}
@@ -86,7 +72,7 @@ public class LumosRequest
 	/// </summary>
 	/// <param name="successCallback">Callback to run on successful response.</param>
 	/// <param name="errorCallback">Callback to run on failed response.</param>
-	static IEnumerator SendCoroutine (string url, object parameters, SuccessHandler successCallback, ErrorHandler errorCallback)
+	static IEnumerator SendCoroutine (string url, object parameters, Action<object> successCallback, Action<object> errorCallback)
 	{
 		if (Application.isEditor && !Lumos.runInEditor) {
 			yield break;

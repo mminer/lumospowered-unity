@@ -23,12 +23,12 @@ public partial class LumosSocialPlatform : ISocialPlatform
 		};
 
 		LumosRequest.Send(endpoint, payload,
-			delegate { // Success
+			success => {
 				if (callback != null) {
 					callback(true);
 				}
 			},
-			delegate { // Error
+			error => {
 				if (callback != null) {
 					callback(false);
 				}
@@ -44,8 +44,8 @@ public partial class LumosSocialPlatform : ISocialPlatform
 		var endpoint = LumosSocial.baseUrl + "/leaderboards/info?method=GET";
 
 		LumosRequest.Send(endpoint,
-			delegate (object response) { // Success
-				var resp = response as IList;
+			success => {
+				var resp = success as IList;
 				var leaderboards = new List<LumosLeaderboard>();
 
 				foreach(Dictionary<string, object> info in resp) {
@@ -59,7 +59,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 					callback(true);
 				}
 			},
-			delegate { // Error
+			error => {
 				if (callback != null) {
 					callback(false);
 				}

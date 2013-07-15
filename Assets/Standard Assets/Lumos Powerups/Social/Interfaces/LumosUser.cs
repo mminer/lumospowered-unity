@@ -130,24 +130,30 @@ public class LumosUser : ILocalUser
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=PUT";
 
 		// TODO: Combine into one initializer?
-		var parameters = new Dictionary<string, object>();
-		LumosUtil.AddToDictionaryIfNonempty(parameters, "name", name);
-		LumosUtil.AddToDictionaryIfNonempty(parameters, "email", email);
-		LumosUtil.AddToDictionaryIfNonempty(parameters, "password", password);
+		var payload = new Dictionary<string, object>();
+		LumosUtil.AddToDictionaryIfNonempty(payload, "name", name);
+		LumosUtil.AddToDictionaryIfNonempty(payload, "email", email);
+		LumosUtil.AddToDictionaryIfNonempty(payload, "password", password);
 
 		if (other != null) {
 			var json = LumosJson.Serialize(this.other);
-			parameters["other"] = json;
+			payload["other"] = json;
 		}
 
-		LumosRequest.Send(endpoint, parameters, delegate (object response) {
-			var resp = response as Dictionary<string, object>;
-			UpdateUser(resp);
+		LumosRequest.Send(endpoint, payload,
+			success => {
+				var resp = success as Dictionary<string, object>;
+				UpdateUser(resp);
 
-			if (callback != null) {
-				callback(true);
-			}
-		});
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(true);
+				}
+			});
 	}
 
 	/// <summary>
@@ -186,13 +192,13 @@ public class LumosUser : ILocalUser
 		};
 
 		LumosRequest.Send(endpoint, parameters,
-			delegate (object response) { // Success
-				var resp = response as Dictionary<string, object>;
+			success => {
+				var resp = success as Dictionary<string, object>;
 				UpdateUser(resp);
 				authenticated = true;
 				callback(true);
 			},
-			delegate { // Fail
+			error => {
 				callback(false);
 			});
 	}
@@ -214,12 +220,13 @@ public class LumosUser : ILocalUser
 			{ "email", email }
 		};
 
-		LumosRequest.Send(endpoint, parameters, delegate {
-			this.email = email;
-			this.userID = userID;
-			this.authenticated = true;
-			callback(true);
-		});
+		LumosRequest.Send(endpoint, parameters,
+			success => {
+				this.email = email;
+				this.userID = userID;
+				this.authenticated = true;
+				callback(true);
+			});
 	}
 
 	/// <summary>
@@ -231,9 +238,9 @@ public class LumosUser : ILocalUser
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friend-requests?method=GET";
 
 		LumosRequest.Send(endpoint,
-			delegate (object response) { // Success
-				if (response != null) {
-					var resp = response as IList;
+			success => {
+				if (success != null) {
+					var resp = success as IList;
 					friendRequests = ParseFriends(resp);
 				}
 
@@ -255,7 +262,7 @@ public class LumosUser : ILocalUser
 		};
 
 		LumosRequest.Send(endpoint, parameters,
-			delegate { // Success
+			success => {
 				callback(true);
 			});
 	}
@@ -270,11 +277,19 @@ public class LumosUser : ILocalUser
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends/" + friendID + "?method=PUT";
 
 		LumosRequest.Send(endpoint,
-			delegate (object response) { // Success
-				var resp = response as Dictionary<string, object>;
+			success => {
+				var resp = success as Dictionary<string, object>;
 				friends = ParseFriends(resp["friends"] as IList);
 				friendRequests = ParseFriends(resp["friend_requests"] as IList);
-				callback(true);
+
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
 			});
 	}
 
@@ -286,21 +301,27 @@ public class LumosUser : ILocalUser
 	public void DeclineFriendRequest (string friendID, Action<bool> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friend-requests";
-
-		var parameters = new Dictionary<string, object>() {
+		var payload = new Dictionary<string, object>() {
 			{ "friend", friendID },
 			{ "decline", true }
 		};
 
-		LumosRequest.Send(endpoint, parameters,
-			delegate (object response) { // Success
-				var resp = response as Dictionary<string, object>;
+		LumosRequest.Send(endpoint, payload,
+			success => {
+				var resp = success as Dictionary<string, object>;
 
 				if (resp.ContainsKey("friend_requests")) {
 					friendRequests = ParseFriends(resp["friend_requests"] as IList);
 				}
 
-				callback(true);
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
 			});
 	}
 
@@ -314,10 +335,18 @@ public class LumosUser : ILocalUser
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends/" + friendID + "?method=DELETE";
 
 		LumosRequest.Send(endpoint,
-			delegate (object response) { // Success
-				var resp = response as IList;
+			success => {
+				var resp = success as IList;
 				friends = ParseFriends(resp);
-				callback(true);
+
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
 			});
 	}
 
@@ -330,8 +359,8 @@ public class LumosUser : ILocalUser
 		var api = LumosSocial.baseUrl + "/users/" + id + "/friends/scores?method=GET";
 
 		LumosRequest.Send(api,
-			delegate (object response) { // Success
-				var resp = response as IList;
+			success => {
+				var resp = success as IList;
 				var leaderboards = new List<LumosLeaderboard>();
 
 				foreach(Dictionary<string, object> info in resp) {
@@ -351,7 +380,14 @@ public class LumosUser : ILocalUser
 					}
 				}
 
-				callback(true);
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
 			});
 	}
 
@@ -364,10 +400,18 @@ public class LumosUser : ILocalUser
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends?method=GET";
 
 		LumosRequest.Send(endpoint,
-			delegate (object response) { // Success
-				var resp = response as IList;
+			success => {
+				var resp = success as IList;
 				friends = ParseFriends(resp);
-				callback(true);
+
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
 			});
 	}
 

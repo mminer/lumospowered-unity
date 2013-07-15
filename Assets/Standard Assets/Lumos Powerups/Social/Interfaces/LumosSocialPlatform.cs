@@ -73,9 +73,10 @@ public partial class LumosSocialPlatform : ISocialPlatform
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + username + "/password";
 
-		LumosRequest.Send(endpoint, delegate {
-			callback(true);
-		});
+		LumosRequest.Send(endpoint,
+			success => {
+				callback(true);
+			});
 	}
 
 	#endregion

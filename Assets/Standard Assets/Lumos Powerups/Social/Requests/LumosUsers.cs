@@ -11,36 +11,45 @@ public partial class LumosSocialPlatform : ISocialPlatform
 {
 	void RegisterUser(string username, string password, string email, Action<bool> callback)
 	{
-		var api = LumosSocial.baseUrl + "/users/" + username + "?method=PUT";
+		var endpoint = LumosSocial.baseUrl + "/users/" + username + "?method=PUT";
 
-		var parameters = new Dictionary<string, object>() {
+		var payload = new Dictionary<string, object>() {
 			{ "player_id", Lumos.playerId },
 			{ "password", password },
 			{ "email", email }
 		};
 
-		LumosRequest.Send(api, parameters, delegate (object response) {
-			var resp = response as Hashtable;
-			var user = ParseLumosUser(resp);
-			_localUser = user;
+		LumosRequest.Send(endpoint, payload,
+			success => {
+				var resp = success as Hashtable;
+				var user = ParseLumosUser(resp);
+				_localUser = user;
 
-			callback(true);
-		});
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
+			});
 	}
 
 	void FetchUsers(string[] userIds, Action<IUserProfile[]> callback)
 	{
-		var api = LumosSocial.baseUrl + "/users?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/users?method=GET";
 
-		var parameters = new Dictionary<string, object>() {
+		var payload = new Dictionary<string, object>() {
 			{ "usernames", userIds }
 		};
 
-		LumosRequest.Send(api, parameters, delegate (object response) {
-			var resp = response as Dictionary<string, object>;
-			var users = ParseUsers(resp);
-			callback(users);
-		});
+		LumosRequest.Send(endpoint, payload,
+			success => {
+				var resp = success as Dictionary<string, object>;
+				var users = ParseUsers(resp);
+				callback(users);
+			});
 	}
 
 	IUserProfile[] ParseUsers(Dictionary<string, object> info)

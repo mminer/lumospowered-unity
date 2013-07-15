@@ -91,8 +91,8 @@ public class LumosLeaderboard : ILeaderboard
 		loading = true;
 
 		LumosRequest.Send(endpoint,
-			delegate (object response) { // Success
-				var info = response as Dictionary<string, object>;
+			success => {
+				var info = success as Dictionary<string, object>;
 				var leaderboard = ParseLeaderboardInfo(info);
 				this.scores = leaderboard.scores;
 				this.title = leaderboard.title;
@@ -171,8 +171,8 @@ public class LumosLeaderboard : ILeaderboard
 		};
 
 		LumosRequest.Send(endpoint, parameters,
-			delegate (object response) { // Success
-				var resp = response as Dictionary<string, object>;
+			success => {
+				var resp = success as Dictionary<string, object>;
 				var scoreList = resp["scores"] as IList;
 				var scores = new List<IScore>();
 
@@ -201,20 +201,21 @@ public class LumosLeaderboard : ILeaderboard
 			{ "limit", limit }
 		};
 
-		LumosRequest.Send(endpoint, parameters, delegate (object response) {
-			var resp = response as Dictionary<string, object>;
-			var scoreList = resp["scores"] as IList;
-			var scores = new List<IScore>();
+		LumosRequest.Send(endpoint, parameters,
+			success => {
+				var resp = success as Dictionary<string, object>;
+				var scoreList = resp["scores"] as IList;
+				var scores = new List<IScore>();
 
-			foreach (Dictionary<string, object> info in scoreList) {
-				var score = ParseScore(id, info);
-				scores.Add(score);
-			}
+				foreach (Dictionary<string, object> info in scoreList) {
+					var score = ParseScore(id, info);
+					scores.Add(score);
+				}
 
-			IndexScores(scores);
-			loading = false;
-			callback(scores.ToArray());
-		});
+				IndexScores(scores);
+				loading = false;
+				callback(scores.ToArray());
+			});
 	}
 
 	/// <summary>
@@ -225,12 +226,13 @@ public class LumosLeaderboard : ILeaderboard
 		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/friends/scores/" + id + "?method=GET";
 		loading = true;
 
-		LumosRequest.Send(endpoint, delegate (object response) {
-			var resp = response as Dictionary<string, object>;
-			var scoreList = resp["scores"] as IList;
-			this.friendScores = ParseScores(id, scoreList);
-			loading = false;
-		});
+		LumosRequest.Send(endpoint,
+			success => {
+				var resp = success as Dictionary<string, object>;
+				var scoreList = resp["scores"] as IList;
+				this.friendScores = ParseScores(id, scoreList);
+				loading = false;
+			});
 	}
 
 	public void SetFriendScores (IScore[] scores)

@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using UnityEngine;
 
 /// <summary>
@@ -7,11 +8,6 @@ using UnityEngine;
 /// </summary>
 public partial class Lumos
 {
-	/// <summary>
-	/// Message logger.
-	/// </summary>
-	delegate void MessageLogger (object message);
-
 	/// <summary>
 	/// Records a debug message.
 	/// </summary>
@@ -44,10 +40,12 @@ public partial class Lumos
 	/// </summary>
 	/// <param name="logger">The function to send the message to.</param>
 	/// <param name="message">The message to log.</param>
-	static void LogMessage (MessageLogger logger, object message)
+	static void LogMessage (System.Action<object> logger, object message)
 	{
 		if (instance == null || !debug) {
 			return;
 		}
+
+		logger("[Lumos] " + message);
 	}
 }

@@ -23,11 +23,11 @@ public class Test : MonoBehaviour
 
 	void SetPowerupUrlsToLocal ()
 	{
+		LumosPlayer.baseUrl = devServer;
 		LumosAnalytics.baseUrl = devServer;
 		LumosDiagnostics.baseUrl = devServer;
 		LumosSocial.baseUrl = devServer;
 	}
-
 
 	void OnGUI()
 	{

@@ -18,24 +18,14 @@ public partial class Lumos : MonoBehaviour
 	#region Events
 
 	/// <summary>
-	/// Lumos ready handler.
-	/// </summary>
-	public delegate void ReadyHandler ();
-
-	/// <summary>
-	/// Timer handler.
-	/// </summary>
-	public delegate void TimerHandler ();
-
-	/// <summary>
 	/// Triggers when Lumos has been initialized.
 	/// </summary>
-	public static event ReadyHandler OnReady;
+	public static event Action OnReady;
 
 	/// <summary>
 	/// Occurs when on timer ready.
 	/// </summary>
-	public static event TimerHandler OnTimerFinish;
+	public static event Action OnTimerFinish;
 
 	#endregion
 
