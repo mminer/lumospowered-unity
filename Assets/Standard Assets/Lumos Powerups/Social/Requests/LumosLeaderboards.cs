@@ -66,6 +66,18 @@ public partial class LumosSocialPlatform : ISocialPlatform
 			});
 	}
 
+	/// <summary>
+	/// Gets whether the specified leaderboard is loading.
+	/// Though Unity's documentation makes no mention of it, this is a required
+	/// (but redundant) function of the ISocialPlatform interface.
+	/// </summary>
+	/// <param name="leaderboard">The leaderboard in question.</param>
+	/// <returns>True if the leaderboard is currently loading.</returns>
+	public bool GetLoading(ILeaderboard leaderboard)
+	{
+		return leaderboard.loading;
+	}
+
 	void LoadFriendLeaderboardScores (Action<bool> callback)
 	{
 		(localUser as LumosUser).LoadFriendLeaderboardScores(callback);

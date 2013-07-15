@@ -176,19 +176,4 @@ public partial class LumosSocialPlatform : ISocialPlatform
 	}
 
 	#endregion
-
-	#region Other
-
-	/// <summary>
-	/// Gets the loading.
-	/// </summary>
-	/// <param name="leaderboard">If set to <c>true</c> leaderboard.  /// </param>
-	/// <returns>Whether the leaderboard is loading.</returns>
-	public bool GetLoading(ILeaderboard leaderboard)
-	{
-		// Not sure what this is supposed to do.
-		return false;
-	}
-
-	#endregion
 }

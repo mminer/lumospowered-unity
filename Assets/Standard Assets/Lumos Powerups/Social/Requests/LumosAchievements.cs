@@ -103,7 +103,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 
 		LumosRequest.Send(endpoint, parameters,
 			success => {
-				var resp = response as Dictionary<string, object>;
+				var resp = success as Dictionary<string, object>;
 				var achievement = DictionaryToAchievement(resp);
 				UpdateAchievement(achievement);
 
