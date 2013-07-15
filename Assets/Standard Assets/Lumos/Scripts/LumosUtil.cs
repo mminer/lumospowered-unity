@@ -1,6 +1,7 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
 using System;
+using System.Collections;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -51,5 +52,18 @@ public static class LumosUtil
 		}
 
 		return hash.ToString();
+	}
+
+	/// <summary>
+	/// Adds a string to a dictionary if it's not null or empty.
+	/// </summary>
+	/// <param name="dict">The dictionary.</param>
+	/// <param name="key">The dictionary key.</param>
+	/// <param name="val">The dictionary value.</param>
+	public static void AddToDictionaryIfNonempty (IDictionary dict, object key, string val)
+	{
+		if (val != null && val != "") {
+			dict[key] = val;
+		}
 	}
 }

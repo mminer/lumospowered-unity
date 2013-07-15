@@ -15,7 +15,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 
 	void FetchPlayerAchievements (Action<IAchievement[]> callback)
 	{
-		var api = url + "users/" + localUser.id + "/achievements?method=GET";
+		var api = LumosSocial.baseUrl + "/users/" + localUser.id + "/achievements?method=GET";
 
 		LumosRequest.Send(api, delegate (object response) {
 			var resp = response as IList;
@@ -32,7 +32,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 
 	void FetchGameAchievements (Action<IAchievementDescription[]> callback)
 	{
-		var api = url + "achievements?method=GET";
+		var api = LumosSocial.baseUrl + "/achievements?method=GET";
 
 		LumosRequest.Send(api, delegate (object response) {
 			var resp = response as IList;
@@ -55,9 +55,9 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 		var hidden = Convert.ToBoolean(tempHidden);
 		var points = 0;
 		int.TryParse(info["points"] as string, out points);
-		
+
 		Debug.Log(imageLocation);
-		
+
 		// Create a blank texture in DXT1 format
 		var image = new Texture2D(4, 4, TextureFormat.DXT1, false);
 
@@ -93,7 +93,7 @@ public partial class LumosSocialPlatform : ISocialPlatform {
 
 	void UpdateAchievementProgress (string achievementId, int progress, Action<bool> callback)
 	{
-		var api = url + "users/" + localUser.id + "/achievements/" + achievementId + "?method=PUT";
+		var api = LumosSocial.baseUrl + "/users/" + localUser.id + "/achievements/" + achievementId + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "percent_completed", progress }

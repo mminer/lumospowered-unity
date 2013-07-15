@@ -1,3 +1,5 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System;
 using System.Collections.Generic;
 using System.Collections;
@@ -7,52 +9,65 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public partial class LumosSocialPlatform : ISocialPlatform
 {
-	void RecordHighScore (int score, string leaderboardId, Action<bool> callback)
+	/// <summary>
+	/// Reports a new score.
+	/// </summary>
+	/// <param name="score">Score.</param>
+	/// <param name="leaderboardID">Leaderboard identifier.</param>
+	/// <param name="callback">Callback.</param>
+	public void ReportScore(System.Int64 score, string leaderboardID, Action<bool> callback)
 	{
-		var api = url + "users/" + localUser.id + "/scores/" + leaderboardId + "?method=PUT";
-
-		var parameters = new Dictionary<string, object>() {
-			{ "score", score }
+		var endpoint = LumosSocial.baseUrl + "/users/" + localUser.id + "/scores/" + leaderboardID + "?method=PUT";
+		var payload = new Dictionary<string, object>() {
+			{ "score", (int)score }
 		};
 
-		LumosRequest.Send(api, parameters, delegate {
-			callback(true);
-		});
+		LumosRequest.Send(endpoint, payload,
+			delegate { // Success
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			delegate { // Error
+				if (callback != null) {
+					callback(false);
+				}
+			});
 	}
 
-	void FetchLeaderboardDescriptions (Action<bool> callback)
+	/// <summary>
+	/// Loads the leaderboard descriptions.
+	/// </summary>
+	/// <param name="callback">Callback.</param>
+	public void LoadLeaderboardDescriptions(Action<bool> callback)
 	{
-		var api = url + "leaderboards/info?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/leaderboards/info?method=GET";
 
-		LumosRequest.Send(api, delegate (object response) {
-			var resp = response as IList;
-			var leaderboards = new List<LumosLeaderboard>();
+		LumosRequest.Send(endpoint,
+			delegate (object response) { // Success
+				var resp = response as IList;
+				var leaderboards = new List<LumosLeaderboard>();
 
-			foreach(Dictionary<string, object> info in resp) {
-				var leaderboard = LumosLeaderboard.ParseLeaderboardInfo(info);
-				leaderboards.Add(leaderboard);
-			}
+				foreach(Dictionary<string, object> info in resp) {
+					var leaderboard = LumosLeaderboard.ParseLeaderboardInfo(info);
+					leaderboards.Add(leaderboard);
+				}
 
-			LumosSocial.leaderboards = leaderboards;
-			callback(true);
-		});
+				LumosSocial.leaderboards = leaderboards;
+
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			delegate { // Error
+				if (callback != null) {
+					callback(false);
+				}
+			});
 	}
-	
+
 	void LoadFriendLeaderboardScores (Action<bool> callback)
 	{
 		(localUser as LumosUser).LoadFriendLeaderboardScores(callback);
 	}
-
-	/*
-	 * public string id { get; set; }
-	public UserScope userScope { get; set; }
-	public Range range { get; set; }
-	public TimeScope timeScope { get; set; }
-	public bool loading { get; private set; }
-	public IScore localUserScore { get; private set; }
-	public uint maxRange { get; private set; }
-	public IScore[] scores { get; private set; }
-	public string title { get; private set; }
-
-	*/
 }

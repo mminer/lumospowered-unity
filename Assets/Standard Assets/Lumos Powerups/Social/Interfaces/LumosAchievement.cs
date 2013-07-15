@@ -1,3 +1,5 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -9,63 +11,42 @@ using UnityEngine.SocialPlatforms.Impl;
 /// <summary>
 /// Lumos achievement.
 /// </summary>
-public class LumosAchievement : IAchievement {
-	
+public class LumosAchievement : IAchievement
+{
 	/// <summary>
-	/// Gets or sets the identifier.
+	/// Unique identifier for the achievement.
 	/// </summary>
-	/// <value>
-	/// The identifier.
-	/// </value>
 	public string id { get; set; }
+
 	/// <summary>
-	/// Gets or sets the percent completed.
+	/// The amount of the achievement completed.
 	/// </summary>
-	/// <value>
-	/// The percent completed.
-	/// </value>
 	public double percentCompleted { get; set; }
+
 	/// <summary>
-	/// Gets or sets a value indicating whether this <see cref="LumosAchievement"/> is completed.
+	/// Indicates whether this achievement has been earned.
 	/// </summary>
-	/// <value>
-	/// <c>true</c> if completed; otherwise, <c>false</c>.
-	/// </value>
 	public bool completed { get; set; }
+
 	/// <summary>
-	/// Gets or sets a value indicating whether this <see cref="LumosAchievement"/> is hidden.
+	/// Indicates whether this achievement is hidden.
 	/// </summary>
-	/// <value>
-	/// <c>true</c> if hidden; otherwise, <c>false</c>.
-	/// </value>
 	public bool hidden { get; set; }
+
 	/// <summary>
-	/// Gets or sets the last reported date.
+	/// The date the achievement was last updated.
 	/// </summary>
-	/// <value>
-	/// The last reported date.
-	/// </value>
 	public DateTime lastReportedDate { get; set; }
-	
+
 	/// <summary>
-	/// Initializes a new instance of the <see cref="LumosAchievement"/> class.
+	/// Creates a new achievement object.
 	/// </summary>
-	/// <param name='id'>
-	/// Identifier.
-	/// </param>
-	/// <param name='percentCompleted'>
-	/// Percent completed.
-	/// </param>
-	/// <param name='completed'>
-	/// Completed.
-	/// </param>
-	/// <param name='hidden'>
-	/// Hidden.
-	/// </param>
-	/// <param name='lastReportedDate'>
-	/// Last reported date.
-	/// </param>
-	public LumosAchievement(string id, double percentCompleted, bool completed, bool hidden, DateTime lastReportedDate) 
+	/// <param name="id">A unique identifier.</param>
+	/// <param name="percentCompleted">Percent completed.</param>
+	/// <param name="completed">Completed.</param>
+	/// <param name="hidden">Hidden.</param>
+	/// <param name="lastReportedDate">Last reported date.</param>
+	public LumosAchievement(string id, double percentCompleted, bool completed, bool hidden, DateTime lastReportedDate)
 	{
 		this.id = id;
 		this.percentCompleted = percentCompleted;
@@ -73,14 +54,12 @@ public class LumosAchievement : IAchievement {
 		this.hidden = hidden;
 		this.lastReportedDate = lastReportedDate;
 	}
-	
+
 	/// <summary>
-	/// Reports the progress.
+	/// Reports progress for the achievement.
 	/// </summary>
-	/// <param name='callback'>
-	/// Callback.
-	/// </param>
-	public void ReportProgress(Action<bool> callback) 
+	/// <param name="callback">Callback triggers on success.</param>
+	public void ReportProgress(Action<bool> callback)
 	{
 		Social.ReportProgress(id, percentCompleted, callback);
 	}

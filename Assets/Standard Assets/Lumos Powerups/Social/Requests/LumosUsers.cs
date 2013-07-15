@@ -1,3 +1,5 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System;
 using System.Collections.Generic;
 using System.Collections;
@@ -5,12 +7,11 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.Impl;
 
-public partial class LumosSocialPlatform : ISocialPlatform 
+public partial class LumosSocialPlatform : ISocialPlatform
 {
-
 	void RegisterUser(string username, string password, string email, Action<bool> callback)
 	{
-		var api = url + "/users/" + username + "?method=PUT";
+		var api = LumosSocial.baseUrl + "/users/" + username + "?method=PUT";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "player_id", Lumos.playerId },
@@ -29,7 +30,7 @@ public partial class LumosSocialPlatform : ISocialPlatform
 
 	void FetchUsers(string[] userIds, Action<IUserProfile[]> callback)
 	{
-		var api = url + "/users?method=GET";
+		var api = LumosSocial.baseUrl + "/users?method=GET";
 
 		var parameters = new Dictionary<string, object>() {
 			{ "usernames", userIds }

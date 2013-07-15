@@ -26,6 +26,8 @@ public class LumosRequest
 
 	#endregion
 
+	// Without parameters:
+
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
@@ -37,17 +39,27 @@ public class LumosRequest
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	public static Coroutine Send (string url, object parameters)
+	public static Coroutine Send (string url, SuccessHandler successCallback)
 	{
-		return Lumos.RunRoutine(SendCoroutine(url, parameters, null, null));
+		return Lumos.RunRoutine(SendCoroutine(url, null, successCallback, null));
 	}
 
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	public static Coroutine Send (string url, SuccessHandler successCallback)
+	public static Coroutine Send (string url, SuccessHandler successCallback, ErrorHandler errorCallback)
 	{
-		return Lumos.RunRoutine(SendCoroutine(url, null, successCallback, null));
+		return Lumos.RunRoutine(SendCoroutine(url, null, successCallback, errorCallback));
+	}
+
+	// With parameters:
+
+	/// <summary>
+	/// Sends data to Lumos' servers.
+	/// </summary>
+	public static Coroutine Send (string url, object parameters)
+	{
+		return Lumos.RunRoutine(SendCoroutine(url, parameters, null, null));
 	}
 
 	/// <summary>
@@ -68,11 +80,6 @@ public class LumosRequest
 	{
 		return Lumos.RunRoutine(SendCoroutine(url, parameters, successCallback, errorCallback));
 	}
-
-	static Hashtable headers = new Hashtable()
-	{
-		{ "Content-Type", "application/json" }
-	};
 
 	/// <summary>
 	/// Sends data to Lumos' servers.
@@ -96,7 +103,10 @@ public class LumosRequest
 
 		var postData = SerializePostData(parameters);
 
-		headers["Authorization"] = GenerateAuthorizationHeader(Lumos.credentials, postData);
+		var headers = new Hashtable() {
+			{ "Content-Type", "application/json" },
+			{ "Authorization", GenerateAuthorizationHeader(Lumos.credentials, postData) }
+		};
 		var www = new WWW(url, postData, headers);
 
 		// Send info to server.

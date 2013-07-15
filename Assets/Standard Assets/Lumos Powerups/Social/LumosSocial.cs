@@ -1,8 +1,10 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System;
-using UnityEngine;
-using UnityEngine.SocialPlatforms;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 /// <summary>
 /// Lumos social.
@@ -12,7 +14,7 @@ public class LumosSocial
 	/// <summary>
 	/// The local user.
 	/// </summary>
-	public static LumosUser localUser;
+	public static LumosUser localUser { get; set; }
 
 	/// <summary>
 	/// The leaderboards.
@@ -62,36 +64,24 @@ public class LumosSocial
 	/// <summary>
 	/// Register the specified username, pass, email and callback.
 	/// </summary>
-	/// <param name='username'>
-	/// Username.
-	/// </param>
-	/// <param name='pass'>
-	/// Pass.
-	/// </param>
-	/// <param name='email'>
-	/// Email.
-	/// </param>
-	/// <param name='callback'>
+	/// <param name="username">Username.</param>
+	/// <param name="password">Password.</param>
+	/// <param name="email">The user's email address.</param>
+	/// <param name="callback">
 	/// Callback.
 	/// </param>
-	public static void Register (string username, string pass, string email, Action<bool> callback)
+	public static void Register (string username, string password, string email, Action<bool> callback)
 	{
 		Init();
-		localUser.Register(username, pass, email, callback);
+		localUser.Register(username, password, email, callback);
 	}
 
 	/// <summary>
-	/// Connect the specified username, password and callback.
+	/// Connect the specified user.
 	/// </summary>
-	/// <param name='username'>
-	/// Username.
-	/// </param>
-	/// <param name='password'>
-	/// Password.
-	/// </param>
-	/// <param name='callback'>
-	/// Callback.
-	/// </param>
+	/// <param name="username">Username.</param>
+	/// <param name="password">Password.</param>
+	/// <param name="callback">Callback triggers on success.</param>
 	public static void Connect (string username=null, string password=null, Action<bool> callback=null)
 	{
         // This call needs to be made before we can proceed to other calls in the Social API
@@ -105,14 +95,10 @@ public class LumosSocial
     }
 
 	/// <summary>
-	/// Forgots the password.
+	/// Sends a forgot password request.
 	/// </summary>
-	/// <param name='username'>
-	/// Username.
-	/// </param>
-	/// <param name='callback'>
-	/// Callback.
-	/// </param>
+	/// <param name="username">Username.</param>
+	/// <param name="callback">Callback triggers on success.</param>
 	public static void ForgotPassword (string username, Action<bool> callback)
 	{
 		if (platform == null) {
@@ -125,9 +111,7 @@ public class LumosSocial
 	/// <summary>
 	/// Awards an achievement.
 	/// </summary>
-	/// <param name='achievementID'>
-	/// Achievement ID.
-	/// </param>
+	/// <param name="achievementID">The achievement identifier.</param>
 	public static void AwardAchievement (string achievementID, int progress=100)
 	{
 		if (localUser.authenticated) {
@@ -161,9 +145,7 @@ public class LumosSocial
 	/// <summary>
 	/// Loads the leaderboard scores.
 	/// </summary>
-	/// <param name='leaderboard'>
-	/// Leaderboard.
-	/// </param>
+	/// <param name="leaderboard">The leaderboard.</param>
 	public static void LoadLeaderboardScores (LumosLeaderboard leaderboard)
 	{
 		platform.LoadScores(leaderboard.id, ProcessScores);
@@ -172,9 +154,7 @@ public class LumosSocial
 	/// <summary>
 	/// Processes the leaderboard descriptions.
 	/// </summary>
-	/// <param name='success'>
-	/// Success.
-	/// </param>
+	/// <param name="success">Success.</param>
 	static void ProcessLeaderboardDescriptions (bool success)
 	{
 		// do nothing
@@ -183,16 +163,14 @@ public class LumosSocial
 	/// <summary>
 	/// Processes the scores.
 	/// </summary>
-	/// <param name='scores'>
-	/// Scores.
-	/// </param>
+	/// <param name="scores">Scores.</param>
 	static void ProcessScores (IScore[] scores)
 	{
 		// do nothing
 	}
 
 	/// <summary>
-	/// Shows the profile U.
+	/// Shows the profile interface.
 	/// </summary>
 	public static void ShowProfileUI ()
 	{
@@ -202,13 +180,11 @@ public class LumosSocial
     /// <summary>
     /// Processes the authentication.
     /// </summary>
-    /// <param name='success'>
-    /// Success.
-    /// </param>
+    /// <param name="success">Success.</param>
     static void ProcessAuthentication (bool success)
 	{
         if (success) {
-            Lumos.Log("Authenticated local user!");
+            Lumos.Log("Authenticated local user.");
         } else {
 			Lumos.LogWarning("Failed to authenticate local user.");
 		}
@@ -217,17 +193,12 @@ public class LumosSocial
     /// <summary>
     /// Processes the loaded achievements.
     /// </summary>
-    /// <param name='achievements'>
-    /// Achievements.
-    /// </param>
+    /// <param name="achievements">Achievements.</param>
     static void ProcessLoadedAchievements (IAchievementDescription[] achievements)
 	{
         if (achievements.Length == 0) {
-            Debug.Log ("Error: no achievements found");
 			return;
 		}
-
-        Debug.Log ("Loaded " + achievements.Length + " achievements");
 
 		achievementDescriptions = achievements;
     }
@@ -237,9 +208,7 @@ public class LumosSocial
 	/// <summary>
 	/// Callback function after a player's achievements are loaded
 	/// </summary>
-	/// <param name='achievements'>
-	/// Achievements.
-	/// </param>
+	/// <param name="achievements">Achievements.</param>
 	static void ProcessLoadedPlayerAchievements (IAchievement[] achievements)
 	{
 		foreach (var achievement in achievements) {
@@ -252,9 +221,7 @@ public class LumosSocial
 	/// <summary>
 	/// Callback function after an achievement was awarded.
 	/// </summary>
-	/// <param name='success'>
-	/// Success.
-	/// </param>
+	/// <param name="success">Success.</param>
 	static void AwardedAchievement (bool success)
 	{
 		if (success) {
@@ -279,12 +246,8 @@ public class LumosSocial
 	/// <summary>
 	/// Get an earned achievement by ID.
 	/// </summary>
-	/// <returns>
-	/// The earned achievement.
-	/// </returns>
-	/// <param name='achievementID'>
-	/// Achievement I.
-	/// </param>
+	/// <param name="achievementID">The achievement identifier.</param>
+	/// <returns>The earned achievement.</returns>
 	static LumosAchievement GetEarnedAchievement (string achievementID)
 	{
 		foreach (var achievement in achievements) {
@@ -297,24 +260,10 @@ public class LumosSocial
 	}
 
 	/// <summary>
-	/// Loadeds the scores.
-	/// </summary>
-	/// <param name='scores'>
-	/// Scores.
-	/// </param>
-	static void LoadedScores (IScore[] scores) {
-
-	}
-
-	/// <summary>
 	/// Submits the score.
 	/// </summary>
-	/// <param name='score'>
-	/// Score.
-	/// </param>
-	/// <param name='leaderboardID'>
-	/// Leaderboard I.
-	/// </param>
+	/// <param name="score"></param>
+	/// <param name="leaderboardID">The leaderboard identifier.</param>
 	public static void SubmitScore (int score, string leaderboardID) {
 		platform.ReportScore(score, leaderboardID, SubmittedScore);
 	}
@@ -322,9 +271,7 @@ public class LumosSocial
 	/// <summary>
 	/// Submitteds the score.
 	/// </summary>
-	/// <param name='success'>
-	/// Success.
-	/// </param>
+	/// <param name="success">Success.</param>
 	static void SubmittedScore (bool success) {
 		Debug.Log("score submitted: " + success);
 	}
@@ -332,12 +279,8 @@ public class LumosSocial
 	/// <summary>
 	/// Determines whether this instance has achievement the specified achievementID.
 	/// </summary>
-	/// <returns>
-	/// <c>true</c> if this instance has achievement the specified achievementID; otherwise, <c>false</c>.
-	/// </returns>
-	/// <param name='achievementID'>
-	/// If set to <c>true</c> achievement I.
-	/// </param>
+	/// <param name="achievementID">The achievement identifier.</param>
+	/// <returns>True if the user has earner the achievement.</returns>
 	public static bool HasAchievement (string achievementID)
 	{
 		foreach (var achievement in achievements) {
@@ -356,12 +299,8 @@ public class LumosSocial
 	/// <summary>
 	/// Gets the leaderboard.
 	/// </summary>
-	/// <returns>
-	/// The leaderboard.
-	/// </returns>
-	/// <param name='id'>
-	/// Identifier.
-	/// </param>
+	/// <param name="id">The leaderboard identifier.</param>
+	/// <returns>The leaderboard.</returns>
 	public static LumosLeaderboard GetLeaderboard (string id)
 	{
 		foreach (var leaderboard in leaderboards) {
