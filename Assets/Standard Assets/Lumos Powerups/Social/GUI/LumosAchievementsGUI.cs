@@ -1,8 +1,9 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// Lumos social GU.
+/// Lumos achievements GUI.
 /// </summary>
 public partial class LumosSocialGUI : MonoBehaviour
 {
@@ -10,23 +11,27 @@ public partial class LumosSocialGUI : MonoBehaviour
 	/// The default achievement icon.
 	/// </summary>
 	public Texture2D defaultAchievementIcon;
+
 	/// <summary>
-	/// The getting achievements.
+	/// Whether we're currently fetching achievement information.
 	/// </summary>
 	bool gettingAchievements;
+
 	/// <summary>
-	/// The achievement scroll position.
+	/// The window scroll position.
 	/// </summary>
-	Vector2 achievementScrollPos;
-	
+	Vector2 achievementsScrollPos;
+
+	IAchievementDescription[] achievementDescriptions;
+
 	/// <summary>
-	/// Achievementses the screen.
+	/// Displays the achievements pane.
 	/// </summary>
 	void AchievementsScreen()
 	{
 		GUILayout.Space(smallMargin);
 
-		// Title
+		// Title.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			GUILayout.Label("Your Achievements");
@@ -35,12 +40,15 @@ public partial class LumosSocialGUI : MonoBehaviour
 
 		GUILayout.Space(smallMargin);
 
-		// Load achievements if necessary
-		if (LumosSocial.achievementDescriptions == null) {
+		// Load achievements if necessary.
+		if (achievementDescriptions == null) {
 			GUILayout.Label("Loading...");
 
 			if (!gettingAchievements) {
-				LumosSocial.LoadAchievements();
+				Social.Active.LoadAchievementDescriptions(descriptions => {
+					achievementDescriptions = descriptions;
+				});
+				Social.Active.LoadAchievements(null);
 				gettingAchievements = true;
 			}
 
@@ -50,34 +58,30 @@ public partial class LumosSocialGUI : MonoBehaviour
 		}
 
 		// Achievements
-		achievementScrollPos = GUILayout.BeginScrollView(achievementScrollPos);
+		achievementsScrollPos = GUILayout.BeginScrollView(achievementsScrollPos);
 
 		int column = 0;
 
 		GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
 
-		foreach (var achievement in LumosSocial.achievementDescriptions) {
-			bool isLast = false;
+		for (int i = 0; i < achievementDescriptions.Length; i++) {
+			var description = achievementDescriptions[i];
 
-			if (achievement.id == LumosSocial.achievementDescriptions[LumosSocial.achievementDescriptions.Length - 1].id) {
-				isLast = true;
-			}
-
-			if (!LumosSocial.HasAchievement(achievement.id)) {
+			if (!LumosSocial.HasAchievement(description.id)) {
 				GUI.enabled = false;
 			}
 
-			GUILayout.Label(achievement.image, GUILayout.Width(labelWidth), GUILayout.Height(labelWidth));
+			GUILayout.Label(description.image, GUILayout.Width(labelWidth), GUILayout.Height(labelWidth));
 
 			GUILayout.BeginVertical();
-				GUILayout.Label(achievement.title, GUILayout.Width(submitButtonWidth * 2));
-				GUILayout.Label(achievement.unachievedDescription, GUILayout.Width(submitButtonWidth * 2), GUILayout.Height(largeMargin));
+				GUILayout.Label(description.title, GUILayout.Width(submitButtonWidth * 2));
+				GUILayout.Label(description.unachievedDescription, GUILayout.Width(submitButtonWidth * 2), GUILayout.Height(largeMargin));
 
 				GUI.enabled = true;
 
-				if (!LumosSocial.HasAchievement(achievement.id) && GUILayout.Button("Award", GUILayout.Width(submitButtonWidth))) {
-					LumosSocial.AwardAchievement(achievement.id, 100);
+				if (!LumosSocial.HasAchievement(description.id) && GUILayout.Button("Award", GUILayout.Width(submitButtonWidth))) {
+					Social.ReportProgress(description.id, 100, null);
 				}
 
 			GUILayout.EndVertical();
@@ -87,14 +91,14 @@ public partial class LumosSocialGUI : MonoBehaviour
 			if (column == 0) {
 				column++;
 
-				if (isLast) {
+				if (i == LumosSocial.achievementDescriptions.Length - 1) { // Last
 					GUILayout.EndHorizontal();
 				}
 			} else {
 				column = 0;
 				GUILayout.EndHorizontal();
 
-				if (!isLast) {
+				if (i < LumosSocial.achievementDescriptions.Length - 1) { // Not last
 					GUILayout.Space(smallMargin);
 					GUILayout.BeginHorizontal();
 					GUILayout.FlexibleSpace();
@@ -104,23 +108,12 @@ public partial class LumosSocialGUI : MonoBehaviour
 
 		GUILayout.EndScrollView();
 	}
-	
+
 	/// <summary>
 	/// Shows the achievements.
 	/// </summary>
-	public static void ShowAchievements()
+	public static void ShowAchievementsUI ()
 	{
 		instance.screen = Screens.Achievements;
-	}
-	
-	/// <summary>
-	/// Gets the default achievement.
-	/// </summary>
-	/// <returns>
-	/// The default achievement.
-	/// </returns>
-	public static Texture2D GetDefaultAchievement()
-	{
-		return instance.defaultAchievementIcon;
 	}
 }

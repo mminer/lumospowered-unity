@@ -376,7 +376,7 @@ public class LumosUser : ILocalUser
 						current.SetFriendScores(leaderboard.friendScores);
 					// Leaderboard doesn't exist yet, add entire leaderboard
 					} else {
-						LumosSocial.leaderboards.Add(leaderboard);
+						LumosSocial.leaderboards[leaderboard.id] = leaderboard;
 					}
 				}
 
