@@ -18,7 +18,7 @@ public partial class LumosSocial : ISocialPlatform
 	/// Creates an empty leaderboard object.
 	/// </summary>
 	/// <returns>A new leaderboard.</returns>
-	public LumosLeaderboard CreateLeaderboard ()
+	public ILeaderboard CreateLeaderboard ()
 	{
 		var leaderboard = new LumosLeaderboard();
 		return leaderboard;
@@ -48,6 +48,16 @@ public partial class LumosSocial : ISocialPlatform
 					callback(false);
 				}
 			});
+	}
+
+	/// <summary>
+	/// Loads the scores.
+	/// </summary>
+	/// <param name="callback">Callback.</param>
+	public void LoadScores (ILeaderboard leaderboard, Action<bool> callback)
+	{
+		// TODO: use callback
+		LoadScores(leaderboard.id, null);
 	}
 
 	/// <summary>
@@ -84,7 +94,7 @@ public partial class LumosSocial : ISocialPlatform
 	public void ShowLeaderboardUI ()
 	{
 		// TODO: Make naming consistent
-		LumosSocialGUI.ShowLeaderboardsUI();
+		LumosSocialGUI.ShowLeaderboardUI();
 	}
 
 

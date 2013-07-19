@@ -8,32 +8,19 @@ using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.Impl;
 
 /// <summary>
-/// Holds information about a user.
+/// Holds information about the current player.
 /// </summary>
-public class LumosUser : ILocalUser
+public class LumosUser : LumosUserProfile, ILocalUser
 {
 	/// <summary>
-	/// A unique identifier for this user.
+	/// Friends of the user.
 	/// </summary>
-	public string id {
-		get { return userID; }
-		set { userID = value; }
-	}
-
-	/// <summary>
-	/// A unique identifier for this user.
-	/// </summary>
-	public string userID { get; set; }
+	public IUserProfile[] friends { get; private set; }
 
 	/// <summary>
 	/// Indicated whether this user is authenticated.
 	/// </summary>
-	public bool authenticated { get; private set; }
-
-	/// <summary>
-	/// Indicates whether this user is a friend of the current player.
-	/// </summary>
-	public bool isFriend { get; set; }
+	public bool authenticated { get; set; }
 
 	/// <summary>
 	/// Indicated whether this user's age is below a threshold.
@@ -41,24 +28,9 @@ public class LumosUser : ILocalUser
 	public bool underage { get; set; }
 
 	/// <summary>
-	/// The user's name.
+	/// The user's password.
 	/// </summary>
-	public string userName { get; set; }
-
-	/// <summary>
-	/// The user's state.
-	/// </summary>
-	public UserState state { get; set; }
-
-	/// <summary>
-	/// An avatar representing the user.
-	/// </summary>
-	public Texture2D image { get; set; }
-
-	/// <summary>
-	/// Friends of the user.
-	/// </summary>
-	public IUserProfile[] friends { get; private set; }
+	public string password { get; set; }
 
 	/// <summary>
 	/// Friend requests.
@@ -73,7 +45,7 @@ public class LumosUser : ILocalUser
 	/// <summary>
 	/// The user's email address.
 	/// </summary>
-	public string email;
+	public string email { get; set; }
 
 	/// <summary>
 	/// Additional information about the user.
@@ -86,14 +58,27 @@ public class LumosUser : ILocalUser
 	public LumosUser () {}
 
 	/// <summary>
-	/// Constructor. Creates a user object with ID and authentication status.
+	/// Constructor. Creates a user object with ID and password.
 	/// </summary>
 	/// <param name="userID">Username.</param>
-	/// <param name="authenticated">Whether this user is authenticated.</param>
-	public LumosUser (string userID, bool authenticated)
+	/// <param name="password">The user's password.</param>
+	public LumosUser (string userID, string password)
 	{
 		this.userID = userID;
-		this.authenticated = authenticated;
+		this.password = password;
+	}
+
+	/// <summary>
+	/// Constructor. Creates a user object with the given info.
+	/// </summary>
+	/// <param name="userID">Username.</param>
+	public LumosUser (Dictionary<string, object> info)
+	{
+		this.userID = info["username"] as string;
+
+		if (info.ContainsKey("name")) {
+			this.userName = info["name"] as string;
+		}
 	}
 
 	/// <summary>
@@ -102,19 +87,37 @@ public class LumosUser : ILocalUser
 	/// <param name="callback">Callback triggers on success.</param>
 	public void Authenticate (Action<bool> callback)
 	{
-		AuthenticateUser(null, callback);
-	}
+		// ID should be set prior to this call if login system is intended.
+		if (userID == null) {
+			userID = Lumos.playerId;
+		}
 
-	/// <summary>
-	/// Authenticate the user with the specified username and password.
-	/// </summary>
-	/// <param name="userID">The username.</param>
-	/// <param name="password">The user's password.</param>
-	/// <param name="callback">Callback triggers on success.</param>
-	public void Authenticate (string userID, string password, Action<bool> callback)
-	{
-		this.userID = userID;
-		AuthenticateUser(password, callback);
+		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=GET";
+
+		if (password == null) {
+			password = "default";
+		}
+
+		var payload = new Dictionary<string, object>() {
+			{ "player_id", Lumos.playerId },
+			{ "password", password }
+		};
+
+		LumosRequest.Send(endpoint, payload,
+			success => {
+				var resp = success as Dictionary<string, object>;
+				authenticated = true;
+				UpdateUser(resp);
+
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
+			});
 	}
 
 	/// <summary>
@@ -129,15 +132,13 @@ public class LumosUser : ILocalUser
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=PUT";
 
-		// TODO: Combine into one initializer?
 		var payload = new Dictionary<string, object>();
 		LumosUtil.AddToDictionaryIfNonempty(payload, "name", name);
 		LumosUtil.AddToDictionaryIfNonempty(payload, "email", email);
 		LumosUtil.AddToDictionaryIfNonempty(payload, "password", password);
 
 		if (other != null) {
-			var json = LumosJson.Serialize(this.other);
-			payload["other"] = json;
+			payload["other"] = LumosJson.Serialize(other);
 		}
 
 		LumosRequest.Send(endpoint, payload,
@@ -162,44 +163,21 @@ public class LumosUser : ILocalUser
 	/// <param name="callback">Callback triggers on success.</param>
 	public void LoadFriends (Action<bool> callback)
 	{
-		FetchFriends(callback);
-	}
+		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends?method=GET";
 
-	/// <summary>
-	/// Authenticates the user.
-	/// </summary>
-	/// <param name="password">Password.</param>
-	/// <param name="callback">Callback triggers on success.</param>
-	void AuthenticateUser (string password, Action<bool> callback)
-	{
-		// ID should be set prior to this call if login system is intended.
-		if (userID == null) {
-			userID = Lumos.playerId;
-		}
-
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=GET";
-
-		// TODO: need to get the password some how
-		// but can't add it to the localUser interface
-		// May need to create a new type of interface?
-		if (password == null) {
-			password = "default";
-		}
-
-		var parameters = new Dictionary<string, object>() {
-			{ "player_id", Lumos.playerId },
-			{ "password", password }
-		};
-
-		LumosRequest.Send(endpoint, parameters,
+		LumosRequest.Send(endpoint,
 			success => {
-				var resp = success as Dictionary<string, object>;
-				UpdateUser(resp);
-				authenticated = true;
-				callback(true);
+				var resp = success as IList;
+				friends = ParseFriends(resp);
+
+				if (callback != null) {
+					callback(true);
+				}
 			},
 			error => {
-				callback(false);
+				if (callback != null) {
+					callback(false);
+				}
 			});
 	}
 
@@ -356,9 +334,9 @@ public class LumosUser : ILocalUser
 	/// <param name="callback">Callback to trigger on success.</param>
 	public void LoadFriendLeaderboardScores (Action<bool> callback)
 	{
-		var api = LumosSocial.baseUrl + "/users/" + id + "/friends/scores?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/users/" + id + "/friends/scores?method=GET";
 
-		LumosRequest.Send(api,
+		LumosRequest.Send(endpoint,
 			success => {
 				var resp = success as IList;
 				var leaderboards = new List<LumosLeaderboard>();
@@ -392,34 +370,10 @@ public class LumosUser : ILocalUser
 	}
 
 	/// <summary>
-	/// Fetchs the user's friends.
-	/// </summary>
-	/// <param name="callback">Callback to trigger on success.</param>
-	void FetchFriends (Action<bool> callback)
-	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends?method=GET";
-
-		LumosRequest.Send(endpoint,
-			success => {
-				var resp = success as IList;
-				friends = ParseFriends(resp);
-
-				if (callback != null) {
-					callback(true);
-				}
-			},
-			error => {
-				if (callback != null) {
-					callback(false);
-				}
-			});
-	}
-
-	/// <summary>
 	/// Updates the user.
 	/// </summary>
 	/// <param name="info">Information about the user.</param>
-	void UpdateUser (Dictionary<string, object> info)
+	public void UpdateUser (Dictionary<string, object> info)
 	{
 		userID = info["username"].ToString();
 
@@ -438,8 +392,8 @@ public class LumosUser : ILocalUser
 		}
 
 		if (info.ContainsKey("image")) {
-			var imageURL = info["image"].ToString();
-			// load in image?
+			// TODO: load in image?
+			//var imageURL = info["image"].ToString();
 		}
 
 		if (info.ContainsKey("other")) {

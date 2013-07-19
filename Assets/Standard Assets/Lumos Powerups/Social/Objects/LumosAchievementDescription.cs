@@ -60,9 +60,8 @@ public class LumosAchievementDescription : IAchievementDescription
 		var hiddenInt = Convert.ToInt32(info["hidden"] as string);
 		this.hidden = Convert.ToBoolean(hiddenInt);
 
-		// Set image.
+		// Load image from remote server.
 		if (info.ContainsKey("icon")) {
-			// Load from remote server.
 			var imageLocation = info["icon"] as string;
 			Lumos.RunRoutine(LoadImage(imageLocation));
 		}

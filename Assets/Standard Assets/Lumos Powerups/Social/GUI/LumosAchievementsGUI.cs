@@ -1,54 +1,44 @@
-using System.Collections;
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
+//using System.Collections;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// Lumos achievements GUI.
+/// User interface for displaying achievements.
 /// </summary>
-public partial class LumosSocialGUI : MonoBehaviour
+public static class LumosAchievementsGUI
 {
-	/// <summary>
-	/// The default achievement icon.
-	/// </summary>
-	public Texture2D defaultAchievementIcon;
-
 	/// <summary>
 	/// Whether we're currently fetching achievement information.
 	/// </summary>
-	bool gettingAchievements;
+	static bool gettingAchievements;
 
 	/// <summary>
 	/// The window scroll position.
 	/// </summary>
-	Vector2 achievementsScrollPos;
-
-	IAchievementDescription[] achievementDescriptions;
+	static Vector2 scrollPos;
 
 	/// <summary>
-	/// Displays the achievements pane.
+	/// Descriptions of the available achievements.
 	/// </summary>
-	void AchievementsScreen()
+	static IAchievementDescription[] achievementDescriptions;
+
+	/// <summary>
+	/// Displays the achievements UI.
+	/// </summary>
+	/// <param name="windowRect">The bounding rect of the window.</param>
+	public static void OnGUI (Rect windowRect)
 	{
-		GUILayout.Space(smallMargin);
-
-		// Title.
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label("Your Achievements");
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-
-		GUILayout.Space(smallMargin);
-
 		// Load achievements if necessary.
 		if (achievementDescriptions == null) {
 			GUILayout.Label("Loading...");
 
 			if (!gettingAchievements) {
-				Social.Active.LoadAchievementDescriptions(descriptions => {
+				Social.LoadAchievementDescriptions(descriptions => {
 					achievementDescriptions = descriptions;
 				});
-				Social.Active.LoadAchievements(null);
+				Social.LoadAchievements(null);
 				gettingAchievements = true;
 			}
 
@@ -58,7 +48,7 @@ public partial class LumosSocialGUI : MonoBehaviour
 		}
 
 		// Achievements
-		achievementsScrollPos = GUILayout.BeginScrollView(achievementsScrollPos);
+		scrollPos = GUILayout.BeginScrollView(scrollPos);
 
 		int column = 0;
 
@@ -72,15 +62,15 @@ public partial class LumosSocialGUI : MonoBehaviour
 				GUI.enabled = false;
 			}
 
-			GUILayout.Label(description.image, GUILayout.Width(labelWidth), GUILayout.Height(labelWidth));
+			GUILayout.Label(description.image);
 
 			GUILayout.BeginVertical();
-				GUILayout.Label(description.title, GUILayout.Width(submitButtonWidth * 2));
-				GUILayout.Label(description.unachievedDescription, GUILayout.Width(submitButtonWidth * 2), GUILayout.Height(largeMargin));
+				GUILayout.Label(description.title, GUILayout.ExpandWidth(false));
+				GUILayout.Label(description.unachievedDescription, GUILayout.ExpandWidth(false));
 
 				GUI.enabled = true;
 
-				if (!LumosSocial.HasAchievement(description.id) && GUILayout.Button("Award", GUILayout.Width(submitButtonWidth))) {
+				if (!LumosSocial.HasAchievement(description.id) && GUILayout.Button("Award", GUILayout.ExpandWidth(false))) {
 					Social.ReportProgress(description.id, 100, null);
 				}
 
@@ -91,15 +81,15 @@ public partial class LumosSocialGUI : MonoBehaviour
 			if (column == 0) {
 				column++;
 
-				if (i == LumosSocial.achievementDescriptions.Length - 1) { // Last
+				if (i == achievementDescriptions.Length - 1) { // Last
 					GUILayout.EndHorizontal();
 				}
 			} else {
 				column = 0;
 				GUILayout.EndHorizontal();
 
-				if (i < LumosSocial.achievementDescriptions.Length - 1) { // Not last
-					GUILayout.Space(smallMargin);
+				if (i < achievementDescriptions.Length - 1) { // Not last
+					LumosSocialGUI.DrawDivider();
 					GUILayout.BeginHorizontal();
 					GUILayout.FlexibleSpace();
 				}
@@ -107,13 +97,5 @@ public partial class LumosSocialGUI : MonoBehaviour
 		}
 
 		GUILayout.EndScrollView();
-	}
-
-	/// <summary>
-	/// Shows the achievements.
-	/// </summary>
-	public static void ShowAchievementsUI ()
-	{
-		instance.screen = Screens.Achievements;
 	}
 }

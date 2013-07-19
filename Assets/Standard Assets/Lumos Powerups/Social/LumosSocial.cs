@@ -18,12 +18,4 @@ public partial class LumosSocial : ISocialPlatform
 		get { return _baseUrl; }
 		set { _baseUrl = value; }
 	}
-
-	/// <summary>
-	/// Init this instance.
-	/// </summary>
-	static void Init ()
-	{
-		localUser = Social.localUser as LumosUser;
-	}
 }

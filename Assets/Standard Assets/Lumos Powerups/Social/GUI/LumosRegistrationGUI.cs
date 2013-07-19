@@ -1,162 +1,127 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using UnityEngine;
-using System.Collections;
 
 /// <summary>
-/// Lumos social GU.
+/// User interface for the registration form.
 /// </summary>
-public partial class LumosSocialGUI : MonoBehaviour 
+public static class LumosRegistrationGUI
 {
+	static readonly GUIContent usernameLabel = new GUIContent("Username", "Your unique indentifier.");
+	static readonly GUIContent emailLabel = new GUIContent("Email", "Your email address.");
+	static readonly GUIContent passwordLabel = new GUIContent("Password", "Your password.");
+	static readonly GUIContent confirmPasswordLabel = new GUIContent("Confirm Password", "Your password as typed above.");
+	static readonly GUIContent registerLabel = new GUIContent("Register", "Create a new account.");
+	static readonly GUIContent loginLabel = new GUIContent("Already signed up?", "Login with your existing username and password.");
+
 	/// <summary>
-	/// The reg username.
+	/// The user's username.
 	/// </summary>
-	string regUsername = "";
+	static string username = "";
+
 	/// <summary>
-	/// The reg pass.
+	/// The user's email address.
 	/// </summary>
-	string regPass = "";
+	static string email = "";
+
 	/// <summary>
-	/// The reg confirm pass.
+	/// The user's password.
 	/// </summary>
-	string regConfirmPass = "";
+	static string password = "";
+
 	/// <summary>
-	/// The reg email.
+	/// Confirmation of the password.
 	/// </summary>
-	string regEmail = "";
-	
+	static string passwordConfirmation = "";
+
 	/// <summary>
-	/// The reg message.
+	/// Displays the registration UI.
 	/// </summary>
-	string regMessage = "";
-	/// <summary>
-	/// The registering.
-	/// </summary>
-	bool registering;
-	
-	/// <summary>
-	/// Registrations the screen.
-	/// </summary>
-	void RegistrationScreen()
+	/// <param name="windowRect">The bounding rect of the window.</param>
+	public static void OnGUI (Rect windowRect)
 	{
-		GUILayout.Space(margin);
-		
-		// Back Button
+		var halfWidth = windowRect.width / 2;
+		GUI.enabled = !LumosSocialGUI.inProgress;
+
+		// Username field.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			
-			if (GUILayout.Button("Back", GUILayout.Width(submitButtonWidth), GUILayout.Height(submitButtonHeight))) {
-				screen = Screens.Login;
-			}
-		
-			GUILayout.Space(textBoxWidth);
-			GUILayout.FlexibleSpace();
+			GUILayout.Label(usernameLabel);
+			username = GUILayout.TextField(username, GUILayout.Width(halfWidth));
 		GUILayout.EndHorizontal();
-		
-		GUILayout.Space(smallMargin);
-		
-       	// Username
+
+		// Email address field.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			GUILayout.Label("Username", GUILayout.Width(labelWidth));
-			regUsername = GUILayout.TextField(regUsername, GUILayout.Width(textBoxWidth), GUILayout.Height(textBoxHeight));
-			GUILayout.FlexibleSpace();
+			GUILayout.Label(emailLabel);
+			email = GUILayout.TextField(email, GUILayout.Width(halfWidth));
 		GUILayout.EndHorizontal();
-		
-		GUILayout.Space(smallMargin);
-		
-		// Password
+
+		// Password field.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			GUILayout.Label("Password", GUILayout.Width(labelWidth));
-			regPass = GUILayout.PasswordField(regPass, '*', GUILayout.Width(textBoxWidth), GUILayout.Height(textBoxHeight));
-			GUILayout.FlexibleSpace();
+			GUILayout.Label(passwordLabel);
+			password = GUILayout.PasswordField(password, '\u2022', GUILayout.Width(halfWidth));
 		GUILayout.EndHorizontal();
-		
-		GUILayout.Space(smallMargin);
-		
-		// Confirm Password
+
+		// Password confirmation field.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			GUILayout.Label("Confirm \nPassword", GUILayout.Width(labelWidth));
-			regConfirmPass = GUILayout.PasswordField(regConfirmPass, '*', GUILayout.Width(textBoxWidth), GUILayout.Height(textBoxHeight));
-			GUILayout.FlexibleSpace();
+			GUILayout.Label(confirmPasswordLabel);
+			passwordConfirmation = GUILayout.PasswordField(passwordConfirmation, '\u2022', GUILayout.Width(halfWidth));
 		GUILayout.EndHorizontal();
-		
-		GUILayout.Space(smallMargin);
-		
-		// Email
+
+		// Submit button.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			GUILayout.Label("Email", GUILayout.Width(labelWidth));
-			regEmail = GUILayout.TextField(regEmail, GUILayout.Width(textBoxWidth), GUILayout.Height(textBoxHeight));
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		GUILayout.Space(smallMargin);
-		
-		// Message
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Space(labelWidth);
-			Color colour = GUI.skin.label.normal.textColor;
-		
-			if (!loggingIn) {
-				GUI.skin.label.normal.textColor = Color.red;
-			}
-		
-			GUILayout.Label(regMessage, GUILayout.Width(textBoxWidth));
-			GUI.skin.label.normal.textColor = colour;
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		// Submit Button
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			
-			if (registering) {
-				GUI.enabled = false;
-			}
-			
-			if (GUILayout.Button("Submit", GUILayout.Width(submitButtonWidth), GUILayout.Height(submitButtonHeight))) {
+
+			if (GUILayout.Button(registerLabel, GUILayout.Width(halfWidth))) {
 				RegisterNewUser();
 			}
-		
-			GUI.enabled = true;
-		
-			GUILayout.Space(largeMargin);
+		GUILayout.EndHorizontal();
+
+		LumosSocialGUI.DrawDivider();
+
+		// Login button.
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+
+			if (GUILayout.Button(loginLabel, GUILayout.Width(halfWidth))) {
+				LumosSocialGUI.ShowWindow(LumosGUIWindow.Login);
+			}
 		GUILayout.EndHorizontal();
 	}
-	
+
 	/// <summary>
 	/// Registers the new user.
 	/// </summary>
-	void RegisterNewUser()
+	static void RegisterNewUser()
 	{
-		if (regUsername.Length < 1 || regPass.Length < 1 || regConfirmPass.Length < 1 || regEmail.Length < 1) {
-			regMessage = "Please fill in all the fields.";
+		if (username.Length < 1 || password.Length < 1 || email.Length < 1) {
+			LumosSocialGUI.statusMessage = "Please fill in all the fields.";
 			return;
 		}
-		
-		if (regPass != regConfirmPass) {
-			regMessage = "Your passwords do not match.";
+
+		if (password != passwordConfirmation) {
+			LumosSocialGUI.statusMessage = "Please supply matching passwords.";
 			return;
 		}
-		
-		registering = true;
-		regMessage = "Registering...";
-		
-		LumosSocial.Register(regUsername, regPass, regEmail, ProcessRegistration);
-	}
-		
-	/// <summary>
-	/// Processes the registration.
-	/// </summary>
-	/// <param name='success'>
-	/// Success.
-	/// </param>
-	void ProcessRegistration(bool success)
-	{
-		registering = false;
-		regMessage = "";
-		screen = Screens.None;
+
+		LumosSocialGUI.inProgress = true;
+		LumosSocialGUI.statusMessage = "Registering...";
+		var user = new LumosUser(username, password);
+		user.email = email;
+
+		LumosSocial.RegisterUser(user,
+			success => {
+				LumosSocialGUI.inProgress = false;
+
+				if (success) {
+					LumosSocialGUI.statusMessage = null;
+					LumosSocialGUI.HideWindow();
+				} else {
+					LumosSocialGUI.statusMessage = "There was a problem registering. Please try again.";
+				}
+			});
 	}
 }

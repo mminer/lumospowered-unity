@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
@@ -82,7 +83,7 @@ public class LumosAchievement : IAchievement
 	/// <param name="callback">Callback triggers on success.</param>
 	public void ReportProgress (Action<bool> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + localUser.id + "/achievements/" + achievementID + "?method=PUT";
+		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/achievements/" + id + "?method=PUT";
 
 		var payload = new Dictionary<string, object>() {
 			{ "percent_completed", percentCompleted }

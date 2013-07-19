@@ -1,196 +1,212 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System;
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// Lumos social GU.
+/// User interface for displaying the user's profile.
 /// </summary>
-public partial class LumosSocialGUI : MonoBehaviour 
+public static class LumosProfileGUI
 {
+	static readonly GUIContent achievementsLabel = new GUIContent("Achievements", "View the achievements window.");
+	static readonly GUIContent leaderboardsLabel = new GUIContent("Leaderboards", "View the leaderboards window.");
+	static readonly GUIContent settingsLabel = new GUIContent("Settings", "View the settings window.");
+
 	/// <summary>
-	/// The current user.
+	/// The scroll position for the other user data pane.
 	/// </summary>
-	LumosUser currentUser;
-	
+	static Vector2 otherScrollPos;
+
 	/// <summary>
-	/// The pro other scroll position.
+	/// The scroll position for the friends pane.
 	/// </summary>
-	Vector2 proOtherScrollPos;
+	static Vector2 friendsScrollPos;
+
 	/// <summary>
-	/// The pro friends scroll position.
+	/// The scroll position for the scores pane.
 	/// </summary>
-	Vector2 proFriendsScrollPos;
-	/// <summary>
-	/// The pro scores scroll position.
-	/// </summary>
-	Vector2 proScoresScrollPos;
+	static Vector2 scoresScrollPos;
+
 	/// <summary>
 	/// The friend to add.
 	/// </summary>
-	string friendToAdd = "";
-	
-	/// <summary>
-	/// Profiles the screen.
-	/// </summary>
-	void ProfileScreen()
-	{
-		if (currentUser == null) {
-			currentUser = Social.localUser as LumosUser;
-		}
-		
-		GUILayout.Space(smallMargin);
+	static string friendToAdd = "";
 
-		// Title
+	/// <summary>
+	/// Displays the profile UI.
+	/// </summary>
+	/// <param name="windowRect">The bounding rect of the window.</param>
+	public static void OnGUI (Rect windowRect)
+	{
+		if (LumosSocialGUI.currentUser == null) {
+			LumosSocialGUI.statusMessage = "You must login before viewing your profile.";
+			LumosSocialGUI.DrawLoginButton();
+			return;
+		}
+
 		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label("Profile");
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		GUILayout.BeginHorizontal();
-			GUILayout.Label(defaultUserIcon);
-		
+			var avatar = GetAvatar();
+
+			if (avatar != null) {
+				GUILayout.Label(GetAvatar(), GUILayout.MaxWidth(LumosSocialGUI.avatarSize), GUILayout.MaxHeight(LumosSocialGUI.avatarSize));
+			}
+
 			GUILayout.BeginVertical();
-				GUILayout.Label(currentUser.userID, GUILayout.Width(submitButtonWidth * 1.5f));
-				GUILayout.Label(currentUser.email, GUILayout.Width(submitButtonWidth * 1.5f));
+				GUILayout.Label(LumosSocialGUI.currentUser.userID);
+				GUILayout.Label(LumosSocialGUI.currentUser.email);
 			GUILayout.EndVertical();
-		
+
 			GUILayout.BeginVertical();
-				if (GUILayout.Button("Achievements", GUILayout.Width(submitButtonWidth))) {
-					LumosSocialGUI.ShowAchievements();
+				if (GUILayout.Button(achievementsLabel)) {
+					Social.ShowAchievementsUI();
 				}
-		
-				if (GUILayout.Button("Leaderboards", GUILayout.Width(submitButtonWidth))) {
-					LumosSocialGUI.ShowLeaderboardsUI();
+
+				if (GUILayout.Button(leaderboardsLabel)) {
+					Social.ShowLeaderboardUI();
 				}
-		
-				if (GUILayout.Button("Settings", GUILayout.Width(submitButtonWidth))) {
-					LumosSocialGUI.ShowSettingsUI();
+
+				if (GUILayout.Button(settingsLabel)) {
+					LumosSocialGUI.ShowWindow(LumosGUIWindow.Settings);
 				}
 			GUILayout.EndVertical();
 		GUILayout.EndHorizontal();
-		
-		GUILayout.Space(smallMargin);
-		
+
+		LumosSocialGUI.DrawDivider();
+
 		GUILayout.BeginHorizontal();
-			// Other info
-			GUILayout.BeginVertical();
-				GUILayout.Label("Other");
-				
-				if (LumosSocial.localUser.other != null) {
-					proOtherScrollPos = GUILayout.BeginScrollView(proOtherScrollPos);
-		
-					foreach (var other in LumosSocial.localUser.other) {
+			// Other info.
+			if (LumosSocialGUI.currentUser.other != null) {
+				GUILayout.BeginVertical();
+					GUILayout.Label("Other");
+
+					otherScrollPos = GUILayout.BeginScrollView(otherScrollPos);
+
+					foreach (var other in LumosSocialGUI.currentUser.other) {
 						GUILayout.BeginHorizontal();
-							GUILayout.Label(other.Key, GUILayout.Width(submitButtonWidth));
-							GUILayout.Label(other.Value.ToString(), GUILayout.Width(submitButtonWidth));
+							GUILayout.Label(other.Key);
+							GUILayout.Label(other.Value.ToString());
 						GUILayout.EndHorizontal();
 					}
-		
+
 					GUILayout.EndScrollView();
-				}
-			GUILayout.EndVertical();
-		
-			GUILayout.Space(smallMargin);
-			
-			// Friend List
+				GUILayout.EndVertical();
+			}
+
+			// Friends list.
 			GUILayout.BeginVertical();
 				GUILayout.Label("Friends");
-		
-				proFriendsScrollPos = GUILayout.BeginScrollView(proFriendsScrollPos);
-				
+
+				friendsScrollPos = GUILayout.BeginScrollView(friendsScrollPos);
+
 				GUILayout.BeginHorizontal();
-					friendToAdd = GUILayout.TextField(friendToAdd, GUILayout.Width(margin));
-					
-					if (GUILayout.Button("Send Request", GUILayout.Width(bigSubmitButtonWidth))) {
+					friendToAdd = GUILayout.TextField(friendToAdd);
+
+					if (GUILayout.Button("Send Friend Request")) {
 						if (friendToAdd.Length > 0) {
-							LumosSocial.localUser.SendFriendRequest(friendToAdd, delegate {
-								// do something
-							});
+							LumosSocialGUI.currentUser.SendFriendRequest(friendToAdd,
+								success => {
+									if (success) {
+										LumosSocialGUI.statusMessage = "Friend request sent.";
+									} else {
+										LumosSocialGUI.statusMessage = "There was a problem processing the friend request. Please try again.";
+									}
+								});
 						}
 					}
 				GUILayout.EndHorizontal();
-		
-				if (LumosSocial.localUser.friendRequests != null) {
-					foreach (var request in LumosSocial.localUser.friendRequests) {
+
+				if (LumosSocialGUI.currentUser.friendRequests != null) {
+					foreach (var request in LumosSocialGUI.currentUser.friendRequests) {
 						GUILayout.BeginHorizontal();
 							GUILayout.Label(request.id);
-							
-							if (GUILayout.Button("Accept", GUILayout.Width(submitButtonWidth))) {
-								LumosSocial.localUser.AcceptFriendRequest(request.id, delegate {
-									// do something
-								});
+
+							if (GUILayout.Button("Accept", GUILayout.ExpandWidth(false))) {
+								LumosSocialGUI.currentUser.AcceptFriendRequest(request.id,
+									success => {
+										if (success) {
+											LumosSocialGUI.statusMessage = "Friend request accepted.";
+										} else {
+											LumosSocialGUI.statusMessage = "There was a problem accepting the friend request. Please try again.";
+										}
+									});
 							}
-				
-							if (GUILayout.Button("Decline", GUILayout.Width(submitButtonWidth))) {
-								LumosSocial.localUser.DeclineFriendRequest(request.id, delegate {
-									// do something
-								});
+
+							if (GUILayout.Button("Decline", GUILayout.ExpandWidth(false))) {
+								LumosSocialGUI.currentUser.DeclineFriendRequest(request.id,
+									success => {
+										if (success) {
+											LumosSocialGUI.statusMessage = "Friend request declined.";
+										} else {
+											LumosSocialGUI.statusMessage = "There was a problem declining the friend request. Please try again.";
+										}
+									});
 							}
 						GUILayout.EndHorizontal();
 					}
 				}
-		
-				if (LumosSocial.localUser.friends != null) {
-					foreach (var friend in LumosSocial.localUser.friends) {
+
+				if (LumosSocialGUI.currentUser.friends != null) {
+					foreach (var friend in LumosSocialGUI.currentUser.friends) {
 						GUILayout.BeginHorizontal();
-							GUILayout.Label(friend.id, GUILayout.Width(submitButtonWidth));
-				
-							if (GUILayout.Button("Remove", GUILayout.Width(submitButtonWidth))) {
-								LumosSocial.localUser.RemoveFriend(friend.id, delegate {
-								// do something
-								});
+							GUILayout.Label(friend.id);
+
+							if (GUILayout.Button("Remove")) {
+								LumosSocialGUI.currentUser.RemoveFriend(friend.id,
+									success => {
+										if (success) {
+											LumosSocialGUI.statusMessage = "Friend removed.";
+										} else {
+											LumosSocialGUI.statusMessage = "There was a problem removing this friend. Please try again.";
+										}
+									});
 							}
 						GUILayout.EndHorizontal();
 					}
 				}
-		
+
 				GUILayout.EndScrollView();
 			GUILayout.EndVertical();
-		
-			GUILayout.Space(smallMargin);
-		
-			// Scores
+
+			LumosSocialGUI.DrawDivider();
+
+			// Scores.
 			GUILayout.BeginVertical();
 				GUILayout.Label("High Scores");
-		
-				proScoresScrollPos = GUILayout.BeginScrollView(proScoresScrollPos);
-				
-				if (LumosSocial.localUser.scores != null) {
-					foreach (var score in LumosSocial.localUser.scores) {
+
+				scoresScrollPos = GUILayout.BeginScrollView(scoresScrollPos);
+
+				if (LumosSocialGUI.currentUser.scores != null) {
+					foreach (var score in LumosSocialGUI.currentUser.scores) {
 						GUILayout.Label(score.leaderboardID);
 						GUILayout.BeginHorizontal();
 							GUILayout.Label(score.value.ToString());
 						GUILayout.EndHorizontal();
-						GUILayout.Space(smallMargin);
+						LumosSocialGUI.DrawDivider();
 					}
 				}
-		
+
 				GUILayout.EndScrollView();
 			GUILayout.EndVertical();
-		
-			GUILayout.Space(smallMargin);
+
+			LumosSocialGUI.DrawDivider();
 		GUILayout.EndHorizontal();
 	}
-	
-	/// <summary>
-	/// Shows the profile U.
-	/// </summary>
-	public static void ShowProfileUI()
-	{
-		instance.screen = Screens.Profile;
 
-		LumosSocial.localUser.LoadFriends(delegate {
-			// do something
-		});
-		
-		LumosSocial.localUser.LoadFriendRequests(delegate {
-		 // do something	
-		});
-		
-		LumosSocial.localUser.LoadFriendLeaderboardScores(delegate {
-		 // do something	
-		});
+	/// <summary>
+	/// Gets the user's avatar image or a default icon.
+	/// </summary>
+	/// <returns>The user's avatar.</returns>
+	static Texture2D GetAvatar ()
+	{
+		var avatar = Social.localUser.image;
+
+		// Try using a default image, if one's set.
+		if (avatar == null) {
+			avatar = LumosSocialGUI.defaultAvatarIcon;
+		}
+
+		return avatar;
 	}
 }

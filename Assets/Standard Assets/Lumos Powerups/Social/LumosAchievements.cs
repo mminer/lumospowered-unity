@@ -32,7 +32,7 @@ public partial class LumosSocial : ISocialPlatform
 	/// Creates an empty achievement object.
 	/// </summary>
 	/// <returns>A new achievement.</returns>
-	public LumosAchievement CreateAchievement ()
+	public IAchievement CreateAchievement ()
 	{
 		var achievement = new LumosAchievement();
 		return achievement;
@@ -49,10 +49,10 @@ public partial class LumosSocial : ISocialPlatform
 		LumosRequest.Send(endpoint,
 			success => {
 				var resp = success as IList;
-				achievementDescriptions = new LumosAchievementDescription[resp.Count()];
+				achievementDescriptions = new LumosAchievementDescription[resp.Count];
 
-				for (int i = 0; i < resp.Count(); i++) {
-					achievementDescriptions[i] = LumosAchievementDescription(resp[i]);
+				for (int i = 0; i < resp.Count; i++) {
+					achievementDescriptions[i] = new LumosAchievementDescription(resp[i] as Dictionary<string, object>);
 				}
 
 				if (callback != null) {
@@ -84,7 +84,7 @@ public partial class LumosSocial : ISocialPlatform
 				}
 
 				if (callback != null) {
-					var achievementsArray = new LumosAchievement[achievements.Count()];
+					var achievementsArray = new LumosAchievement[achievements.Count];
 					achievements.Values.CopyTo(achievementsArray, 0);
 					callback(achievementsArray);
 				}
@@ -126,13 +126,15 @@ public partial class LumosSocial : ISocialPlatform
 		LumosSocialGUI.ShowAchievementsUI();
 	}
 
+	// Added functions:
+
 	/// <summary>
 	/// Awards an achievement.
 	/// </summary>
 	/// <param name="achievementID">The achievement identifier.</param>
 	public static void AwardAchievement (string achievementID)
 	{
-		if (!localUser.authenticated) {
+		if (!Social.localUser.authenticated) {
 			return;
 		}
 
@@ -140,7 +142,7 @@ public partial class LumosSocial : ISocialPlatform
 
 		if (achievement == null) {
 			// Create new achievement.
-			achievement = new LumosAchievement(achievementID, percentCompleted, false, DateTime.Now);
+			achievement = new LumosAchievement(achievementID, 100, false, DateTime.Now);
 			achievements[achievement.id] = achievement;
 		} else {
 			// Update existing achievement.
@@ -155,7 +157,7 @@ public partial class LumosSocial : ISocialPlatform
 	/// </summary>
 	/// <param name="achievementID">The achievement identifier.</param>
 	/// <returns>The achievement.</returns>
-	public static LumosAchievement GetAchievement (string achievementId)
+	public static LumosAchievement GetAchievement (string achievementID)
 	{
 		if (achievements.ContainsKey(achievementID)) {
 			return achievements[achievementID];

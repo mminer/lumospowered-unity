@@ -1,59 +1,39 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System;
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// Lumos social GU.
+/// User interface to display leaderboards.
 /// </summary>
-public partial class LumosSocialGUI : MonoBehaviour
+public static class LumosLeaderboardsGUI
 {
-	/// <summary>
-	/// The default user icon.
-	/// </summary>
-	public Texture2D defaultUserIcon;
-	/// <summary>
-	/// The friend scores scroll position.
-	/// </summary>
-	Vector2 friendScoresScrollPos;
-	/// <summary>
-	/// All scores scroll position.
-	/// </summary>
-	Vector2 allScoresScrollPos;
 	/// <summary>
 	/// The current leaderboard.
 	/// </summary>
-	LumosLeaderboard currentLeaderboard;
-	/// <summary>
-	/// The new score.
-	/// </summary>
-	string newScore = "";
+	public static LumosLeaderboard currentLeaderboard { get; private set; }
+
 	/// <summary>
 	/// The getting leaderboards.
 	/// </summary>
-	bool gettingLeaderboards;
+	static bool gettingLeaderboards;
+
 	/// <summary>
 	/// The offset.
 	/// </summary>
-	int offset;
+	static int offset;
 
 	/// <summary>
-	/// Leaderboardses the screen.
+	/// Displays the leaderboards UI.
 	/// </summary>
-	void LeaderboardsScreen()
+	/// <param name="windowRect">The bounding rect of the window.</param>
+	public static void OnGUI (Rect windowRect)
 	{
-		GUILayout.Space(smallMargin);
-
-		// Title
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label("Leaderboards");
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-
-		if (LumosSocialPlatform.leaderboards.Count == 0) {
+		if (LumosSocial.leaderboards.Count == 0) {
 			if (!gettingLeaderboards) {
-				LumosSocialPlatform.LoadLeaderboardDescriptions(null);
+				LumosSocial.LoadLeaderboardDescriptions(null);
 				gettingLeaderboards = true;
 			}
 		} else {
@@ -64,8 +44,8 @@ public partial class LumosSocialGUI : MonoBehaviour
 			GUILayout.FlexibleSpace();
 			GUILayout.BeginVertical();
 
-			if (LumosSocialPlatform.leaderboards.Count > 0) {
-				foreach (var leaderboard in LumosSocialPlatform.leaderboards.Values) {
+			if (LumosSocial.leaderboards.Count > 0) {
+				foreach (var leaderboard in LumosSocial.leaderboards.Values) {
 					if (leaderboard.loading) {
 						GUILayout.Label("Loading...");
 						GUI.enabled = false;
@@ -73,10 +53,10 @@ public partial class LumosSocialGUI : MonoBehaviour
 
 					if (GUILayout.Button(leaderboard.title)) {
 						currentLeaderboard = leaderboard;
-						screen = Screens.Scores;
+						LumosSocialGUI.ShowWindow(LumosGUIWindow.Scores);
 
 						if (currentLeaderboard.scores == null) {
-							LumosSocialPlatform.LoadScores(currentLeaderboard.id, null);
+							Social.LoadScores(currentLeaderboard.id, null);
 						}
 					}
 
@@ -87,116 +67,5 @@ public partial class LumosSocialGUI : MonoBehaviour
 			GUILayout.EndVertical();
 			GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
-	}
-
-	/// <summary>
-	/// Scoreses the screen.
-	/// </summary>
-	void ScoresScreen()
-	{
-		if (currentLeaderboard == null) {
-			return;
-		}
-
-		if (currentLeaderboard.scores == null) {
-			GUILayout.Label("Loading scores...");
-			return;
-		}
-
-		if (GUILayout.Button("Leaderboards", GUILayout.Width(submitButtonWidth))) {
-			screen = Screens.Leaderboards;
-		}
-
-		GUILayout.BeginHorizontal();
-			GUILayout.Label("New Score", GUILayout.Width(labelWidth));
-			newScore = GUILayout.TextField(newScore, GUILayout.Width(submitButtonWidth));
-
-			if (GUILayout.Button("Submit Score", GUILayout.Width(submitButtonWidth))) {
-				LumosSocialPlatform.ReportScore(Convert.ToInt32(newScore), currentLeaderboard.id, null);
-			}
-
-			if (GUILayout.Button("Refresh Scores", GUILayout.Width(submitButtonWidth))) {
-				LumosSocialPlatform.LoadLeaderboardScores(currentLeaderboard);
-			}
-		GUILayout.EndHorizontal();
-
-		GUILayout.Space(smallMargin);
-
-		// Title
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label(currentLeaderboard.title + " Scores");
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-
-		GUILayout.Space(smallMargin);
-
-		// Friend Scores
-		if (currentLeaderboard.friendScores != null) {
-			DisplayScoreLabel("Friends");
-			friendScoresScrollPos = GUILayout.BeginScrollView(friendScoresScrollPos);
-			DisplayScoreData(currentLeaderboard.friendScores);
-			GUILayout.EndScrollView();
-		}
-
-		// All Scores
-		DisplayScoreLabel("All Scores");
-		allScoresScrollPos = GUILayout.BeginScrollView(allScoresScrollPos);
-		DisplayScoreData(currentLeaderboard.scores);
-
-		if (GUILayout.Button("More...")) {
-			var length = currentLeaderboard.scores.Length -1;
-			var lastScore = currentLeaderboard.scores[length];
-
-			currentLeaderboard.LoadScores(1, lastScore.rank, delegate {
-				//do something
-			});
-		}
-
-		GUILayout.EndScrollView();
-	}
-
-	/// <summary>
-	/// Shows the leaderboards U.
-	/// </summary>
-	public static void ShowLeaderboardsUI()
-	{
-		instance.screen = Screens.Leaderboards;
-	}
-
-	/// <summary>
-	/// Displaies the score label.
-	/// </summary>
-	/// <param name='label'>
-	/// Label.
-	/// </param>
-	void DisplayScoreLabel(string label)
-	{
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label(label);
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-	}
-
-	/// <summary>
-	/// Displaies the score data.
-	/// </summary>
-	/// <param name='scores'>
-	/// Scores.
-	/// </param>
-	void DisplayScoreData(IScore[] scores)
-	{
-		foreach (var score in scores) {
-			GUILayout.BeginHorizontal();
-				GUILayout.Label(score.rank.ToString());
-				GUILayout.Label(defaultUserIcon);
-
-				GUILayout.BeginVertical();
-					GUILayout.Label(score.userID);
-					GUILayout.Label(score.value.ToString());
-				GUILayout.EndVertical();
-			GUILayout.EndHorizontal();
-		}
 	}
 }

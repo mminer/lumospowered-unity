@@ -1,248 +1,149 @@
-using UnityEngine;
-using System.Collections;
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
-/// Lumos social GU.
+/// User interface for user settings.
 /// </summary>
-public partial class LumosSocialGUI : MonoBehaviour 
+public static class LumosSettingsGUI
 {
+	static readonly GUIContent nameLabel = new GUIContent("Name", "Your name.");
+	static readonly GUIContent emailLabel = new GUIContent("Email", "Your email address.");
+	static readonly GUIContent passwordLabel = new GUIContent("Password", "Your password.");
+	static readonly GUIContent confirmPasswordLabel = new GUIContent("Confirm Password", "Your password as typed above.");
+	static readonly GUIContent otherLabel = new GUIContent("Other", "Additional information.");
+	static readonly GUIContent updateLabel = new GUIContent("Update Settings", "Save the updated settings.");
+
 	/// <summary>
-	/// The set pass.
+	/// The user's name.
 	/// </summary>
-	string setPass = "";
+	static string name = "";
+
 	/// <summary>
-	/// The set confirm pass.
+	/// The user's password.
 	/// </summary>
-	string setConfirmPass = "";
+	static string password = "";
+
 	/// <summary>
-	/// The set email.
+	/// Confirmation of the password.
 	/// </summary>
-	string setEmail = "";
+	static string passwordConfirmation = "";
+
 	/// <summary>
-	/// The name of the set.
+	/// The user's email address.
 	/// </summary>
-	string setName = "";
+	static string email = "";
+
 	/// <summary>
-	/// The set message.
+	/// Additional information about the user.
 	/// </summary>
-	string setMessage = "";
+	static Dictionary<string, object> other;
+
 	/// <summary>
-	/// The set underage.
+	/// Scroll position.
 	/// </summary>
-	bool setUnderage;
+	static Vector2 scrollPos;
+
 	/// <summary>
-	/// The saving settings.
+	/// Displays the settings UI.
 	/// </summary>
-	bool savingSettings;
-	/// <summary>
-	/// The set other.
-	/// </summary>
-	List<Hashtable> setOther;
-	/// <summary>
-	/// The set scroll position.
-	/// </summary>
-	Vector2 setScrollPos;
-	
-	/// <summary>
-	/// Settingses the screen.
-	/// </summary>
-	void SettingsScreen()
-	{		
-		
-		setScrollPos = GUILayout.BeginScrollView(setScrollPos);
-		
-		GUILayout.BeginHorizontal();
-		GUILayout.FlexibleSpace();
-		GUILayout.BeginVertical();
-		
-		// Name
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label("Name", GUILayout.Width(labelWidth));
-			setName = GUILayout.TextField(setName, GUILayout.Width(textBoxWidth));
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		// Password
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label("Password", GUILayout.Width(labelWidth));
-			setPass = GUILayout.PasswordField(setPass, '*', GUILayout.Width(textBoxWidth));
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		// Confirm Password
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label("Confirm \nPassword", GUILayout.Width(labelWidth));
-			setConfirmPass = GUILayout.PasswordField(setConfirmPass, '*', GUILayout.Width(textBoxWidth));
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		// Email
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label("Email", GUILayout.Width(labelWidth));
-			setEmail = GUILayout.TextField(setEmail, GUILayout.Width(textBoxWidth));
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();		
-		
-		GUILayout.Space(smallMargin);
-		
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label("Other");
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		GUILayout.Space(smallMargin);
-		
-		// Existing other values
-		if (LumosSocial.localUser.other != null) {
-			var tempOther = new Dictionary<string, object>();
-			
-			foreach (var f in LumosSocial.localUser.other) {
-				tempOther[f.Key] = f.Value;
-			}
-			
-			foreach (var entry in tempOther) {
-				GUILayout.BeginHorizontal();
-					GUILayout.FlexibleSpace();
-					GUILayout.Label(entry.Key, GUILayout.Width(labelWidth));
-					LumosSocial.localUser.other[entry.Key] = GUILayout.TextField(entry.Value as string, GUILayout.Width(textBoxWidth));
-					GUILayout.FlexibleSpace();
-				GUILayout.EndHorizontal();
-			}
+	/// <param name="windowRect">The bounding rect of the window.</param>
+	public static void OnGUI (Rect windowRect)
+	{
+		if (LumosSocialGUI.currentUser == null) {
+			LumosSocialGUI.statusMessage = "You must login before viewing your settings.";
+			LumosSocialGUI.DrawLoginButton();
+			return;
 		}
-		
-		// New other values
-		if (!savingSettings && setOther != null && setOther.Count > 0) {
-			foreach (var newEntry in setOther) {
-				GUILayout.BeginHorizontal();
-					GUILayout.FlexibleSpace();
-					newEntry["key"] = GUILayout.TextField(newEntry["key"] as string, GUILayout.Width(labelWidth));
-					newEntry["value"] = GUILayout.TextField(newEntry["value"] as string, GUILayout.Width(textBoxWidth));
-					GUILayout.FlexibleSpace();
-				GUILayout.EndHorizontal();
-			}
-		}
-		
+
+		var halfWidth = windowRect.width / 2;
+		scrollPos = GUILayout.BeginScrollView(scrollPos);
+
+		// Name field.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			GUILayout.Space(labelWidth + textBoxWidth - submitButtonWidth);
-		
-			if (GUILayout.Button("New", GUILayout.Width(submitButtonWidth))) {
-				if (setOther == null) {
-					setOther = new List<Hashtable>();
-				}
-				
-				var currentKeys = 0;
-				
-				if (LumosSocial.localUser.other != null) {
-					currentKeys = LumosSocial.localUser.other.Count;
-				}
-				
-				var key = "New Entry " + (setOther.Count + currentKeys + 1);
-				var hash = new Hashtable();
-				hash["key"] = key;
-				hash["value"] = "";
-				
-				setOther.Add(hash);
-			}
-		
-			GUILayout.FlexibleSpace();
+			GUILayout.Label(nameLabel);
+			name = GUILayout.TextField(name, GUILayout.Width(halfWidth));
 		GUILayout.EndHorizontal();
-		
+
+		// Password field.
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			GUILayout.Label(passwordLabel);
+			password = GUILayout.PasswordField(password, '*', GUILayout.Width(halfWidth));
+		GUILayout.EndHorizontal();
+
+		// Password confirmation field.
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			GUILayout.Label(confirmPasswordLabel);
+			passwordConfirmation = GUILayout.PasswordField(passwordConfirmation, '*', GUILayout.Width(halfWidth));
+		GUILayout.EndHorizontal();
+
+		// Email address field.
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			GUILayout.Label(emailLabel);
+			email = GUILayout.TextField(email, GUILayout.Width(halfWidth));
+		GUILayout.EndHorizontal();
+
+		if (LumosSocialGUI.currentUser.other != null) {
+			if (other == null) {
+				other = new Dictionary<string, object>(LumosSocialGUI.currentUser.other);
+			}
+
+			GUILayout.BeginHorizontal();
+				GUILayout.FlexibleSpace();
+				GUILayout.Label(otherLabel);
+
+				GUILayout.BeginVertical(GUILayout.Width(halfWidth));
+
+				foreach (var entry in other) {
+					GUILayout.BeginHorizontal();
+						GUILayout.FlexibleSpace();
+						GUILayout.Label(entry.Key);
+						other[entry.Key] = GUILayout.TextField(entry.Value as string, GUILayout.Width(halfWidth));
+					GUILayout.EndHorizontal();
+				}
+
+				GUILayout.EndVertical();
+			GUILayout.EndHorizontal();
+		}
+
+		// Submit button.
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			if (GUILayout.Button(updateLabel, GUILayout.Width(halfWidth))) {
+				SaveSettings();
+			}
+		GUILayout.EndHorizontal();
+
 		GUILayout.EndScrollView();
-		
-		GUILayout.EndVertical();
-		GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			// Message
-			Color colour = GUI.skin.label.normal.textColor;
-		
-			if (!savingSettings) {
-				GUI.skin.label.normal.textColor = Color.red;
-			}
-			
-			GUILayout.Label(setMessage, GUILayout.Width(textBoxWidth));
-			GUI.skin.label.normal.textColor = colour;
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		// Save
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			if (GUILayout.Button("Save Settings", GUILayout.Width(submitButtonWidth))) {
-				SaveSettings();	
-			}
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
-		GUILayout.Space(smallMargin);
 	}
-	
+
 	/// <summary>
 	/// Saves the settings.
 	/// </summary>
-	void SaveSettings()
+	static void SaveSettings()
 	{
-		if (setPass.Length > 0) {
-			if (setPass != setConfirmPass) {
-				setMessage = "Your passwords do not match.";
-				return;
-			}
+		if (password.Length > 0 && password != passwordConfirmation) {
+			LumosSocialGUI.statusMessage = "The supplied passwords do not match.";
+			return;
 		}
-		
-		savingSettings = true;
-		setMessage = "Registering...";
-		
-		if (setOther != null) {
-			if (LumosSocial.localUser.other == null) {
-				LumosSocial.localUser.other = new Dictionary<string, object>();
-			}
-			
-			foreach (var entry in setOther) {				
-				var key = entry["key"] as string;
-				var value = entry["value"] as string;
-				
-				// Don't save blank data
-				if (value == "") {
-					continue;
+
+		LumosSocialGUI.inProgress = true;
+		LumosSocialGUI.statusMessage = "Updating settings...";
+
+		LumosSocialGUI.currentUser.UpdateInfo(name, email, password, other,
+			success => {
+				if (success) {
+					LumosSocialGUI.inProgress = false;
+					other = null; // Force dictionary to reload
+					LumosSocialGUI.statusMessage = "Settings saved.";
+				} else {
+					LumosSocialGUI.statusMessage = "There was a problem saving settings. Please try again.";
 				}
-				
-				LumosSocial.localUser.other[key] = value;
-			}	
-		}
-		
-		LumosSocial.localUser.UpdateInfo(setName, setEmail, setPass, LumosSocial.localUser.other, ProcessSaveSettings);
-	}
-	
-	/// <summary>
-	/// Processes the save settings.
-	/// </summary>
-	/// <param name='success'>
-	/// Success.
-	/// </param>
-	void ProcessSaveSettings(bool success)
-	{
-		savingSettings = false;
-		setOther = new List<Hashtable>();
-		setMessage = "Settings saved.";
-	}
-	
-	/// <summary>
-	/// Shows the settings U.
-	/// </summary>
-	public static void ShowSettingsUI()
-	{
-		instance.setEmail = LumosSocial.localUser.email;
-		instance.setName = LumosSocial.localUser.userName;
-		instance.screen = Screens.Settings;
-		instance.setOther = null;
+			});
 	}
 }

@@ -1,77 +1,99 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using System;
-using UnityEngine;
-using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
+public enum LumosGUIWindow { None, Achievements, Login, Leaderboards, Profile, Registration, ResetPassword, Scores, Settings }
+
 /// <summary>
-/// Lumos social GU.
+/// Manages windows for displaying information like leaderboards and achievements.
 /// </summary>
-public partial class LumosSocialGUI : MonoBehaviour {
-	/// <summary>
-	/// Screens.
-	/// </summary>
-	enum Screens { None, Login, Registration, ForgotPassword, Achievements, Leaderboards, Scores, Profile, Settings };
-	/// <summary>
-	/// The screen.
-	/// </summary>
-	Screens screen;
-	
-	/// <summary>
-	/// The width of the label.
-	/// </summary>
-	float labelWidth;
-	/// <summary>
-	/// The width of the text box.
-	/// </summary>
-	float textBoxWidth;
-	/// <summary>
-	/// The height of the text box.
-	/// </summary>
-	float textBoxHeight;
-	/// <summary>
-	/// The width of the big submit button.
-	/// </summary>
-	float bigSubmitButtonWidth;
-	/// <summary>
-	/// The width of the submit button.
-	/// </summary>
-	float submitButtonWidth;
-	/// <summary>
-	/// The height of the submit button.
-	/// </summary>
-	float submitButtonHeight;
-	/// <summary>
-	/// The margin.
-	/// </summary>
-	float margin;
-	/// <summary>
-	/// The small margin.
-	/// </summary>
-	float smallMargin;
-	/// <summary>
-	/// The large margin.
-	/// </summary>
-	float largeMargin;
-	/// <summary>
-	/// The current res.
-	/// </summary>
-	Resolution currentRes = new Resolution();
+public class LumosSocialGUI : MonoBehaviour
+{
+	#region Public Inspector Settings
 
 	/// <summary>
-	/// An instance of this class.
+	/// The default user icon.
 	/// </summary>
-	public static LumosSocialGUI instance { get; private set; }
+	public Texture2D defaultAvatar;
 
 	/// <summary>
-	/// Initializes a new instance of this class.
+	/// The default achievement icon.
 	/// </summary>
+	public Texture2D defaultAchievementIcon;
+
+	/// <summary>
+	/// The pane currently displaying.
+	/// </summary>
+	public LumosGUIWindow visibleWindow;
+
+	public static Texture2D defaultAvatarIcon { get { return instance.defaultAvatar; } }
+
+	#endregion
+
+	static LumosUser _currentUser;
+
+	/// <summary>
+	/// The current user.
+	/// </summary>
+	public static LumosUser currentUser
+	{
+		get {
+			if (_currentUser == null) {
+				_currentUser = Social.localUser as LumosUser;
+			}
+
+			return _currentUser;
+		}
+	}
+
+	/// <summary>
+	/// A message to communicate problems to the user.
+	/// </summary>
+	public static string statusMessage { private get; set; }
+
+	/// <summary>
+	/// Whether a request is currently in progress.
+	/// </summary>
+	public static bool inProgress { get; set; }
+
+	/// <summary>
+	/// The maximum width and height of the user's icon.
+	/// </summary>
+	public const float avatarSize = 50;
+
+	/// <summary>
+	/// The height of dividers between GUI elements.
+	/// </summary>
+	const float dividerHeight = 10;
+
+	/// <summary>
+	/// Titles to display above each window.
+	/// </summary>
+	static readonly Dictionary<LumosGUIWindow, string> windowTitles = new Dictionary<LumosGUIWindow, string>() {
+		{ LumosGUIWindow.Achievements, "Achievements" },
+		{ LumosGUIWindow.Login, "Login" },
+		{ LumosGUIWindow.Leaderboards, "Leaderboards" },
+		{ LumosGUIWindow.Profile, "Profile" },
+		{ LumosGUIWindow.Registration, "Registration" },
+		{ LumosGUIWindow.ResetPassword, "Reset Password" },
+		{ LumosGUIWindow.Scores, "Scores" },
+		{ LumosGUIWindow.Settings, "Settings" }
+	};
+
+	static readonly GUIContent loginLabel = new GUIContent("Login", "Go to the login window.");
+
+	/// <summary>
+	/// The bounding rect of the window.
+	/// </summary>
+	Rect windowRect;
+
+	static LumosSocialGUI instance;
 	LumosSocialGUI () {}
-	
-	/// <summary>
-	/// Awake this instance.
-	/// </summary>
+
 	void Awake()
 	{
 		// Prevent multiple instances of LumosSocialGUI from existing.
@@ -82,103 +104,138 @@ public partial class LumosSocialGUI : MonoBehaviour {
 		}
 
 		instance = this;
+		Social.Active = new LumosSocial();
+		windowRect = DetermineWindowRect();
+	}
 
-		screen = Screens.Login;
-		DetermineGUISizes();
-	}
-	
-	/// <summary>
-	/// Update this instance.
-	/// </summary>
-	void Update()
-	{
-		if (currentRes.width != Screen.width ||
-			currentRes.height != Screen.height) {
-			DetermineGUISizes();
-		}
-	}
-	
-	/// <summary>
-	/// Raises the GU event.
-	/// </summary>
 	void OnGUI()
 	{
-		if (screen != Screens.None) {
-			socialWindowRect = GUI.Window(0, socialWindowRect, SocialWindow, "");
+		if (visibleWindow == LumosGUIWindow.None) {
+			return;
 		}
+
+		windowRect = GUI.Window(0, windowRect, SocialWindow, windowTitles[visibleWindow]);
 	}
-	
+
 	/// <summary>
-	/// Socials the window.
+	/// Displays a window encompassing the various GUI panes.
 	/// </summary>
-	/// <param name='windowID'>
-	/// Window I.
-	/// </param>
-	void SocialWindow(int windowID)
+	/// <param name="windowID">The window ID.</param>
+	void SocialWindow (int windowID)
 	{
-		if (LumosSocial.localUser != null && LumosSocial.localUser.authenticated) {
+		if (Social.localUser != null) {
 			GUILayout.BeginHorizontal();
-				if (GUILayout.Button("My Profile", GUILayout.Width(submitButtonWidth))) {
-					LumosSocialGUI.ShowProfileUI();
+				if (GUILayout.Button("My Profile", GUILayout.ExpandWidth(false))) {
+					ShowWindow(LumosGUIWindow.Profile);
 				}
 			GUILayout.EndHorizontal();
-
-			GUILayout.Space(smallMargin);
 		}
 
-		switch(screen) {
-			case Screens.Login:
-				LoginScreen();
+		DrawDivider();
+
+		switch(visibleWindow) {
+			case LumosGUIWindow.Achievements:
+				LumosAchievementsGUI.OnGUI(windowRect);
 				break;
-			case Screens.ForgotPassword:
-				ForgotPasswordScreen();
+			case LumosGUIWindow.Leaderboards:
+				LumosLeaderboardsGUI.OnGUI(windowRect);
 				break;
-			case Screens.Registration:
-				RegistrationScreen();
+			case LumosGUIWindow.Login:
+				LumosLoginGUI.OnGUI(windowRect);
 				break;
-			case Screens.Achievements:
-				AchievementsScreen();
+			case LumosGUIWindow.Profile:
+				LumosProfileGUI.OnGUI(windowRect);
 				break;
-			case Screens.Leaderboards:
-				LeaderboardsScreen();
+			case LumosGUIWindow.Registration:
+				LumosRegistrationGUI.OnGUI(windowRect);
 				break;
-			case Screens.Scores:
-				ScoresScreen();
+			case LumosGUIWindow.ResetPassword:
+				LumosResetPasswordGUI.OnGUI(windowRect);
 				break;
-			case Screens.Profile:
-				ProfileScreen();
+			case LumosGUIWindow.Scores:
+				LumosScoresGUI.OnGUI(windowRect);
 				break;
-			case Screens.Settings:
-				SettingsScreen();
+			case LumosGUIWindow.Settings:
+				LumosSettingsGUI.OnGUI(windowRect);
 				break;
-			default:
-				// None;
-				break;
+		}
+
+		// Display status message box.
+		if (statusMessage != null && statusMessage != "") {
+			GUILayout.Space(dividerHeight);
+
+			GUILayout.BeginVertical(GUI.skin.box);
+				GUILayout.Label(statusMessage);
+			GUILayout.EndVertical();
+		}
+
+		GUI.enabled = true;
+	}
+
+	/// <summary>
+	/// Shows the achievements pane.
+	/// This is meant to be called by Social.ShowAchievementsUI().
+	/// </summary>
+	public static void ShowAchievementsUI ()
+	{
+		ShowWindow(LumosGUIWindow.Achievements);
+	}
+
+	/// <summary>
+	/// Shows the leaderboards pane.
+	/// This is meant to be called by Social.ShowLeaderboardUI().
+	/// </summary>
+	public static void ShowLeaderboardUI ()
+	{
+		ShowWindow(LumosGUIWindow.Leaderboards);
+	}
+
+	/// <summary>
+	/// Displays the specified window.
+	/// </summary>
+	/// <param name="window">The window to show.</param>
+	public static void ShowWindow (LumosGUIWindow window)
+	{
+		statusMessage = null;
+		instance.visibleWindow = window;
+	}
+
+	/// <summary>
+	/// Hides the active window.
+	/// </summary>
+	public static void HideWindow ()
+	{
+		instance.visibleWindow = LumosGUIWindow.None;
+	}
+
+	/// <summary>
+	/// Displays a visible divider between GUI elements.
+	/// </summary>
+	public static void DrawDivider ()
+	{
+		GUILayout.Space(dividerHeight);
+	}
+
+	/// <summary>
+	/// Displays a login button.
+	/// </summary>
+	public static void DrawLoginButton ()
+	{
+		if (GUILayout.Button(loginLabel, GUILayout.ExpandWidth(false))) {
+			ShowWindow(LumosGUIWindow.Login);
 		}
 	}
-	
+
 	/// <summary>
-	/// Determines the GUI sizes.
+	/// Centers the window.
 	/// </summary>
-	void DetermineGUISizes()
+	static Rect DetermineWindowRect ()
 	{
-		currentRes.width = Screen.width;
-		currentRes.height = Screen.height;
-
-		float loginWidth = Screen.width - (Screen.width * 0.33f);
-		float loginHeight = Screen.height - (Screen.height * 0.3f);
-		float loginX = (Screen.width - loginWidth) / 2;
-		float loginY = (Screen.height - loginHeight) / 2;
-		socialWindowRect = new Rect(loginX, loginY, loginWidth, loginHeight);
-
-		margin = socialWindowRect.height * 0.1f;
-		smallMargin = margin / 2;
-		largeMargin = margin * 1.5f;
-		labelWidth = Screen.width * 0.1f;
-		textBoxWidth = Screen.width * 0.2f;
-		textBoxHeight = textBoxWidth / 8;
-		submitButtonWidth = textBoxWidth / 2;
-		bigSubmitButtonWidth = submitButtonWidth * 1.5f;
-		submitButtonHeight = submitButtonWidth * 0.15f;
+		var width = Screen.width - (Screen.width * 0.3f);
+		var height = Screen.height - (Screen.height * 0.3f);
+		var x = (Screen.width - width) / 2;
+		var y = (Screen.height - width) / 2;
+		var rect = new Rect(x, y, width, height);
+		return rect;
 	}
 }

@@ -13,17 +13,17 @@ using System.Collections.Generic;
 public class LumosLeaderboard : ILeaderboard
 {
 	/// <summary>
-	/// Gets or sets the identifier.
+	/// Unique identifier.
 	/// </summary>
 	public string id { get; set; }
 
 	/// <summary>
-	/// Gets or sets the user scope.
+	/// The user scope when searched.
 	/// </summary>
 	public UserScope userScope { get; set; }
 
 	/// <summary>
-	/// Gets or sets the range.
+	/// The leaderboard's score range.
 	/// </summary>
 	public Range range { get; set; }
 
@@ -58,7 +58,7 @@ public class LumosLeaderboard : ILeaderboard
 	public IScore[] friendScores { get; private set; }
 
 	/// <summary>
-	/// The leaderboard's title.
+	/// The name of the leaderboard.
 	/// </summary>
 	public string title { get; set; }
 
@@ -134,7 +134,7 @@ public class LumosLeaderboard : ILeaderboard
 	/// <param name="limit">Limit.</param>
 	/// <param name="offset">Offset.</param>
 	/// <param name="callback">Callback.</param>
-	public void LoadScoresAroundUser(int limit, Action<IScore[]> callback)
+	public void LoadScoresAroundUser(int limit, Action<Score[]> callback)
 	{
 		if (limit < 1) {
 			limit = 1;
@@ -147,7 +147,7 @@ public class LumosLeaderboard : ILeaderboard
 	/// Adds the scores.
 	/// </summary>
 	/// <param name="scores">Scores.</param>
-	void AddScores(IScore[] scores)
+	void AddScores(Score[] scores)
 	{
 		loading = false;
 		this.callback(true);
@@ -160,7 +160,7 @@ public class LumosLeaderboard : ILeaderboard
 	/// <param name="limit">Limit.</param>
 	/// <param name="offset">Offset.</param>
 	/// <param name="callback">Callback.</param>
-	void FetchScores (int limit, int offset, Action<IScore[]> callback)
+	void FetchScores (int limit, int offset, Action<Score[]> callback)
 	{
 		loading = true;
 		var endpoint = LumosSocial.baseUrl + "/leaderboards/" + id + "/scores?method=GET";
@@ -174,7 +174,7 @@ public class LumosLeaderboard : ILeaderboard
 			success => {
 				var resp = success as Dictionary<string, object>;
 				var scoreList = resp["scores"] as IList;
-				var scores = new List<IScore>();
+				var scores = new List<Score>();
 
 				foreach (Dictionary<string, object> info in scoreList) {
 					var score = ParseScore(id, info);
@@ -192,7 +192,7 @@ public class LumosLeaderboard : ILeaderboard
 	/// </summary>
 	/// <param name="limit">Limit.</param>
 	/// <param name="callback">Callback.</param>
-	void FetchUserScores (int limit, Action<IScore[]> callback)
+	void FetchUserScores (int limit, Action<Score[]> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/scores/" + id + "?method=GET";
 		loading = true;
@@ -205,7 +205,7 @@ public class LumosLeaderboard : ILeaderboard
 			success => {
 				var resp = success as Dictionary<string, object>;
 				var scoreList = resp["scores"] as IList;
-				var scores = new List<IScore>();
+				var scores = new List<Score>();
 
 				foreach (Dictionary<string, object> info in scoreList) {
 					var score = ParseScore(id, info);
@@ -280,9 +280,9 @@ public class LumosLeaderboard : ILeaderboard
 	/// </summary>
 	/// <param name="data">Data.</param>
 	/// <returns>The scores.</returns>
-	static IScore[] ParseScores (string leaderboardID, IList data)
+	static Score[] ParseScores (string leaderboardID, IList data)
 	{
-		var scores = new List<IScore>();
+		var scores = new List<Score>();
 
 		foreach (Dictionary<string, object> info in data) {
 			var score = ParseScore(leaderboardID, info);
@@ -297,7 +297,7 @@ public class LumosLeaderboard : ILeaderboard
 	/// </summary>
 	/// <param name="info">Info.</param>
 	/// <returns>The scores.</returns>
-	static IScore ParseScore (string leaderboardID, Dictionary<string, object> info)
+	static Score ParseScore (string leaderboardID, Dictionary<string, object> info)
 	{
 		var value = Convert.ToInt32(info["score"]);
 		var timestamp = Convert.ToDouble(info["created"]);
@@ -311,10 +311,10 @@ public class LumosLeaderboard : ILeaderboard
 	}
 
 	/// <summary>
-	/// Indexs the scores.
+	/// Indexes the scores.
 	/// </summary>
 	/// <param name="newScores">New scores.</param>
-	void IndexScores (List<IScore> newScores)
+	void IndexScores (List<Score> newScores)
 	{
 		if (newScores == null || newScores.Count < 1) {
 			Debug.LogWarning("There are no more scores to load.");

@@ -48,10 +48,6 @@ public class Test : MonoBehaviour
 			Social.ShowLeaderboardUI();
 		}
 
-		if (GUILayout.Button("Show Profile")) {
-			LumosSocial.ShowProfileUI();
-		}
-
 		if (GUILayout.Button("Send Events")) {
 			LumosEvents.Send();
 		}

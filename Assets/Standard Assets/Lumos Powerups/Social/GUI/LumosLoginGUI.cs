@@ -1,152 +1,112 @@
+// Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
+
 using UnityEngine;
-using System.Diagnostics;
+using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// Lumos social GU.
+/// User interface for the login form.
 /// </summary>
-public partial class LumosSocialGUI : MonoBehaviour
+public static class LumosLoginGUI
 {
-	/// <summary>
-	/// The social window rect.
-	/// </summary>
-	Rect socialWindowRect;
-	/// <summary>
-	/// The username.
-	/// </summary>
-	string username = "";
-	/// <summary>
-	/// The password.
-	/// </summary>
-	string password = "";
-	/// <summary>
-	/// The message.
-	/// </summary>
-	string message = "";
-	/// <summary>
-	/// The logging in.
-	/// </summary>
-	bool loggingIn;
+	static readonly GUIContent usernameLabel = new GUIContent("Username", "Your unique indentifier.");
+	static readonly GUIContent passwordLabel = new GUIContent("Password", "Your password.");
+	static readonly GUIContent loginLabel = new GUIContent("Login", "Login with the given username and password.");
+	static readonly GUIContent forgotPasswordLabel = new GUIContent("Forgot password?", "Reset your password via email.");
+	static readonly GUIContent registerLabel = new GUIContent("Need an account?", "Create a new account.");
 
 	/// <summary>
-	/// Logins the screen.
+	/// The user's username.
 	/// </summary>
-	void LoginScreen()
+	static string username = "";
+
+	/// <summary>
+	/// The user's password.
+	/// </summary>
+	static string password = "";
+
+	/// <summary>
+	/// Displays the login UI.
+	/// </summary>
+	/// <param name="windowRect">The bounding rect of the window.</param>
+	public static void OnGUI (Rect windowRect)
 	{
-		GUILayout.Space(margin);
-		
-       	// Username
+		var halfWidth = windowRect.width / 2;
+		GUI.enabled = !LumosSocialGUI.inProgress;
+
+		// Username field.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			GUILayout.Label("Username", GUILayout.Width(labelWidth));
-			username = GUILayout.TextField(username, GUILayout.Width(textBoxWidth), GUILayout.Height(textBoxHeight));
-			GUILayout.FlexibleSpace();
+			GUILayout.Label(usernameLabel);
+			username = GUILayout.TextField(username, GUILayout.Width(halfWidth));
 		GUILayout.EndHorizontal();
 
-		GUILayout.Space(smallMargin);
-
-		// Password
+		// Password field.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			GUILayout.Label("Password", GUILayout.Width(labelWidth));
-			password = GUILayout.PasswordField(password, '*', GUILayout.Width(textBoxWidth), GUILayout.Height(textBoxHeight));
-			GUILayout.FlexibleSpace();
+			GUILayout.Label(passwordLabel);
+			password = GUILayout.PasswordField(password, '\u2022', GUILayout.Width(halfWidth));
 		GUILayout.EndHorizontal();
 
-		// Message
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Space(labelWidth);
-			Color colour = GUI.skin.label.normal.textColor;
-
-			if (!loggingIn) {
-				GUI.skin.label.normal.textColor = Color.red;
-			}
-
-			GUILayout.Label(message, GUILayout.Width(textBoxWidth));
-			GUI.skin.label.normal.textColor = colour;
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-
-		GUILayout.Space(smallMargin);
-
-		// Submit
+		// Submit button.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 
-			if (loggingIn) {
-				GUI.enabled = false;
-			}
-		
-			if (GUILayout.Button("Forgot Password", GUILayout.Width(submitButtonWidth), GUILayout.Height(submitButtonHeight))) {
-				screen = Screens.ForgotPassword;
-			}
-
-			if (GUILayout.Button("Submit", GUILayout.Width(submitButtonWidth), GUILayout.Height(submitButtonHeight))) {
+			if (GUILayout.Button(loginLabel, GUILayout.Width(halfWidth))) {
 				SubmitLoginCredentials();
 			}
-
-			GUI.enabled = true;
-
-			GUILayout.Space(largeMargin);
 		GUILayout.EndHorizontal();
 
-		GUILayout.Space(margin);
+		LumosSocialGUI.DrawDivider();
 
+		// Forgot password button.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
-			GUILayout.BeginVertical();
-				GUILayout.Label("Don't have an account?");
 
-				if (loggingIn) {
-					GUI.enabled = false;
-				}
-
-				if (GUILayout.Button(">>> Register <<<", GUI.skin.label)) {
-					screen = Screens.Registration;
-					return;
-				}
-
-				GUI.enabled = true;
-			GUILayout.EndVertical();
-			GUILayout.FlexibleSpace();
+			if (GUILayout.Button(forgotPasswordLabel, GUILayout.Width(halfWidth))) {
+				LumosSocialGUI.ShowWindow(LumosGUIWindow.ResetPassword);
+			}
 		GUILayout.EndHorizontal();
-    }
-	
+
+		// Register new account button.
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+
+			if (GUILayout.Button(registerLabel, GUILayout.Width(halfWidth))) {
+				LumosSocialGUI.ShowWindow(LumosGUIWindow.Registration);
+				return;
+			}
+		GUILayout.EndHorizontal();
+	}
+
 	/// <summary>
-	/// Submits the login credentials.
+	/// Submits the username and password.
 	/// </summary>
-	void SubmitLoginCredentials()
+	static void SubmitLoginCredentials ()
 	{
 		if (username.Length < 1) {
-			message = "Please enter a username.";
+			LumosSocialGUI.statusMessage = "Please enter a username.";
 			return;
 		}
 
 		if (password.Length < 1) {
-			message = "Please enter a password.";
+			LumosSocialGUI.statusMessage = "Please enter a password.";
 			return;
 		}
 
-		message = "logging in...";
-		loggingIn = true;
-		LumosSocial.Connect(username, password, ProcessLogin);
-	}
-	
-	/// <summary>
-	/// Processes the login.
-	/// </summary>
-	/// <param name='success'>
-	/// Success.
-	/// </param>
-	void ProcessLogin(bool success)
-	{
-		loggingIn = false;
+		LumosSocialGUI.inProgress = true;
+		LumosSocialGUI.statusMessage = "Logging in...";
+		var user = new LumosUser(username, password);
 
-		if (success) {
-			screen = Screens.None;
-			message = "";
-		} else {
-			message = "There was a problem signing in.";
-		}
+		Social.Active.Authenticate(user,
+			success => {
+				LumosSocialGUI.inProgress = false;
+
+				if (success) {
+					LumosSocialGUI.HideWindow();
+					LumosSocialGUI.statusMessage = null;
+				} else {
+					LumosSocialGUI.statusMessage = "There was a problem signing in. Perhaps your username and password do not match.";
+				}
+			});
 	}
 }

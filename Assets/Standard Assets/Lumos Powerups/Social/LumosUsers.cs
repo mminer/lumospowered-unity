@@ -5,24 +5,39 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
-using UnityEngine.SocialPlatforms.Impl;
 
 public partial class LumosSocial : ISocialPlatform
 {
-	LumosUser _localUser = new LumosUser();
+	static LumosUser _localUser;
 
 	/// <summary>
 	/// The local user.
 	/// </summary>
-	public LumosUser localUser {
-		get { return _localUser; }
-		set { _localUser = value; }
+	public ILocalUser localUser { get { return _localUser; } }
+
+	/// <summary>
+	/// Authenticates the given user.
+	/// </summary>
+	/// <param name="user">The user to authenticate.</param>
+	/// <param name="callback">Callback.</param>
+	public void Authenticate (ILocalUser user, Action<bool> callback)
+	{
+		user.Authenticate(
+			success => {
+				if (success) {
+					_localUser = user as LumosUser;
+				}
+
+				if (callback != null) {
+					callback(success);
+				}
+			});
 	}
 
 	/// <summary>
 	/// Loads the specified users.
 	/// </summary>
-	/// <param name="userIDs">Usernames to fetch.</param>
+	/// <param name="userIDs">Usernames of profiles to fetch.</param>
 	/// <param name="callback">Callback.</param>
 	public void LoadUsers(string[] userIDs, Action<IUserProfile[]> callback)
 	{
@@ -34,11 +49,16 @@ public partial class LumosSocial : ISocialPlatform
 		LumosRequest.Send(endpoint, payload,
 			success => {
 				var resp = success as Dictionary<string, object>;
-				// TODO: user User constructor instead
-				var users = ParseUsers(resp);
+				var users = new List<IUserProfile>(resp.Count);
+
+				foreach (var kvp in resp) {
+					var info = kvp.Value as Dictionary<string, object>;
+					var user = new LumosUserProfile(info);
+					users.Add(user);
+				}
 
 				if (callback != null) {
-					callback(users);
+					callback(users.ToArray());
 				}
 			},
 			error => {
@@ -48,57 +68,8 @@ public partial class LumosSocial : ISocialPlatform
 			});
 	}
 
-
-
-
-
-
-
 	/// <summary>
-	/// Register the specified username, pass, email and callback.
-	/// </summary>
-	/// <param name="username">Username.</param>
-	/// <param name="password">Password.</param>
-	/// <param name="email">The user's email address.</param>
-	/// <param name="callback">
-	/// Callback.
-	/// </param>
-	public static void Register (string username, string password, string email, Action<bool> callback)
-	{
-		Init();
-		localUser.Register(username, password, email, callback);
-	}
-
-	/// <summary>
-	/// Connect the specified user.
-	/// </summary>
-	/// <param name="username">Username.</param>
-	/// <param name="password">Password.</param>
-	/// <param name="callback">Callback triggers on success.</param>
-	public static void Connect (string username=null, string password=null, Action<bool> callback=null)
-	{
-        // This call needs to be made before we can proceed to other calls in the Social API
-		Init();
-
-		if (username != null) {
-			localUser.Authenticate (username, password, callback);
-		} else {
-			localUser.Authenticate(ProcessAuthentication);
-		}
-    }
-
-	/// <summary>
-	/// Authenticate the specified user and callback.
-	/// </summary>
-	/// <param name="user">User.</param>
-	/// <param name="callback">Callback.</param>
-	public void Authenticate(ILocalUser user, Action<bool> callback)
-	{
-		user.Authenticate(callback);
-	}
-
-	/// <summary>
-	/// Loads the friends.
+	/// Loads the user's friends.
 	/// </summary>
 	/// <param name="user">User.</param>
 	/// <param name="callback">Callback.</param>
@@ -107,68 +78,26 @@ public partial class LumosSocial : ISocialPlatform
 		user.LoadFriends(callback);
 	}
 
-
 	/// <summary>
-	/// Sends a forgot password request.
+	/// Registers a new user.
 	/// </summary>
-	/// <param name="username">Username.</param>
+	/// <param name="user">The user object.</param>
 	/// <param name="callback">Callback.</param>
-	public static void ForgotPassword (string username, Action<bool> callback)
+	public static void RegisterUser (LumosUser user, Action<bool> callback)
 	{
-		if (platform == null) {
-			Init();
-		}
-
-		var endpoint = LumosSocial.baseUrl + "/users/" + username + "/password";
-
-		LumosRequest.Send(endpoint,
-			success => {
-				if (callback != null) {
-					callback(true);
-				}
-			},
-			error => {
-				if (callback != null) {
-					callback(false);
-				}
-			});
-	}
-
-	/// <summary>
-	/// Shows the profile interface.
-	/// </summary>
-	public static void ShowProfileUI ()
-	{
-		LumosSocialGUI.ShowProfileUI();
-	}
-
-    /// <summary>
-    /// Processes the authentication.
-    /// </summary>
-    /// <param name="success">Success.</param>
-    static void ProcessAuthentication (bool success)
-	{
-        if (success) {
-            Lumos.Log("Authenticated local user.");
-        } else {
-			Lumos.LogWarning("Failed to authenticate local user.");
-		}
-    }
-
-	void RegisterUser(string username, string password, string email, Action<bool> callback)
-	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + username + "?method=PUT";
-
+		var endpoint = LumosSocial.baseUrl + "/users/" + user.id + "?method=PUT";
 		var payload = new Dictionary<string, object>() {
 			{ "player_id", Lumos.playerId },
-			{ "password", password },
-			{ "email", email }
+			{ "password", user.password }
 		};
+
+		LumosUtil.AddToDictionaryIfNonempty(payload, "email", user.email);
 
 		LumosRequest.Send(endpoint, payload,
 			success => {
-				var resp = success as Hashtable;
-				var user = ParseLumosUser(resp);
+				var info = success as Dictionary<string, object>;
+				user.authenticated = true;
+				user.UpdateUser(info);
 				_localUser = user;
 
 				if (callback != null) {
@@ -182,42 +111,25 @@ public partial class LumosSocial : ISocialPlatform
 			});
 	}
 
-	IUserProfile[] ParseUsers(Dictionary<string, object> info)
+	/// <summary>
+	/// Requests to reset the given user's password.
+	/// </summary>
+	/// <param name="username">Username.</param>
+	/// <param name="callback">Callback.</param>
+	public static void ResetPassword (string username, Action<bool> callback)
 	{
-		var users = new List<IUserProfile>();
+		var endpoint = LumosSocial.baseUrl + "/users/" + username + "/password";
 
-		foreach (var i in info) {
-			var user = i.Value as Hashtable;
-			var userProfile = ParseUser(user);
-			users.Add(userProfile);
-		}
-
-		return users.ToArray();
-	}
-
-	IUserProfile ParseUser(Hashtable user)
-	{
-		var id = user["username"] as string;
-		string name = null;
-
-		if (user.ContainsKey("name")) {
-			name = user["name"].ToString();
-		}
-
-		var userProfile = new UserProfile(name, id, false);
-
-		return userProfile;
-	}
-
-	LumosUser ParseLumosUser(Hashtable info)
-	{
-		var userID = info["username"] as string;
-		var user = new LumosUser(userID, true);
-
-		if (info.ContainsKey("name")) {
-			user.userName = info["name"].ToString();
-		}
-
-		return user;
+		LumosRequest.Send(endpoint,
+			success => {
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
+			});
 	}
 }
