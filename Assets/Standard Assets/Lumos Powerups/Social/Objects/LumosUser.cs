@@ -72,13 +72,9 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// Constructor. Creates a user object with the given info.
 	/// </summary>
 	/// <param name="userID">Username.</param>
-	public LumosUser (Dictionary<string, object> info)
+	public LumosUser (Dictionary<string, object> info) : base (info)
 	{
-		this.userID = info["username"] as string;
-
-		if (info.ContainsKey("name")) {
-			this.userName = info["name"] as string;
-		}
+		this.email = info["email"] as string;
 	}
 
 	/// <summary>
@@ -107,7 +103,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			success => {
 				var resp = success as Dictionary<string, object>;
 				authenticated = true;
-				UpdateUser(resp);
+				Update(resp);
 
 				if (callback != null) {
 					callback(true);
@@ -121,46 +117,9 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	}
 
 	/// <summary>
-	/// Updates the user's info.
-	/// </summary>
-	/// <param name="name">The user's name.</param>
-	/// <param name="email">The user's email address.</param>
-	/// <param name="password">Password.</param>
-	/// <param name="other">Additional information.</param>
-	/// <param name="callback">Callback triggers on success.</param>
-	public void UpdateInfo (string name=null, string email=null, string password=null, Dictionary<string, object> other=null, Action<bool> callback=null)
-	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=PUT";
-
-		var payload = new Dictionary<string, object>();
-		LumosUtil.AddToDictionaryIfNonempty(payload, "name", name);
-		LumosUtil.AddToDictionaryIfNonempty(payload, "email", email);
-		LumosUtil.AddToDictionaryIfNonempty(payload, "password", password);
-
-		if (other != null) {
-			payload["other"] = LumosJson.Serialize(other);
-		}
-
-		LumosRequest.Send(endpoint, payload,
-			success => {
-				var resp = success as Dictionary<string, object>;
-				UpdateUser(resp);
-
-				if (callback != null) {
-					callback(true);
-				}
-			},
-			error => {
-				if (callback != null) {
-					callback(true);
-				}
-			});
-	}
-
-	/// <summary>
 	/// Loads the user's friends list.
 	/// </summary>
-	/// <param name="callback">Callback triggers on success.</param>
+	/// <param name="callback">Callback.</param>
 	public void LoadFriends (Action<bool> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends?method=GET";
@@ -181,36 +140,12 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			});
 	}
 
-	/// <summary>
-	/// Register the specified user.
-	/// </summary>
-	/// <param name="userID">Username.</param>
-	/// <param name="password">Password.</param>
-	/// <param name="email">Email address.</param>
-	/// <param name="callback">Callback triggers on success.</param>
-	public void Register (string userID, string password, string email, Action<bool> callback)
-	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=PUT";
-
-		var parameters = new Dictionary<string, object>() {
-			{ "player_id", Lumos.playerId },
-			{ "password", password },
-			{ "email", email }
-		};
-
-		LumosRequest.Send(endpoint, parameters,
-			success => {
-				this.email = email;
-				this.userID = userID;
-				this.authenticated = true;
-				callback(true);
-			});
-	}
+	#region Added Functions
 
 	/// <summary>
 	/// Loads the friend requests.
 	/// </summary>
-	/// <param name="callback">Callback triggers on success.</param>
+	/// <param name="callback">Callback.</param>
 	public void LoadFriendRequests (Action<bool> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friend-requests?method=GET";
@@ -222,7 +157,14 @@ public class LumosUser : LumosUserProfile, ILocalUser
 					friendRequests = ParseFriends(resp);
 				}
 
-				callback(true);
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
 			});
 	}
 
@@ -230,18 +172,25 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// Sends the friend request.
 	/// </summary>
 	/// <param name="friendID">The friend's username.</param>
-	/// <param name="callback">Callback triggers on success.</param>
+	/// <param name="callback">Callback.</param>
 	public void SendFriendRequest (string friendID, Action<bool> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friend-requests";
 
-		var parameters = new Dictionary<string, object>() {
+		var payload = new Dictionary<string, object>() {
 			{ "friend", friendID }
 		};
 
-		LumosRequest.Send(endpoint, parameters,
+		LumosRequest.Send(endpoint, payload,
 			success => {
-				callback(true);
+				if (callback != null) {
+					callback(false);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(false);
+				}
 			});
 	}
 
@@ -249,7 +198,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// Accepts the friend request.
 	/// </summary>
 	/// <param name="friendID">The friend's username.</param>
-	/// <param name="callback">Callback triggers on success.</param>
+	/// <param name="callback">Callback.</param>
 	public void AcceptFriendRequest (string friendID, Action<bool> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends/" + friendID + "?method=PUT";
@@ -275,7 +224,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// Declines the friend request.
 	/// </summary>
 	/// <param name="friendID">The friend's username.</param>
-	/// <param name="callback">Callback to trigger on success.</param>
+	/// <param name="callback">Callback.</param>
 	public void DeclineFriendRequest (string friendID, Action<bool> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friend-requests";
@@ -307,7 +256,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// Removes the friend.
 	/// </summary>
 	/// <param name="friendID">The friend's username.</param>
-	/// <param name="callback">Callback triggers on success.</param>
+	/// <param name="callback">Callback.</param>
 	public void RemoveFriend (string friendID, Action<bool> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends/" + friendID + "?method=DELETE";
@@ -331,7 +280,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// <summary>
 	/// Loads the friend leaderboard scores.
 	/// </summary>
-	/// <param name="callback">Callback to trigger on success.</param>
+	/// <param name="callback">Callback.</param>
 	public void LoadFriendLeaderboardScores (Action<bool> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + id + "/friends/scores?method=GET";
@@ -339,22 +288,22 @@ public class LumosUser : LumosUserProfile, ILocalUser
 		LumosRequest.Send(endpoint,
 			success => {
 				var resp = success as IList;
-				var leaderboards = new List<LumosLeaderboard>();
+				var leaderboards = new LumosLeaderboard[resp.Count];
 
-				foreach(Dictionary<string, object> info in resp) {
-					var leaderboard = LumosLeaderboard.ParseLeaderboardInfo(info);
-					leaderboards.Add(leaderboard);
+				for (int i = 0; i < resp.Count; i++) {
+					leaderboards[i] = new LumosLeaderboard(resp[i] as Dictionary<string, object>);
 				}
 
 				foreach (var leaderboard in leaderboards) {
 					var current = LumosSocial.GetLeaderboard(leaderboard.id);
 
-					// Leaderboard already exists, update friend scores only
+					// Leaderboard already exists; update friend scores only.
 					if (current != null) {
-						current.SetFriendScores(leaderboard.friendScores);
-					// Leaderboard doesn't exist yet, add entire leaderboard
-					} else {
-						LumosSocial.leaderboards[leaderboard.id] = leaderboard;
+						current.friendScores = leaderboard.friendScores;
+					}
+					// Leaderboard doesn't exist yet; add entire leaderboard.
+					else {
+						LumosSocial.AddLeaderboard(leaderboard);
 					}
 				}
 
@@ -370,34 +319,72 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	}
 
 	/// <summary>
+	/// Updates the user's info.
+	/// </summary>
+	/// <param name="name">The user's name.</param>
+	/// <param name="email">The user's email address.</param>
+	/// <param name="password">Password.</param>
+	/// <param name="other">Additional information.</param>
+	/// <param name="callback">Callback.</param>
+	public void UpdateInfo (string name=null, string email=null, string password=null, Dictionary<string, object> other=null, Action<bool> callback=null)
+	{
+		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=PUT";
+
+		var payload = new Dictionary<string, object>();
+		LumosUtil.AddToDictionaryIfNonempty(payload, "name", name);
+		LumosUtil.AddToDictionaryIfNonempty(payload, "email", email);
+		LumosUtil.AddToDictionaryIfNonempty(payload, "password", password);
+
+		if (other != null) {
+			payload["other"] = LumosJson.Serialize(other);
+		}
+
+		LumosRequest.Send(endpoint, payload,
+			success => {
+				var resp = success as Dictionary<string, object>;
+				Update(resp);
+
+				if (callback != null) {
+					callback(true);
+				}
+			},
+			error => {
+				if (callback != null) {
+					callback(true);
+				}
+			});
+	}
+
+	/// <summary>
 	/// Updates the user.
 	/// </summary>
 	/// <param name="info">Information about the user.</param>
-	public void UpdateUser (Dictionary<string, object> info)
+	public void Update (Dictionary<string, object> info)
 	{
-		userID = info["username"].ToString();
+		if (info.ContainsKey("username")) {
+			userID = info["username"] as string;
+		}
+
+		if (info.ContainsKey("name")) {
+			userName = info["name"] as string;
+		}
 
 		if (info.ContainsKey("underage")) {
 			underage = (bool)info["underage"];
 		}
 
-		if (info.ContainsKey("name")) {
-			userName = info["name"].ToString();
-		} else {
-			userName = "";
-		}
-
 		if (info.ContainsKey("email")) {
-			email = info["email"].ToString();
+			email = info["email"] as string;
 		}
 
+		// Load avatar from remote server.
 		if (info.ContainsKey("image")) {
-			// TODO: load in image?
-			//var imageURL = info["image"].ToString();
+			var imageLocation = info["image"] as string;
+			LumosRequest.LoadImage(imageLocation, image);
 		}
 
 		if (info.ContainsKey("other")) {
-			this.other = LumosJson.Deserialize(info["other"] as string) as Dictionary<string, object>;
+			other = LumosJson.Deserialize(info["other"] as string) as Dictionary<string, object>;
 		}
 	}
 
@@ -408,25 +395,27 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// <returns>Array of user profiles.</returns>
 	IUserProfile[] ParseFriends (IList friends)
 	{
-		var friendList = new List<IUserProfile>();
+		IUserProfile[] friendList;
 
 		if (friends == null) {
-			return new IUserProfile[] {};
-		}
+			friendList = new IUserProfile[0];
+		} else {
+			friendList = new IUserProfile[friends.Count];
 
-		foreach (Dictionary<string, object> friend in friends) {
-			var id = friend["username"].ToString();
-			string name = null;
+			for (int i = 0; i < friends.Count; i++) {
+				var friend = friends[i] as Dictionary<string, object>;
+				var id = friend["username"] as string;
+				string name = null;
 
-			if (friend.ContainsKey("name")) {
-				name = friend["name"].ToString();
+				if (friend.ContainsKey("name")) {
+					name = friend["name"].ToString();
+				}
+
+				friendList[i] = new UserProfile(name, id, true);
 			}
-
-			var user = new UserProfile(name, id, true);
-			friendList.Add(user);
 		}
 
-		return friendList.ToArray();
+		return friendList;
 	}
 
 	/// <summary>
@@ -437,20 +426,24 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// <returns>The score.</returns>
 	Score ParseUserScore (IList scores, string leaderboardID)
 	{
-		foreach (Dictionary<string, object> score in scores) {
-			var username = score["username"] as  string;
+		Score score = null;
+
+		foreach (Dictionary<string, object> info in scores) {
+			var username = info["username"] as string;
 
 			if (username == userID) {
-				var value = Convert.ToInt32(score["score"]);
-				var rank = Convert.ToInt32(score["rank"]);
-				var timestamp = Convert.ToDouble(score["created"]);
+				var val = Convert.ToInt32(info["score"]);
+				var rank = Convert.ToInt32(info["rank"]);
+				var timestamp = Convert.ToDouble(info["created"]);
 				var date = LumosUtil.UnixTimestampToDateTime(timestamp);
 				var formattedValue = ""; // Lumos doesn't support this
-				var userScore = new Score(leaderboardID, value, username, date, formattedValue, rank);
-				return userScore;
+				score = new Score(leaderboardID, val, username, date, formattedValue, rank);
+				break;
 			}
 		}
 
-		return null;
+		return score;
 	}
+
+	#endregion
 }

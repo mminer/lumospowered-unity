@@ -31,6 +31,7 @@ public class LumosSocialGUI : MonoBehaviour
 	public LumosGUIWindow visibleWindow;
 
 	public static Texture2D defaultAvatarIcon { get { return instance.defaultAvatar; } }
+	public static Texture2D defaultAchIcon { get { return instance.defaultAchievementIcon; } }
 
 	#endregion
 
@@ -170,24 +171,6 @@ public class LumosSocialGUI : MonoBehaviour
 		}
 
 		GUI.enabled = true;
-	}
-
-	/// <summary>
-	/// Shows the achievements pane.
-	/// This is meant to be called by Social.ShowAchievementsUI().
-	/// </summary>
-	public static void ShowAchievementsUI ()
-	{
-		ShowWindow(LumosGUIWindow.Achievements);
-	}
-
-	/// <summary>
-	/// Shows the leaderboards pane.
-	/// This is meant to be called by Social.ShowLeaderboardUI().
-	/// </summary>
-	public static void ShowLeaderboardUI ()
-	{
-		ShowWindow(LumosGUIWindow.Leaderboards);
 	}
 
 	/// <summary>

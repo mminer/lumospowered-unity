@@ -34,6 +34,7 @@ public class LumosUserProfile : IUserProfile
 
 	/// <summary>
 	/// The user's state.
+	/// Lumos currently doesn't support this.
 	/// </summary>
 	public UserState state { get; set; }
 
@@ -56,6 +57,12 @@ public class LumosUserProfile : IUserProfile
 
 		if (info.ContainsKey("name")) {
 			this.userName = info["name"] as string;
+		}
+
+		// Load avatar from remote server.
+		if (info.ContainsKey("image")) {
+			var imageLocation = info["image"] as string;
+			LumosRequest.LoadImage(imageLocation, image);
 		}
 	}
 }

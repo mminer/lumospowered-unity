@@ -153,4 +153,35 @@ public class LumosRequest
 		var header = "Lumos " + credentials.gameID + ":" + auth;
 		return header;
 	}
+
+	/// <summary>
+	/// Loads a remote image into a texture.
+	/// </summary>
+	/// <param name="imageLocation">The URL the image resides at.</param>
+	/// <param name="texture">The URL the image resides at.</param>
+	public static Coroutine LoadImage (string imageLocation, Texture2D texture)
+	{
+		return Lumos.RunRoutine(LoadImageCoroutine(imageLocation, texture));
+	}
+
+	/// <summary>
+	/// Loads a remote image into a texture.
+	/// </summary>
+	/// <param name="imageLocation">The URL the image resides at.</param>
+	/// <param name="texture">The URL the image resides at.</param>
+	static IEnumerator LoadImageCoroutine (string imageLocation, Texture2D texture)
+	{
+		var www = new WWW(imageLocation);
+		yield return www;
+
+		try {
+			if (www.error != null) {
+				throw new Exception(www.error);
+			}
+
+			www.LoadImageIntoTexture(texture);
+		} catch (Exception e) {
+			Lumos.LogError("Failed to load achievement image: " + e.Message);
+		}
+	}
 }

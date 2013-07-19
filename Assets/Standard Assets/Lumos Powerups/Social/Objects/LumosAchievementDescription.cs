@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// Lumos achievement description.
+/// Information about an available achievement.
 /// </summary>
 public class LumosAchievementDescription : IAchievementDescription
 {
@@ -63,27 +63,7 @@ public class LumosAchievementDescription : IAchievementDescription
 		// Load image from remote server.
 		if (info.ContainsKey("icon")) {
 			var imageLocation = info["icon"] as string;
-			Lumos.RunRoutine(LoadImage(imageLocation));
-		}
-	}
-
-	/// <summary>
-	/// Loads the achievement's image.
-	/// </summary>
-	/// <param name="imageLocation">The URL of the image.</param>
-	IEnumerator LoadImage (string imageLocation)
-	{
-		var www = new WWW(imageLocation);
-		yield return www;
-
-		try {
-			if (www.error != null) {
-				throw new Exception(www.error);
-			}
-
-			www.LoadImageIntoTexture(image);
-		} catch (Exception e) {
-			Lumos.LogError("Failed to load achievement image: " + e.Message);
+			LumosRequest.LoadImage(imageLocation, image);
 		}
 	}
 }

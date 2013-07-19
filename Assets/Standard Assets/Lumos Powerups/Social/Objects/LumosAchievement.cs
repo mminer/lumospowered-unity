@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// Lumos achievement.
+/// An achievement as player has earned.
 /// </summary>
 public class LumosAchievement : IAchievement
 {
@@ -36,7 +36,7 @@ public class LumosAchievement : IAchievement
 	/// <summary>
 	/// The date the achievement was last updated.
 	/// </summary>
-	public DateTime lastReportedDate { get; set; }
+	public DateTime lastReportedDate { get; private set; }
 
 	/// <summary>
 	/// Creates a new achievement object.
@@ -52,13 +52,13 @@ public class LumosAchievement : IAchievement
 		this.id = info["achievement_id"] as string;
 		this.percentCompleted = Convert.ToDouble(info["percent_completed"]);
 
+		var timestamp = Convert.ToDouble(info["updated"]);
+		this.lastReportedDate = LumosUtil.UnixTimestampToDateTime(timestamp);
+
 		if (info.ContainsKey("hidden")) {
 			var intHidden = Convert.ToInt32(info["hidden"]);
 			this.hidden = Convert.ToBoolean(intHidden);
 		}
-
-		var timestamp = Convert.ToDouble(info["updated"]);
-		this.lastReportedDate = LumosUtil.UnixTimestampToDateTime(timestamp);
 	}
 
 	/// <summary>

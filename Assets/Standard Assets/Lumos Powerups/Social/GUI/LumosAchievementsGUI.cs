@@ -10,11 +10,6 @@ using UnityEngine.SocialPlatforms;
 public static class LumosAchievementsGUI
 {
 	/// <summary>
-	/// Whether we're currently fetching achievement information.
-	/// </summary>
-	static bool gettingAchievements;
-
-	/// <summary>
 	/// The window scroll position.
 	/// </summary>
 	static Vector2 scrollPos;
@@ -30,72 +25,77 @@ public static class LumosAchievementsGUI
 	/// <param name="windowRect">The bounding rect of the window.</param>
 	public static void OnGUI (Rect windowRect)
 	{
+		if (LumosSocialGUI.currentUser == null) {
+			LumosSocialGUI.statusMessage = "You must login before viewing your achievements.";
+			LumosSocialGUI.DrawLoginButton();
+			return;
+		}
+
 		// Load achievements if necessary.
 		if (achievementDescriptions == null) {
-			GUILayout.Label("Loading...");
+			LumosSocialGUI.statusMessage = "Loading achievements...";
 
-			if (!gettingAchievements) {
-				Social.LoadAchievementDescriptions(descriptions => {
-					achievementDescriptions = descriptions;
-				});
+			if (!LumosSocialGUI.inProgress) {
+				LumosSocialGUI.inProgress = true;
 				Social.LoadAchievements(null);
-				gettingAchievements = true;
+
+				Social.LoadAchievementDescriptions(
+					descriptions => {
+						LumosSocialGUI.inProgress = false;
+						achievementDescriptions = descriptions;
+					});
 			}
 
 			return;
-		} else {
-			gettingAchievements = false;
 		}
 
-		// Achievements
 		scrollPos = GUILayout.BeginScrollView(scrollPos);
 
-		int column = 0;
-
-		GUILayout.BeginHorizontal();
-		GUILayout.FlexibleSpace();
-
-		for (int i = 0; i < achievementDescriptions.Length; i++) {
-			var description = achievementDescriptions[i];
-
-			if (!LumosSocial.HasAchievement(description.id)) {
-				GUI.enabled = false;
+		foreach (var description in achievementDescriptions) {
+			// Skip achievements the user isn't supposed to see.
+			if (description.hidden && !LumosSocial.HasAchievement(description.id)) {
+				continue;
 			}
 
-			GUILayout.Label(description.image);
+			GUI.enabled = !LumosSocial.HasAchievement(description.id);
 
-			GUILayout.BeginVertical();
-				GUILayout.Label(description.title, GUILayout.ExpandWidth(false));
-				GUILayout.Label(description.unachievedDescription, GUILayout.ExpandWidth(false));
+			GUILayout.BeginHorizontal(GUI.skin.box);
+				var icon = GetIcon(description);
 
-				GUI.enabled = true;
-
-				if (!LumosSocial.HasAchievement(description.id) && GUILayout.Button("Award", GUILayout.ExpandWidth(false))) {
-					Social.ReportProgress(description.id, 100, null);
+				if (icon != null) {
+					GUILayout.Label(icon);
 				}
 
-			GUILayout.EndVertical();
+				GUILayout.BeginVertical();
+					GUILayout.Label(description.title);
 
-			GUILayout.FlexibleSpace();
+					if (LumosSocial.HasAchievement(description.id)) {
+						GUILayout.Label(description.achievedDescription);
+					} else {
+						GUILayout.Label(description.unachievedDescription);
+					}
+				GUILayout.EndVertical();
+			GUILayout.EndHorizontal();
 
-			if (column == 0) {
-				column++;
-
-				if (i == achievementDescriptions.Length - 1) { // Last
-					GUILayout.EndHorizontal();
-				}
-			} else {
-				column = 0;
-				GUILayout.EndHorizontal();
-
-				if (i < achievementDescriptions.Length - 1) { // Not last
-					LumosSocialGUI.DrawDivider();
-					GUILayout.BeginHorizontal();
-					GUILayout.FlexibleSpace();
-				}
-			}
+			LumosSocialGUI.DrawDivider();
 		}
 
 		GUILayout.EndScrollView();
+	}
+
+	/// <summary>
+	/// Gets the achievement's icon or a default one.
+	/// </summary>
+	/// <returns>The achievement's icon.</returns>
+	static Texture2D GetIcon (IAchievementDescription description)
+	{
+		var icon = description.image;
+
+		// Try using a default image, if one's set.
+		if (icon == null) {
+			icon = LumosSocialGUI.defaultAchIcon;
+		}
+
+		return icon;
 	}
 }

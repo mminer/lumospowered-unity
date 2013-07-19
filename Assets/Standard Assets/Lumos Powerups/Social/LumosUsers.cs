@@ -2,11 +2,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
-public partial class LumosSocial : ISocialPlatform
+/// <summary>
+/// Fuctions for managing users.
+/// </summary>
+public partial class LumosSocial
 {
 	static LumosUser _localUser;
 
@@ -78,6 +80,8 @@ public partial class LumosSocial : ISocialPlatform
 		user.LoadFriends(callback);
 	}
 
+	#region Added Functions
+
 	/// <summary>
 	/// Registers a new user.
 	/// </summary>
@@ -97,7 +101,7 @@ public partial class LumosSocial : ISocialPlatform
 			success => {
 				var info = success as Dictionary<string, object>;
 				user.authenticated = true;
-				user.UpdateUser(info);
+				user.Update(info);
 				_localUser = user;
 
 				if (callback != null) {
@@ -132,4 +136,6 @@ public partial class LumosSocial : ISocialPlatform
 				}
 			});
 	}
+
+	#endregion
 }

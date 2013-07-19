@@ -16,11 +16,6 @@ public static class LumosLeaderboardsGUI
 	public static LumosLeaderboard currentLeaderboard { get; private set; }
 
 	/// <summary>
-	/// The getting leaderboards.
-	/// </summary>
-	static bool gettingLeaderboards;
-
-	/// <summary>
 	/// The offset.
 	/// </summary>
 	static int offset;
@@ -31,28 +26,33 @@ public static class LumosLeaderboardsGUI
 	/// <param name="windowRect">The bounding rect of the window.</param>
 	public static void OnGUI (Rect windowRect)
 	{
-		if (LumosSocial.leaderboards.Count == 0) {
-			if (!gettingLeaderboards) {
-				LumosSocial.LoadLeaderboardDescriptions(null);
-				gettingLeaderboards = true;
-			}
-		} else {
-			gettingLeaderboards = false;
+		if (LumosSocialGUI.currentUser == null) {
+			LumosSocialGUI.statusMessage = "You must login before viewing leaderboards.";
+			LumosSocialGUI.DrawLoginButton();
+			return;
 		}
 
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.BeginVertical();
+		if (LumosSocial.leaderboards == null) {
+			LumosSocialGUI.statusMessage = "Loading leaderboards...";
 
-			if (LumosSocial.leaderboards.Count > 0) {
-				foreach (var leaderboard in LumosSocial.leaderboards.Values) {
+			if (!LumosSocialGUI.inProgress) {
+				LumosSocial.LoadLeaderboardDescriptions(null);
+				LumosSocialGUI.inProgress = true;
+			}
+
+			return;
+		}
+
+		if (LumosSocial.leaderboards.Length > 0) {
+			GUILayout.BeginVertical(GUI.skin.box);
+				foreach (var leaderboard in LumosSocial.leaderboards) {
 					if (leaderboard.loading) {
 						GUILayout.Label("Loading...");
 						GUI.enabled = false;
 					}
 
 					if (GUILayout.Button(leaderboard.title)) {
-						currentLeaderboard = leaderboard;
+						currentLeaderboard = leaderboard as LumosLeaderboard;
 						LumosSocialGUI.ShowWindow(LumosGUIWindow.Scores);
 
 						if (currentLeaderboard.scores == null) {
@@ -62,10 +62,9 @@ public static class LumosLeaderboardsGUI
 
 					GUI.enabled = true;
 				}
-			}
-
 			GUILayout.EndVertical();
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
+
+			LumosSocialGUI.DrawDivider();
+		}
 	}
 }

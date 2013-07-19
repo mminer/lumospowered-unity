@@ -1,32 +1,47 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
 using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
-using UnityEngine.SocialPlatforms.Impl;
 
 /// <summary>
-/// Lumos achievements.
+/// Functions for fetching achievements.
 /// </summary>
-public partial class LumosSocial : ISocialPlatform
+public partial class LumosSocial
 {
-	static Dictionary<string, LumosAchievement> achievements;
+	static Dictionary<string, LumosAchievement> _achievements;
 
 	/// <summary>
 	/// Achievement information.
 	/// </summary>
-	public static LumosAchievementDescription[] achievementDescriptions { get; private set; }
+	public static IAchievementDescription[] achievementDescriptions { get; private set; }
 
 	/// <summary>
 	/// The achievements that the user has earned or made progress on.
 	/// </summary>
-	public static ICollection<LumosAchievement> earnedAchievements {
+	public static IAchievement[] achievements
+	{
 		get {
-			return achievements.Values;
+			if (_achievements == null) {
+				return null;
+			} else {
+				return _achievements.Values.ToArray();
+			}
 		}
 	}
+
+	/// <summary>
+	/// Whether we're currently fetching the achievement descriptions.
+	/// </summary>
+	public static bool loadingAchievementDescriptions { get; private set; }
+
+	/// <summary>
+	/// Whetehr we're currently fetching the achievements.
+	/// </summary>
+	public static bool loadingAchievements { get; private set; }
 
 	/// <summary>
 	/// Creates an empty achievement object.
@@ -39,31 +54,42 @@ public partial class LumosSocial : ISocialPlatform
 	}
 
 	/// <summary>
-	/// Fetches the achievement descriptions from the server.
+	/// Fetches the achievement descriptions.
 	/// </summary>
 	/// <param name="callback">Callback.</param>
 	public void LoadAchievementDescriptions (Action<IAchievementDescription[]> callback)
 	{
-		var endpoint = baseUrl + "/achievements?method=GET";
+		if (achievementDescriptions == null && !loadingAchievementDescriptions) {
+			// Load the achievement descriptions from the server.
+			loadingAchievementDescriptions = true;
+			var endpoint = baseUrl + "/achievements?method=GET";
 
-		LumosRequest.Send(endpoint,
-			success => {
-				var resp = success as IList;
-				achievementDescriptions = new LumosAchievementDescription[resp.Count];
+			LumosRequest.Send(endpoint,
+				success => {
+					var resp = success as IList;
+					achievementDescriptions = new LumosAchievementDescription[resp.Count];
 
-				for (int i = 0; i < resp.Count; i++) {
-					achievementDescriptions[i] = new LumosAchievementDescription(resp[i] as Dictionary<string, object>);
-				}
+					for (int i = 0; i < resp.Count; i++) {
+						achievementDescriptions[i] = new LumosAchievementDescription(resp[i] as Dictionary<string, object>);
+					}
 
-				if (callback != null) {
-					callback(achievementDescriptions);
-				}
-			},
-			error => {
-				if (callback != null) {
-					callback(null);
-				}
-			});
+					loadingAchievementDescriptions = false;
+
+					if (callback != null) {
+						callback(achievementDescriptions);
+					}
+				},
+				error => {
+					loadingAchievementDescriptions = false;
+
+					if (callback != null) {
+						callback(null);
+					}
+				});
+		} else {
+			// Use the cached achievement descriptions.
+			callback(achievementDescriptions);
+		}
 	}
 
 	/// <summary>
@@ -72,28 +98,38 @@ public partial class LumosSocial : ISocialPlatform
 	/// <param name="callback">Callback.</param>
 	public void LoadAchievements (Action<IAchievement[]> callback)
 	{
-		var endpoint = baseUrl + "/users/" + localUser.id + "/achievements?method=GET";
+		if (achievements == null && !loadingAchievements) {
+			// Load the achievements from the server.
+			loadingAchievements = true;
+			var endpoint = baseUrl + "/users/" + localUser.id + "/achievements?method=GET";
 
-		LumosRequest.Send(endpoint,
-			success => {
-				var resp = success as IList;
+			LumosRequest.Send(endpoint,
+				success => {
+					var resp = success as IList;
+					_achievements = new Dictionary<string, LumosAchievement>();
 
-				foreach (Dictionary<string, object> info in resp) {
-					var achievement = new LumosAchievement(info);
-					achievements[achievement.id] = achievement;
-				}
+					foreach (Dictionary<string, object> info in resp) {
+						var achievement = new LumosAchievement(info);
+						_achievements[achievement.id] = achievement;
+					}
 
-				if (callback != null) {
-					var achievementsArray = new LumosAchievement[achievements.Count];
-					achievements.Values.CopyTo(achievementsArray, 0);
-					callback(achievementsArray);
-				}
-			},
-			error => {
-				if (callback != null) {
-					callback(null);
-				}
-			});
+					loadingAchievements = false;
+
+					if (callback != null) {
+						callback(achievements);
+					}
+				},
+				error => {
+					loadingAchievements = false;
+
+					if (callback != null) {
+						callback(null);
+					}
+				});
+		} else {
+			// Use the cached achievements.
+			callback(achievements);
+		}
 	}
 
 	/// <summary>
@@ -109,7 +145,7 @@ public partial class LumosSocial : ISocialPlatform
 		if (achievement == null) {
 			// Create new achievement.
 			achievement = new LumosAchievement(achievementID, percentCompleted, false, DateTime.Now);
-			achievements[achievement.id] = achievement;
+			_achievements[achievement.id] = achievement;
 		} else {
 			// Update existing achievement.
 			achievement.percentCompleted = percentCompleted;
@@ -123,33 +159,19 @@ public partial class LumosSocial : ISocialPlatform
 	/// </summary>
 	public void ShowAchievementsUI()
 	{
-		LumosSocialGUI.ShowAchievementsUI();
+		LumosSocialGUI.ShowWindow(LumosGUIWindow.Achievements);
 	}
 
-	// Added functions:
+	#region Added Functions
 
 	/// <summary>
 	/// Awards an achievement.
 	/// </summary>
 	/// <param name="achievementID">The achievement identifier.</param>
-	public static void AwardAchievement (string achievementID)
+	/// <param name="callback">Callback.</param>
+	public static void AwardAchievement (string achievementID, Action<bool> callback)
 	{
-		if (!Social.localUser.authenticated) {
-			return;
-		}
-
-		var achievement = GetAchievement(achievementID);
-
-		if (achievement == null) {
-			// Create new achievement.
-			achievement = new LumosAchievement(achievementID, 100, false, DateTime.Now);
-			achievements[achievement.id] = achievement;
-		} else {
-			// Update existing achievement.
-			achievement.percentCompleted = 100;
-		}
-
-		achievement.ReportProgress(null);
+		Social.ReportProgress(achievementID, 100, callback);
 	}
 
 	/// <summary>
@@ -159,8 +181,8 @@ public partial class LumosSocial : ISocialPlatform
 	/// <returns>The achievement.</returns>
 	public static LumosAchievement GetAchievement (string achievementID)
 	{
-		if (achievements.ContainsKey(achievementID)) {
-			return achievements[achievementID];
+		if (_achievements != null && _achievements.ContainsKey(achievementID)) {
+			return _achievements[achievementID];
 		} else {
 			return null;
 		}
@@ -173,7 +195,10 @@ public partial class LumosSocial : ISocialPlatform
 	/// <returns>True if the user has earned the achievement.</returns>
 	public static bool HasAchievement (string achievementID)
 	{
-		return achievements.ContainsKey(achievementID) &&
-		       achievements[achievementID].percentCompleted == 100;
+		return _achievements != null &&
+		       _achievements.ContainsKey(achievementID) &&
+		       _achievements[achievementID].completed;
 	}
+
+	#endregion
 }

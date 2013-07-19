@@ -2,10 +2,9 @@
 
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
-using UnityEngine.SocialPlatforms.Impl;
 
 /// <summary>
-/// Lumos social platform.
+/// The Lumos social platform.
 /// </summary>
 public partial class LumosSocial : ISocialPlatform
 {
