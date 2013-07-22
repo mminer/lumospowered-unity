@@ -1,5 +1,6 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,6 +34,10 @@ public static class LumosCredentialsManager
 	/// <returns>A fresh Lumos credentials object.</returns>
 	static LumosCredentials CreateCredentials ()
 	{
+		// Create the Resources directory if it doesn't already exist.
+		Directory.CreateDirectory("Assets/Standard Assets/Lumos/Resources");
+
+		// Create the credentials asset.
 		var credentials = ScriptableObject.CreateInstance<LumosCredentials>();
 		AssetDatabase.CreateAsset(credentials, "Assets/Standard Assets/Lumos/Resources/Credentials.asset");
 		return credentials;
