@@ -21,11 +21,6 @@ public static class LumosScoresGUI
 	static Vector2 allScoresScrollPos;
 
 	/// <summary>
-	/// The new score.
-	/// </summary>
-	static string newScore = "";
-
-	/// <summary>
 	/// Displays the scores UI.
 	/// </summary>
 	/// <param name="windowRect">The bounding rect of the window.</param>
@@ -40,57 +35,50 @@ public static class LumosScoresGUI
 			return;
 		}
 
-		if (GUILayout.Button("Leaderboards", GUILayout.ExpandWidth(false))) {
+		if (GUILayout.Button("Leaderboards List", GUILayout.ExpandWidth(false))) {
 			LumosSocialGUI.ShowWindow(LumosGUIWindow.Leaderboards);
 		}
-
-		GUILayout.BeginHorizontal();
-			GUILayout.Label("New Score");
-			newScore = GUILayout.TextField(newScore, GUILayout.ExpandWidth(false));
-
-			if (GUILayout.Button("Submit Score", GUILayout.ExpandWidth(false))) {
-				Social.ReportScore(Convert.ToInt32(newScore), LumosLeaderboardsGUI.currentLeaderboard.id, null);
-			}
-
-			if (GUILayout.Button("Refresh Scores", GUILayout.ExpandWidth(false))) {
-				Social.LoadScores(LumosLeaderboardsGUI.currentLeaderboard.id, null);
-			}
-		GUILayout.EndHorizontal();
 
 		LumosSocialGUI.DrawDivider();
 
 		// Title
-		GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.Label(LumosLeaderboardsGUI.currentLeaderboard.title + " Scores");
-			GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
+		GUILayout.Label(LumosLeaderboardsGUI.currentLeaderboard.title);
 
 		LumosSocialGUI.DrawDivider();
 
 		// Friend Scores
 		if (LumosLeaderboardsGUI.currentLeaderboard.friendScores != null) {
 			DisplayScoreLabel("Friends");
+			GUILayout.BeginVertical(GUI.skin.box);
 			friendScoresScrollPos = GUILayout.BeginScrollView(friendScoresScrollPos);
 			DisplayScoreData(LumosLeaderboardsGUI.currentLeaderboard.friendScores);
 			GUILayout.EndScrollView();
+			GUILayout.EndVertical();
 		}
 
 		// All Scores
 		DisplayScoreLabel("All Scores");
+		GUILayout.BeginVertical(GUI.skin.box);
 		allScoresScrollPos = GUILayout.BeginScrollView(allScoresScrollPos);
 		DisplayScoreData(LumosLeaderboardsGUI.currentLeaderboard.scores);
-
-		if (GUILayout.Button("More...")) {
-			var length = LumosLeaderboardsGUI.currentLeaderboard.scores.Length -1;
-			var lastScore = LumosLeaderboardsGUI.currentLeaderboard.scores[length];
-
-			LumosLeaderboardsGUI.currentLeaderboard.LoadScores(1, lastScore.rank, delegate {
-				//do something
-			});
-		}
-
 		GUILayout.EndScrollView();
+		GUILayout.EndVertical();
+
+		GUILayout.BeginHorizontal();
+			if (GUILayout.Button("Refresh", GUILayout.ExpandWidth(false))) {
+				Social.LoadScores(LumosLeaderboardsGUI.currentLeaderboard.id, null);
+			}
+
+			if (GUILayout.Button("More...", GUILayout.ExpandWidth(false))) {
+				var length = LumosLeaderboardsGUI.currentLeaderboard.scores.Length -1;
+				var lastScore = LumosLeaderboardsGUI.currentLeaderboard.scores[length];
+
+				LumosLeaderboardsGUI.currentLeaderboard.LoadScores(1, lastScore.rank,
+					scores => {
+						// Nothing yet.
+					});
+			}
+		GUILayout.EndHorizontal();
 	}
 
 	/// <summary>

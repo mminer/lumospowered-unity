@@ -97,7 +97,7 @@ public class LumosRequest
 
 		// Send info to server.
 		yield return www;
-		Lumos.Log("Request: " + Encoding.Default.GetString(postData));
+		Lumos.Log("Request: " + url + "\n" + Encoding.Default.GetString(postData));
 		Lumos.Log("Response: " + www.text);
 
 		// Parse the response.

@@ -36,7 +36,9 @@ public static class LumosLeaderboardsGUI
 			LumosSocialGUI.statusMessage = "Loading leaderboards...";
 
 			if (!LumosSocialGUI.inProgress) {
-				LumosSocial.LoadLeaderboardDescriptions(null);
+				LumosSocial.LoadLeaderboardDescriptions(success => {
+					LumosSocialGUI.statusMessage = null;
+				});
 				LumosSocialGUI.inProgress = true;
 			}
 
@@ -44,25 +46,23 @@ public static class LumosLeaderboardsGUI
 		}
 
 		if (LumosSocial.leaderboards.Length > 0) {
-			GUILayout.BeginVertical(GUI.skin.box);
-				foreach (var leaderboard in LumosSocial.leaderboards) {
-					if (leaderboard.loading) {
-						GUILayout.Label("Loading...");
-						GUI.enabled = false;
-					}
-
-					if (GUILayout.Button(leaderboard.title)) {
-						currentLeaderboard = leaderboard as LumosLeaderboard;
-						LumosSocialGUI.ShowWindow(LumosGUIWindow.Scores);
-
-						if (currentLeaderboard.scores == null) {
-							Social.LoadScores(currentLeaderboard.id, null);
-						}
-					}
-
-					GUI.enabled = true;
+			foreach (var leaderboard in LumosSocial.leaderboards) {
+				if (leaderboard.loading) {
+					GUILayout.Label("Loading...");
+					GUI.enabled = false;
 				}
-			GUILayout.EndVertical();
+
+				if (GUILayout.Button(leaderboard.title)) {
+					currentLeaderboard = leaderboard as LumosLeaderboard;
+					LumosSocialGUI.ShowWindow(LumosGUIWindow.Scores);
+
+					if (currentLeaderboard.scores == null) {
+						Social.LoadScores(currentLeaderboard.id, null);
+					}
+				}
+
+				GUI.enabled = true;
+			}
 
 			LumosSocialGUI.DrawDivider();
 		}

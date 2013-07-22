@@ -43,6 +43,7 @@ public static class LumosAchievementsGUI
 					descriptions => {
 						LumosSocialGUI.inProgress = false;
 						achievementDescriptions = descriptions;
+						LumosSocialGUI.statusMessage = null;
 					});
 			}
 

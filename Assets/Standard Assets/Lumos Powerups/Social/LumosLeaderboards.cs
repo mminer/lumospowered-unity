@@ -44,6 +44,12 @@ public partial class LumosSocial : ISocialPlatform
 	/// <param name="callback">Callback.</param>
 	public void ReportScore (System.Int64 score, string leaderboardID, Action<bool> callback)
 	{
+		if (localUser == null) {
+			Debug.LogWarning("[Lumos] The user must be authenticated before recording their score.");
+			callback(false);
+			return;
+		}
+
 		var endpoint = LumosSocial.baseUrl + "/users/" + localUser.id + "/scores/" + leaderboardID + "?method=PUT";
 		var payload = new Dictionary<string, object>() {
 			{ "score", (int)score }

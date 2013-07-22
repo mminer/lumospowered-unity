@@ -54,11 +54,6 @@ public static class LumosLogs
 			return;
 		}
 
-		// Don't record empty stack traces
-		if (trace == null || trace == "") {
-			return;
-		}
-
 		// Only log message types that the user specifies.
 		if (type == LogType.Assert ||
 				(type == LogType.Log && !LumosDiagnostics.recordDebugLogs) ||
@@ -86,10 +81,11 @@ public static class LumosLogs
 				{ "log_id", hash },
 				{ "type", typeLabels[type] },
 				{ "message", message },
-				{ "trace", trace },
 				{ "level", Application.loadedLevelName },
 				{ "total", 1 }
 			};
+
+			LumosUtil.AddToDictionaryIfNonempty(logs[hash], "trace", trace);
 		}
 	}
 

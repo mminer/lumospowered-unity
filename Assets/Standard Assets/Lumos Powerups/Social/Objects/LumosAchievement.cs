@@ -83,6 +83,12 @@ public class LumosAchievement : IAchievement
 	/// <param name="callback">Callback triggers on success.</param>
 	public void ReportProgress (Action<bool> callback)
 	{
+		if (Social.localUser == null) {
+			Debug.LogWarning("[Lumos] The user must be authenticated before reporting an achievement.");
+			callback(false);
+			return;
+		}
+
 		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/achievements/" + id + "?method=PUT";
 
 		var payload = new Dictionary<string, object>() {

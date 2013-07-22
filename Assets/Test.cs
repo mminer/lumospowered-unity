@@ -10,8 +10,16 @@ using UnityEngine;
 public class Test : MonoBehaviour
 {
 	const string devServer = "http://localhost:8888/api/1";
+
+	public bool automaticallyLogIn = true;
+	public string username = "testuser";
+	public string password = "test";
+
 	string leaderboardID = "my-leaderboard";
-	string score = "";
+	string achievementID = "my-achievement";
+	string score = "10";
+	string progress = "100";
+	string logMessage = "Oh no, an error!";
 
 	void Awake ()
 	{
@@ -22,6 +30,20 @@ public class Test : MonoBehaviour
 		LumosEvents.Record("what_up", 0, true, "levels");
 		LumosEvents.Record("event_test", Time.time, true, "loading");
 		*/
+	}
+
+	void Start ()
+	{
+		if (automaticallyLogIn) {
+			var user = new LumosUser(username, password);
+
+			Social.Active.Authenticate(user,
+				success => {
+					if (success) {
+						Debug.Log("[Lumos] Logged in with username " + username);
+					}
+				});
+		}
 	}
 
 	void SetPowerupUrlsToLocal ()
@@ -64,15 +86,35 @@ public class Test : MonoBehaviour
 				leaderboardID = GUILayout.TextField(leaderboardID);
 			GUILayout.EndHorizontal();
 
+			// Achievement ID
+			GUILayout.BeginHorizontal();
+				GUILayout.Label("Achievement");
+				achievementID = GUILayout.TextField(achievementID);
+			GUILayout.EndHorizontal();
+
 			// Score
 			GUILayout.BeginHorizontal();
 				score = GUILayout.TextField(score);
 
-				if (GUILayout.Button("Record Score", GUILayout.ExpandWidth(false))) {
+				if (GUILayout.Button("Report Score", GUILayout.ExpandWidth(false))) {
 					Social.ReportScore(Convert.ToInt64(score), leaderboardID,
 						success => {
 							if (success) {
 								score = "";
+							}
+						});
+				}
+			GUILayout.EndHorizontal();
+
+			// Progress
+			GUILayout.BeginHorizontal();
+				progress = GUILayout.TextField(progress);
+
+				if (GUILayout.Button("Report Progress", GUILayout.ExpandWidth(false))) {
+					Social.ReportProgress(achievementID, Convert.ToDouble(progress),
+						success => {
+							if (success) {
+								progress = "";
 							}
 						});
 				}
@@ -84,8 +126,14 @@ public class Test : MonoBehaviour
 		GUILayout.Space(10);
 		GUILayout.Label("Diagnostics");
 		GUILayout.BeginVertical(GUI.skin.box);
-			if (GUILayout.Button("Record Error Log")) {
-				Debug.LogError("Oh no, a problem!");
+			logMessage = GUILayout.TextField(logMessage);
+
+			if (GUILayout.Button("Record Error")) {
+				Debug.LogError(logMessage);
+			}
+
+			if (GUILayout.Button("Record Warning")) {
+				Debug.LogWarning(logMessage);
 			}
 
 			if (GUILayout.Button("Send Logs")) {

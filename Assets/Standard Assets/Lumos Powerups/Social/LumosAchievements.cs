@@ -12,7 +12,7 @@ using UnityEngine.SocialPlatforms;
 /// </summary>
 public partial class LumosSocial
 {
-	static Dictionary<string, LumosAchievement> _achievements;
+	static Dictionary<string, LumosAchievement> _achievements = new Dictionary<string, LumosAchievement>();
 
 	/// <summary>
 	/// Achievement information.
@@ -128,7 +128,9 @@ public partial class LumosSocial
 				});
 		} else {
 			// Use the cached achievements.
-			callback(achievements);
+			if (callback != null) {
+				callback(achievements);
+			}
 		}
 	}
 

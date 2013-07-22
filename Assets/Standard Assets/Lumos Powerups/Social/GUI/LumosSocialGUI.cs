@@ -25,11 +25,6 @@ public class LumosSocialGUI : MonoBehaviour
 	/// </summary>
 	public Texture2D defaultAchievementIcon;
 
-	/// <summary>
-	/// The pane currently displaying.
-	/// </summary>
-	public LumosGUIWindow visibleWindow;
-
 	public static Texture2D defaultAvatarIcon { get { return instance.defaultAvatar; } }
 	public static Texture2D defaultAchIcon { get { return instance.defaultAchievementIcon; } }
 
@@ -86,6 +81,12 @@ public class LumosSocialGUI : MonoBehaviour
 	};
 
 	static readonly GUIContent loginLabel = new GUIContent("Login", "Go to the login window.");
+	static readonly GUIContent closeLabel = new GUIContent("\u00D7", "Close this window.");
+
+	/// <summary>
+	/// The pane currently displaying.
+	/// </summary>
+	static LumosGUIWindow visibleWindow;
 
 	/// <summary>
 	/// The bounding rect of the window.
@@ -124,13 +125,19 @@ public class LumosSocialGUI : MonoBehaviour
 	/// <param name="windowID">The window ID.</param>
 	void SocialWindow (int windowID)
 	{
-		if (Social.localUser != null) {
-			GUILayout.BeginHorizontal();
+		GUILayout.BeginHorizontal(GUI.skin.box);
+			GUILayout.FlexibleSpace();
+
+			if (Social.localUser != null) {
 				if (GUILayout.Button("My Profile", GUILayout.ExpandWidth(false))) {
 					ShowWindow(LumosGUIWindow.Profile);
 				}
-			GUILayout.EndHorizontal();
-		}
+			}
+
+			if (GUILayout.Button(closeLabel)) {
+				HideWindow();
+			}
+		GUILayout.EndHorizontal();
 
 		DrawDivider();
 
@@ -163,7 +170,7 @@ public class LumosSocialGUI : MonoBehaviour
 
 		// Display status message box.
 		if (statusMessage != null && statusMessage != "") {
-			GUILayout.Space(dividerHeight);
+			GUILayout.FlexibleSpace();
 
 			GUILayout.BeginVertical(GUI.skin.box);
 				GUILayout.Label(statusMessage);
@@ -180,7 +187,7 @@ public class LumosSocialGUI : MonoBehaviour
 	public static void ShowWindow (LumosGUIWindow window)
 	{
 		statusMessage = null;
-		instance.visibleWindow = window;
+		visibleWindow = window;
 	}
 
 	/// <summary>
@@ -188,7 +195,7 @@ public class LumosSocialGUI : MonoBehaviour
 	/// </summary>
 	public static void HideWindow ()
 	{
-		instance.visibleWindow = LumosGUIWindow.None;
+		visibleWindow = LumosGUIWindow.None;
 	}
 
 	/// <summary>
