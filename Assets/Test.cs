@@ -1,5 +1,6 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ using UnityEngine;
 public class Test : MonoBehaviour
 {
 	const string devServer = "http://localhost:8888/api/1";
+	string leaderboardID = "my-leaderboard";
+	string score = "";
 
 	void Awake ()
 	{
@@ -40,24 +43,64 @@ public class Test : MonoBehaviour
 		}
 		*/
 
-		if (GUILayout.Button("Show achievements")) {
-			Social.ShowAchievementsUI();
-		}
+		// Social:
 
-		if (GUILayout.Button("Show leaderboards")) {
-			Social.ShowLeaderboardUI();
-		}
+		GUILayout.Label("Social");
+		GUILayout.BeginVertical(GUI.skin.box);
+			// Windows
+			GUILayout.BeginHorizontal();
+				if (GUILayout.Button("Achievements")) {
+					Social.ShowAchievementsUI();
+				}
 
-		if (GUILayout.Button("Send Events")) {
-			LumosEvents.Send();
-		}
+				if (GUILayout.Button("Leaderboards")) {
+					Social.ShowLeaderboardUI();
+				}
+			GUILayout.EndHorizontal();
 
-		if (GUILayout.Button("Record Error Log")) {
-			Debug.LogError("Oh no, a problem!");
-		}
+			// Leaderboard ID
+			GUILayout.BeginHorizontal();
+				GUILayout.Label("Leaderboard");
+				leaderboardID = GUILayout.TextField(leaderboardID);
+			GUILayout.EndHorizontal();
 
-		if (GUILayout.Button("Send Logs")) {
-			LumosLogs.Send();
-		}
+			// Score
+			GUILayout.BeginHorizontal();
+				score = GUILayout.TextField(score);
+
+				if (GUILayout.Button("Record Score", GUILayout.ExpandWidth(false))) {
+					Social.ReportScore(Convert.ToInt64(score), leaderboardID,
+						success => {
+							if (success) {
+								score = "";
+							}
+						});
+				}
+			GUILayout.EndHorizontal();
+		GUILayout.EndVertical();
+
+		// Diagnostics:
+
+		GUILayout.Space(10);
+		GUILayout.Label("Diagnostics");
+		GUILayout.BeginVertical(GUI.skin.box);
+			if (GUILayout.Button("Record Error Log")) {
+				Debug.LogError("Oh no, a problem!");
+			}
+
+			if (GUILayout.Button("Send Logs")) {
+				LumosLogs.Send();
+			}
+		GUILayout.EndVertical();
+
+		// Analytics:
+
+		GUILayout.Space(10);
+		GUILayout.Label("Analytics");
+		GUILayout.BeginVertical(GUI.skin.box);
+			if (GUILayout.Button("Send Events")) {
+				LumosEvents.Send();
+			}
+		GUILayout.EndVertical();
 	}
 }
