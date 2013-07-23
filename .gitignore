@@ -4,3 +4,5 @@ Temp
 *.csproj
 *.sln
 *.userprefs
+Assets/Scratch
+Assets/Scratch.meta
