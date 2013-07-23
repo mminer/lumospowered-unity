@@ -16,14 +16,14 @@ public class LumosInstall : EditorWindow
 
 	LumosCredentials credentials;
 	bool showError;
-	bool initiated;
+	//bool initiated;
 
 	void OnEnable ()
     {
 		credentials = LumosCredentialsManager.GetCredentials();
 		LumosPackages.CompareLatestWithInstalled();
 		EditorApplication.update += LumosPackages.MonitorImports;
-		initiated = true;
+		//initiated = true;
 	}
 
     void OnGUI ()

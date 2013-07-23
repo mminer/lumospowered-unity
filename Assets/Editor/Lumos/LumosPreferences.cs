@@ -10,7 +10,7 @@ using System.Collections.Generic;
 public static class LumosPreferences
 {
 	static readonly GUIContent apiKeyLabel = new GUIContent("API Key", "Your game's secret key, assigned on the website.");
-	static readonly GUIContent interactiveImportLabel = new GUIContent("Interactive Import", "Preview and select the package's files before importing.");
+	//static readonly GUIContent interactiveImportLabel = new GUIContent("Interactive Import", "Preview and select the package's files before importing.");
 
 	static bool prefsLoaded;
 	static LumosCredentials credentials;
