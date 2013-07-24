@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// Fuctions for managing users.
+/// Functions for creating and managing users.
 /// </summary>
 public partial class LumosSocial
 {

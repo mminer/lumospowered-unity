@@ -8,6 +8,9 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.Impl;
 
+/// <summary>
+/// Functions dealing with fetching and posting to leaderboards.
+/// </summary>
 public partial class LumosSocial : ISocialPlatform
 {
 	static Dictionary<string, LumosLeaderboard> _leaderboards;

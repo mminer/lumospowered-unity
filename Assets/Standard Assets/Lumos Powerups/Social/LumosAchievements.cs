@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// Functions for fetching achievements.
+/// Functions for fetching achievements and recording progress.
 /// </summary>
 public partial class LumosSocial
 {
