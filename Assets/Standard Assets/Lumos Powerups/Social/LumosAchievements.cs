@@ -39,7 +39,7 @@ public partial class LumosSocial
 	public static bool loadingAchievementDescriptions { get; private set; }
 
 	/// <summary>
-	/// Whetehr we're currently fetching the achievements.
+	/// Whether we're currently fetching the achievements.
 	/// </summary>
 	public static bool loadingAchievements { get; private set; }
 
