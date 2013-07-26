@@ -45,7 +45,7 @@ public partial class LumosSocial
 	{
 		var endpoint = baseUrl + "/users?method=GET";
 		var payload = new Dictionary<string, object>() {
-			{ "usernames", userIDs }
+			{ "user_ids", userIDs }
 		};
 
 		LumosRequest.Send(endpoint, payload,

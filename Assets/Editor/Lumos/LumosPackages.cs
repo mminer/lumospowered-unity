@@ -20,7 +20,8 @@ public static class LumosPackages
 	/// <summary>
 	/// Holds information about a powerup package.
 	/// </summary>
-	public class Package {
+	public class Package
+	{
 		public readonly string name;
 		public readonly string powerupID;
 		public readonly Uri url;
@@ -29,7 +30,8 @@ public static class LumosPackages
 		public string version { get; set; }
 		public string nextVersion { get; set; }
 
-		public Package (Dictionary<string, object> data, Status status) {
+		public Package (Dictionary<string, object> data, Status status)
+		{
 			name = data["name"] as string;
 			powerupID = data["powerup_id"] as string;
 			url = new Uri(data["url"] as string);
@@ -50,7 +52,7 @@ public static class LumosPackages
 		}
 	}
 
-	static readonly Uri updatesUrl = new Uri("http://localhost:8888/api/1/powerups?engine=unity");
+	static readonly Uri updatesUrl = new Uri("http://localhost:8888/api/1/powerups/files?engine=unity");
 	static Dictionary<string, Package> _packages;
 	static IList latestPackagesResponse = null;
 	static bool checkedPrefs;

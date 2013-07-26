@@ -11,7 +11,7 @@ public class LumosAnalyticsSetup : ILumosSetup
 	{
 		var lumos = GameObject.Find("Lumos");
 
-		if (lumos.GetComponent<LumosAnalytics>() == null) {
+		if (lumos != null && lumos.GetComponent<LumosAnalytics>() == null) {
 			lumos.AddComponent<LumosAnalytics>();
 		}
 

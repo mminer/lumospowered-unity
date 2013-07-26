@@ -53,7 +53,7 @@ public class LumosUserProfile : IUserProfile
 	/// </summary>
 	public LumosUserProfile (Dictionary<string, object> info)
 	{
-		this.userID = info["username"] as string;
+		this.userID = info["user_id"] as string;
 
 		if (info.ContainsKey("name")) {
 			this.userName = info["name"] as string;
