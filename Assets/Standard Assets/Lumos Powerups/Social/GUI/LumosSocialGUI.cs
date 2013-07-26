@@ -198,17 +198,13 @@ public class LumosSocialGUI : MonoBehaviour
 		visibleWindow = LumosGUIWindow.None;
 	}
 
-	/// <summary>
-	/// Displays a visible divider between GUI elements.
-	/// </summary>
+	// Displays a visible divider between GUI elements.
 	public static void DrawDivider ()
 	{
 		GUILayout.Space(dividerHeight);
 	}
 
-	/// <summary>
-	/// Displays a login button.
-	/// </summary>
+	// Displays a login button.
 	public static void DrawLoginButton ()
 	{
 		if (GUILayout.Button(loginLabel, GUILayout.ExpandWidth(false))) {

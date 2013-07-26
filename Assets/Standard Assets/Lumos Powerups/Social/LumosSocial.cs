@@ -4,15 +4,13 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// The Lumos social platform.
+/// The Lumos social platform. Handles achievements, leaderboards, and users.
 /// </summary>
 public partial class LumosSocial : ISocialPlatform
 {
 	static string _baseUrl = "https://social.lumospowered.com/api/1";
 
-	/// <summary>
-	/// The API's host domain.
-	/// </summary>
+	// The API's host domain.
 	public static string baseUrl {
 		get { return _baseUrl; }
 		set { _baseUrl = value; }

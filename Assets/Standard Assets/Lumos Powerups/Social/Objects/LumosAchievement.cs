@@ -6,47 +6,32 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 /// <summary>
-/// An achievement as player has earned.
+/// An achievement a player has earned.
 /// </summary>
 public class LumosAchievement : IAchievement
 {
-	/// <summary>
 	/// Unique identifier for the achievement.
-	/// </summary>
 	public string id { get; set; }
 
-	/// <summary>
 	/// The amount of the achievement completed.
-	/// </summary>
 	public double percentCompleted { get; set; }
 
-	/// <summary>
 	/// Indicates whether this achievement has been earned.
-	/// </summary>
 	public bool completed
 	{
 		get { return (int)percentCompleted == 100; }
 	}
 
-	/// <summary>
 	/// Indicates whether this achievement is hidden.
-	/// </summary>
 	public bool hidden { get; set; }
 
-	/// <summary>
 	/// The date the achievement was last updated.
-	/// </summary>
 	public DateTime lastReportedDate { get; private set; }
 
-	/// <summary>
 	/// Creates a new achievement object.
-	/// </summary>
 	public LumosAchievement () {}
 
-	/// <summary>
 	/// Creates a new achievement object.
-	/// </summary>
-	/// <param name="info">Information about the achievement.</param>
 	public LumosAchievement (Dictionary<string, object> info)
 	{
 		this.id = info["achievement_id"] as string;
@@ -77,10 +62,7 @@ public class LumosAchievement : IAchievement
 		this.lastReportedDate = lastReportedDate;
 	}
 
-	/// <summary>
 	/// Reports progress for the achievement.
-	/// </summary>
-	/// <param name="callback">Callback triggers on success.</param>
 	public void ReportProgress (Action<bool> callback)
 	{
 		if (Social.localUser == null) {

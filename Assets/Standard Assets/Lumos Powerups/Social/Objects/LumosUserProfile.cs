@@ -9,14 +9,10 @@ using UnityEngine.SocialPlatforms;
 /// </summary>
 public class LumosUserProfile : IUserProfile
 {
-	/// <summary>
-	/// The user's name.
-	/// </summary>
+	// The user's name.
 	public string userName { get; set; }
 
-	/// <summary>
-	/// A unique identifier for this user.
-	/// </summary>
+	// A unique identifier for this user.
 	public string userID { get; set; }
 
 	/// <summary>
@@ -27,9 +23,7 @@ public class LumosUserProfile : IUserProfile
 		get { return userID; }
 	}
 
-	/// <summary>
-	/// Indicates whether this user is a friend of the current player.
-	/// </summary>
+	// Indicates whether this user is a friend of the current player.
 	public bool isFriend { get; set; }
 
 	/// <summary>
@@ -38,19 +32,13 @@ public class LumosUserProfile : IUserProfile
 	/// </summary>
 	public UserState state { get; set; }
 
-	/// <summary>
-	/// An avatar representing the user.
-	/// </summary>
+	// An avatar representing the user.
 	public Texture2D image { get; set; }
 
-	/// <summary>
-	/// Creates a new user blank profile.
-	/// </summary>
+	// Creates a new user blank profile.
 	public LumosUserProfile () {}
 
-	/// <summary>
-	/// Creates a new user profile.
-	/// </summary>
+	// Creates a new user profile.
 	public LumosUserProfile (Dictionary<string, object> info)
 	{
 		this.userID = info["user_id"] as string;

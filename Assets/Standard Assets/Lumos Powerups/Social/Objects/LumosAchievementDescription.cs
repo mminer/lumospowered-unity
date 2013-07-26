@@ -6,49 +6,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
-/// <summary>
-/// Information about an available achievement.
-/// </summary>
+
+// Information about an available achievement.
 public class LumosAchievementDescription : IAchievementDescription
 {
-	/// <summary>
-	/// Unique identifier for the achievement.
-	/// </summary>
+	// Unique identifier for the achievement.
 	public string id { get; set; }
 
-	/// <summary>
-	/// The name of this achievement.
-	/// </summary>
+	// The name of this achievement.
 	public string title { get; set; }
 
-	/// <summary>
-	/// Icon that represents the achievement.
-	/// </summary>
+	// Icon that represents the achievement.
 	public Texture2D image { get; set; }
 
-	/// <summary>
-	/// Description of the achievement after it has been earned.
-	/// </summary>
+	// Description of the achievement after it has been earned.
 	public string achievedDescription { get; set; }
 
-	/// <summary>
-	/// Description of the achievement before it has been earned.
-	/// </summary>
+	// Description of the achievement before it has been earned.
 	public string unachievedDescription { get; set; }
 
-	/// <summary>
-	/// Whether this achievement is publicly visible.
-	/// </summary>
+	// Whether this achievement is publicly visible.
 	public bool hidden { get; set; }
 
-	/// <summary>
-	/// The number of points the achievement is worth once completed.
-	/// </summary>
+	// The number of points the achievement is worth once completed.
 	public int points { get; set; }
 
-	/// <summary>
-	/// Creates an achievement description object.
-	/// </summary>
+	// Creates an achievement description object.
 	public LumosAchievementDescription (Dictionary<string, object> info)
 	{
 		this.id = info["achievement_id"] as string;

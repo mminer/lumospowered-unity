@@ -7,9 +7,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
-/// <summary>
-/// Functions for fetching achievements.
-/// </summary>
+
+// Functions for fetching achievements and recording progress.
 public partial class LumosSocial
 {
 	static Dictionary<string, LumosAchievement> _achievements = new Dictionary<string, LumosAchievement>();
@@ -39,24 +38,18 @@ public partial class LumosSocial
 	public static bool loadingAchievementDescriptions { get; private set; }
 
 	/// <summary>
-	/// Whetehr we're currently fetching the achievements.
+	/// Whether we're currently fetching the achievements.
 	/// </summary>
 	public static bool loadingAchievements { get; private set; }
 
-	/// <summary>
 	/// Creates an empty achievement object.
-	/// </summary>
-	/// <returns>A new achievement.</returns>
 	public IAchievement CreateAchievement ()
 	{
 		var achievement = new LumosAchievement();
 		return achievement;
 	}
 
-	/// <summary>
 	/// Fetches the achievement descriptions.
-	/// </summary>
-	/// <param name="callback">Callback.</param>
 	public void LoadAchievementDescriptions (Action<IAchievementDescription[]> callback)
 	{
 		if (achievementDescriptions == null && !loadingAchievementDescriptions) {
@@ -92,10 +85,7 @@ public partial class LumosSocial
 		}
 	}
 
-	/// <summary>
 	/// Loads the player's earned achievements.
-	/// </summary>
-	/// <param name="callback">Callback.</param>
 	public void LoadAchievements (Action<IAchievement[]> callback)
 	{
 		if (achievements == null && !loadingAchievements) {
@@ -134,12 +124,7 @@ public partial class LumosSocial
 		}
 	}
 
-	/// <summary>
 	/// Updates a player's progress for an achievement.
-	/// </summary>
-	/// <param name="achievementID">Achievement identifier.</param>
-	/// <param name="percentCompleted">Percent completed (0 - 100).</param>
-	/// <param name="callback">Callback.</param>
 	public void ReportProgress (string achievementID, double percentCompleted, Action<bool> callback)
 	{
 		var achievement = GetAchievement(achievementID);
@@ -156,9 +141,7 @@ public partial class LumosSocial
 		achievement.ReportProgress(callback);
 	}
 
-	/// <summary>
 	/// Shows the achievements UI.
-	/// </summary>
 	public void ShowAchievementsUI()
 	{
 		LumosSocialGUI.ShowWindow(LumosGUIWindow.Achievements);
@@ -180,7 +163,7 @@ public partial class LumosSocial
 	/// Gets an achievement by its ID.
 	/// </summary>
 	/// <param name="achievementID">The achievement identifier.</param>
-	/// <returns>The achievement.</returns>
+	/// <returns type="LumosAchievement">The achievement.</returns>
 	public static LumosAchievement GetAchievement (string achievementID)
 	{
 		if (_achievements != null && _achievements.ContainsKey(achievementID)) {
@@ -194,7 +177,7 @@ public partial class LumosSocial
 	/// Determines whether the user has earned an achievement.
 	/// </summary>
 	/// <param name="achievementID">The achievement identifier.</param>
-	/// <returns>True if the user has earned the achievement.</returns>
+	/// <returns type="bool">True if the user has earned the achievement.</returns>
 	public static bool HasAchievement (string achievementID)
 	{
 		return _achievements != null &&
