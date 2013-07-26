@@ -8,10 +8,9 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.Impl;
 
-/// <summary>
-/// Functions dealing with fetching and posting to leaderboards.
-/// </summary>
-public partial class LumosSocial : ISocialPlatform
+
+// Functions dealing with fetching and posting to leaderboards.
+public partial class LumosSocial 
 {
 	static Dictionary<string, LumosLeaderboard> _leaderboards;
 
@@ -29,22 +28,16 @@ public partial class LumosSocial : ISocialPlatform
 		}
 	}
 
-	/// <summary>
-	/// Creates an empty leaderboard object.
-	/// </summary>
-	/// <returns>A new leaderboard.</returns>
+
+	// Creates an empty leaderboard object.
 	public ILeaderboard CreateLeaderboard ()
 	{
 		var leaderboard = new LumosLeaderboard();
 		return leaderboard;
 	}
 
-	/// <summary>
+
 	/// Reports a new score.
-	/// </summary>
-	/// <param name="score">Score.</param>
-	/// <param name="leaderboardID">Leaderboard identifier.</param>
-	/// <param name="callback">Callback.</param>
 	public void ReportScore (System.Int64 score, string leaderboardID, Action<bool> callback)
 	{
 		if (localUser == null) {
@@ -74,7 +67,12 @@ public partial class LumosSocial : ISocialPlatform
 	/// <summary>
 	/// Loads the scores.
 	/// </summary>
-	/// <param name="callback">Callback.</param>
+	/// <param name="leaderboard">
+	/// Leaderboard.
+	/// </param>
+	/// <param name="callback">
+	/// Callback.
+	/// </param>
 	public void LoadScores (ILeaderboard leaderboard, Action<bool> callback)
 	{
 		LoadScores(leaderboard.id,
@@ -83,11 +81,7 @@ public partial class LumosSocial : ISocialPlatform
 			});
 	}
 
-	/// <summary>
 	/// Loads the scores.
-	/// </summary>
-	/// <param name="leaderboardID">The leaderboard identifier.</param>
-	/// <param name="callback">Callback.</param>
 	public void LoadScores (string leaderboardID, Action<IScore[]> callback)
 	{
 		var leaderboard = LumosSocial.GetLeaderboard(leaderboardID);
@@ -108,15 +102,14 @@ public partial class LumosSocial : ISocialPlatform
 	/// Gets whether the specified leaderboard is loading.
 	/// </summary>
 	/// <param name="leaderboard">The leaderboard in question.</param>
-	/// <returns>True if the leaderboard is currently loading scores.</returns>
+	/// <returns type="bool">True if the leaderboard is currently loading scores.</returns>
 	public bool GetLoading (ILeaderboard leaderboard)
 	{
 		return leaderboard.loading;
 	}
 
-	/// <summary>
-	/// Shows the leaderboard UI.
-	/// </summary>
+
+	// Shows the leaderboard UI.
 	public void ShowLeaderboardUI ()
 	{
 		LumosSocialGUI.ShowWindow(LumosGUIWindow.Leaderboards);
@@ -137,7 +130,7 @@ public partial class LumosSocial : ISocialPlatform
 	/// Gets the leaderboard.
 	/// </summary>
 	/// <param name="leaderboardID">The leaderboard identifier.</param>
-	/// <returns>The leaderboard.</returns>
+	/// <returns type="LumosLeaderboard">The leaderboard.</returns>
 	public static LumosLeaderboard GetLeaderboard (string leaderboardID)
 	{
 		if (_leaderboards.ContainsKey(leaderboardID)) {

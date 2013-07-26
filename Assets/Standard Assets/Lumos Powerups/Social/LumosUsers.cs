@@ -5,16 +5,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
-/// <summary>
-/// Functions for creating and managing users.
-/// </summary>
+// Functions for creating and managing users.
 public partial class LumosSocial
 {
 	static LumosUser _localUser;
 
-	/// <summary>
 	/// The local user.
-	/// </summary>
 	public ILocalUser localUser { get { return _localUser; } }
 
 	/// <summary>
@@ -36,11 +32,7 @@ public partial class LumosSocial
 			});
 	}
 
-	/// <summary>
 	/// Loads the specified users.
-	/// </summary>
-	/// <param name="userIDs">Usernames of profiles to fetch.</param>
-	/// <param name="callback">Callback.</param>
 	public void LoadUsers(string[] userIDs, Action<IUserProfile[]> callback)
 	{
 		var endpoint = baseUrl + "/users?method=GET";

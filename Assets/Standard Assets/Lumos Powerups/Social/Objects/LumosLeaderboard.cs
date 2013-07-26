@@ -12,44 +12,28 @@ using UnityEngine.SocialPlatforms.Impl;
 /// </summary>
 public class LumosLeaderboard : ILeaderboard
 {
-	/// <summary>
-	/// Unique identifier.
-	/// </summary>
+	// Unique identifier.
 	public string id { get; set; }
 
-	/// <summary>
-	/// The user scope when searched.
-	/// </summary>
+	// The user scope when searched.
 	public UserScope userScope { get; set; }
 
-	/// <summary>
-	/// The leaderboard's score range.
-	/// </summary>
+	// The leaderboard's score range.
 	public Range range { get; set; }
 
-	/// <summary>
-	/// Gets or sets the time scope.
-	/// </summary>
+	// Gets or sets the time scope.
 	public TimeScope timeScope { get; set; }
 
-	/// <summary>
-	/// Indicates whether this leaderboard is currently loading scores.
-	/// </summary>
+	// Indicates whether this leaderboard is currently loading scores.
 	public bool loading { get; private set; }
 
-	/// <summary>
-	/// Gets or sets the local user score.
-	/// </summary>
+	// Gets or sets the local user score.
 	public IScore localUserScore { get; private set; }
 
-	/// <summary>
-	/// Gets or sets the max range.
-	/// </summary>
+	// Gets or sets the max range.
 	public uint maxRange { get; private set; }
 
-	/// <summary>
-	/// User scores.
-	/// </summary>
+	// User scores.
 	public IScore[] scores { get; private set; }
 
 	/// <summary>
@@ -57,20 +41,13 @@ public class LumosLeaderboard : ILeaderboard
 	/// </summary>
 	public IScore[] friendScores { get; set; }
 
-	/// <summary>
-	/// The name of the leaderboard.
-	/// </summary>
+	// The name of the leaderboard.
 	public string title { get; set; }
 
-	/// <summary>
-	/// Creates a new leaderboard object.
-	/// </summary>
+	// Creates a new leaderboard object.
 	public LumosLeaderboard () {}
 
-	/// <summary>
-	/// Creates a new leaderboard object.
-	/// </summary>
-	/// <param name="info">The leaderboard information.</param>
+	// Creates a new leaderboard object.
 	public LumosLeaderboard (Dictionary<string, object> info)
 	{
 		this.id = info["leaderboard_id"] as string;
@@ -81,19 +58,13 @@ public class LumosLeaderboard : ILeaderboard
 		}
 	}
 
-	/// <summary>
-	/// Sets the user filter.
-	/// </summary>
-	/// <param name="userIDs">User IDs.</param>
+	// Sets the user filter.
 	public void SetUserFilter(string[] userIDs)
 	{
 		// do nothing
 	}
 
-	/// <summary>
-	/// Loads the scores.
-	/// </summary>
-	/// <param name="callback">Callback.</param>
+	// Loads the scores.
 	public void LoadScores(Action<bool> callback)
 	{
 		LoadScores(1, 0, callback);

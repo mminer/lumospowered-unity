@@ -12,19 +12,13 @@ using UnityEngine.SocialPlatforms.Impl;
 /// </summary>
 public class LumosUser : LumosUserProfile, ILocalUser
 {
-	/// <summary>
-	/// Friends of the user.
-	/// </summary>
+	// Friends of the user.
 	public IUserProfile[] friends { get; private set; }
 
-	/// <summary>
-	/// Indicated whether this user is authenticated.
-	/// </summary>
+	// Indicated whether this user is authenticated.
 	public bool authenticated { get; set; }
 
-	/// <summary>
-	/// Indicated whether this user's age is below a threshold.
-	/// </summary>
+	// Indicated whether this user's age is below a threshold.
 	public bool underage { get; set; }
 
 	/// <summary>
@@ -52,13 +46,11 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// </summary>
 	public Dictionary<string, object> other { get; set; }
 
-	/// <summary>
-	/// Constructor. Creates a blank user object.
-	/// </summary>
+	// Constructor. Creates a blank user object.
 	public LumosUser () {}
 
 	/// <summary>
-	/// Constructor. Creates a user object with ID and password.
+	/// Creates a user object with ID and password.
 	/// </summary>
 	/// <param name="userID">Username.</param>
 	/// <param name="password">The user's password.</param>
@@ -68,19 +60,13 @@ public class LumosUser : LumosUserProfile, ILocalUser
 		this.password = password;
 	}
 
-	/// <summary>
-	/// Constructor. Creates a user object with the given info.
-	/// </summary>
-	/// <param name="userID">Username.</param>
+	// Constructor. Creates a user object with the given info.
 	public LumosUser (Dictionary<string, object> info) : base (info)
 	{
 		this.email = info["email"] as string;
 	}
 
-	/// <summary>
-	/// Authenticate the user.
-	/// </summary>
-	/// <param name="callback">Callback triggers on success.</param>
+	// Authenticate the user.
 	public void Authenticate (Action<bool> callback)
 	{
 		// ID should be set prior to this call if login system is intended.
@@ -116,10 +102,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			});
 	}
 
-	/// <summary>
-	/// Loads the user's friends list.
-	/// </summary>
-	/// <param name="callback">Callback.</param>
+	// Loads the user's friends list.
 	public void LoadFriends (Action<bool> callback)
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends?method=GET";
@@ -169,7 +152,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	}
 
 	/// <summary>
-	/// Sends the friend request.
+	/// Sends a friend request.
 	/// </summary>
 	/// <param name="friendID">The friend's username.</param>
 	/// <param name="callback">Callback.</param>
@@ -195,7 +178,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	}
 
 	/// <summary>
-	/// Accepts the friend request.
+	/// Accepts a friend request.
 	/// </summary>
 	/// <param name="friendID">The friend's username.</param>
 	/// <param name="callback">Callback.</param>
@@ -221,7 +204,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	}
 
 	/// <summary>
-	/// Declines the friend request.
+	/// Declines a friend request.
 	/// </summary>
 	/// <param name="friendID">The friend's username.</param>
 	/// <param name="callback">Callback.</param>
@@ -253,7 +236,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	}
 
 	/// <summary>
-	/// Removes the friend.
+	/// Removes a friend.
 	/// </summary>
 	/// <param name="friendID">The friend's username.</param>
 	/// <param name="callback">Callback.</param>
@@ -278,7 +261,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	}
 
 	/// <summary>
-	/// Loads the friend leaderboard scores.
+	/// Loads a leaderboard with only friend scores.
 	/// </summary>
 	/// <param name="callback">Callback.</param>
 	public void LoadFriendLeaderboardScores (Action<bool> callback)
@@ -355,10 +338,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			});
 	}
 
-	/// <summary>
-	/// Updates the user.
-	/// </summary>
-	/// <param name="info">Information about the user.</param>
+	// Updates the user.
 	public void Update (Dictionary<string, object> info)
 	{
 		if (info.ContainsKey("username")) {
