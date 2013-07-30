@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEditor;
 
 /// <summary>
 /// Used internally for testing Lumos functionality.
@@ -59,14 +60,12 @@ public class Test : MonoBehaviour
 	
 	void OnGUI()
 	{
-		/*
 		if (GUILayout.Button("Delete prefs")) {
 			EditorPrefs.DeleteKey("lumos-installed-packages");
 			EditorPrefs.DeleteKey("lumos-latest-packages");
 			EditorPrefs.SetBool("lumos-installing", false);
 			EditorPrefs.DeleteKey("lumos-install-queue");
 		}
-		*/
 
 		// Social:
 		/*
