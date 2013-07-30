@@ -12,23 +12,22 @@ public class LumosInstall : EditorWindow
     const string prefabPath = "Assets/Standard Assets/Lumos/Lumos.prefab";
 	const string errorMessage = "Enter your game's API key from the Lumos website.";
 	const string instructions = "Ensure you complete this installation in the scene you want Lumos to first initiate.";
+	const string warningMessage = "We will check for updates and missing Unity packages, new files may be imported to your project during this setup.";
 	static readonly GUIContent apiKeyLabel = new GUIContent("API Key", "Your game's API key from the Lumos website.");
 
 	LumosCredentials credentials;
 	bool showError;
-	//bool initiated;
 
 	void OnEnable ()
     {
 		credentials = LumosCredentialsManager.GetCredentials();
-		LumosPackages.CompareLatestWithInstalled();
-		EditorApplication.update += LumosPackages.MonitorImports;
-		//initiated = true;
+		//LumosPackages.CompareLatestWithInstalled();
+		//EditorApplication.update += LumosPackages.MonitorImports;
 	}
 
     void OnGUI ()
 	{
-		EditorGUILayout.HelpBox(instructions, MessageType.Info);
+		EditorGUILayout.HelpBox(instructions + " " + errorMessage, MessageType.Info);
 		EditorGUILayout.Space();
 
 		credentials.apiKey = EditorGUILayout.TextField(apiKeyLabel, credentials.apiKey);
@@ -39,6 +38,8 @@ public class LumosInstall : EditorWindow
 		}
 
 		EditorGUILayout.Space();
+		
+		EditorGUILayout.HelpBox(warningMessage, MessageType.Info);
 
 		GUILayout.Label(LumosPackages.messageStatus);
 		GUILayout.FlexibleSpace();
@@ -83,13 +84,4 @@ public class LumosInstall : EditorWindow
 		// Install missing or updated powerup scripts, if any.
 		LumosPackages.UpdateAllPackages();
 	}
-
-	/*void Setup ()
-	{
-		foreach (var info in GetType().GetMethods(BindingFlags.NonPublic|BindingFlags.Instance|BindingFlags.DeclaredOnly)) {
-   			if (info.IsFinal && info.IsPrivate) {
-         		Console.WriteLine("Explicit interface implementation: {0}", info.Name);
-   		}
-  }
-	}*/
 }

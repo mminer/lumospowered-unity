@@ -20,18 +20,20 @@ public class Test : MonoBehaviour
 	string score = "10";
 	string progress = "100";
 	string logMessage = "Oh no, an error!";
+	
 
 	void Awake ()
 	{
-		SetPowerupUrlsToLocal();
-		Lumos.debug = true;
+		//SetPowerupUrlsToLocal();
+		//Lumos.debug = true;
 
 		/*
 		LumosEvents.Record("what_up", 0, true, "levels");
 		LumosEvents.Record("event_test", Time.time, true, "loading");
 		*/
 	}
-
+	
+	/*
 	void Start ()
 	{
 		if (automaticallyLogIn) {
@@ -53,7 +55,8 @@ public class Test : MonoBehaviour
 		LumosDiagnostics.baseUrl = devServer;
 		LumosSocial.baseUrl = devServer;
 	}
-
+	 */
+	
 	void OnGUI()
 	{
 		/*
@@ -66,7 +69,7 @@ public class Test : MonoBehaviour
 		*/
 
 		// Social:
-
+		/*
 		GUILayout.Label("Social");
 		GUILayout.BeginVertical(GUI.skin.box);
 			// Windows
@@ -150,5 +153,6 @@ public class Test : MonoBehaviour
 				LumosEvents.Send();
 			}
 		GUILayout.EndVertical();
+		*/
 	}
 }

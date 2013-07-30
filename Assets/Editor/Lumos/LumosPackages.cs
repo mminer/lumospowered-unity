@@ -121,12 +121,7 @@ public static class LumosPackages
 				CompareLatestWithInstalled();
 
 				if (installQueue.Count == 0 && packages.Count > 0) {
-					installing = false;
-					RunSetupScripts();
-					EditorPrefs.SetBool("lumos-installing", false);
-					EditorPrefs.DeleteKey("lumos-install-queue");
-					EditorApplication.update -= MonitorImports;
-					EditorWindow.GetWindow<LumosInstall>().Close();
+					FinishInstallation();
 				}
 			} else {
 				RunSetupScripts();
@@ -204,9 +199,9 @@ public static class LumosPackages
 	/// Parses the results of checking for powerup package updates.
 	/// </summary>
 	static void CheckForUpdatesCallback (object sender, DownloadStringCompletedEventArgs e) {
-		Debug.Log(e.Result);
 		latestPackagesResponse = LumosJson.Deserialize(e.Result) as IList;
 		checkingForUpdates = false;
+		EditorApplication.update += LumosPackages.MonitorImports;
 	}
 
 	public static void CompareLatestWithInstalled ()
@@ -405,10 +400,29 @@ public static class LumosPackages
 				queue.Add(package.powerupID, false);
 			}
 		}
-
-		var json = LumosJson.Serialize(queue);
-		EditorPrefs.SetString("lumos-install-queue", json);
-
-		installQueue = queue;
+		
+		// Nothing new to install
+		if (queue.Count == 0) {
+			FinishInstallation();
+		} else {
+			var json = LumosJson.Serialize(queue);
+			EditorPrefs.SetString("lumos-install-queue", json);
+			installQueue = queue;	
+		}
+	}
+	
+	static void FinishInstallation ()
+	{
+		RunSetupScripts();
+		
+		installing = false;
+		EditorPrefs.SetBool("lumos-installing", false);
+		
+		if (EditorPrefs.HasKey("lumos-install-queue")) {
+			EditorPrefs.DeleteKey("lumos-install-queue");
+		}
+		
+		EditorApplication.update -= MonitorImports;
+		EditorWindow.GetWindow<LumosInstall>().Close();
 	}
 }
