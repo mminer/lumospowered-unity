@@ -5,15 +5,15 @@ using UnityEngine;
 /// <summary>
 /// Sets up the Lumos Analytics powerup.
 /// </summary>
-public class LumosAnalyticsSetup : ILumosSetup
+public class LumosDiagnosticsSetup : ILumosSetup
 {
 	public void Setup ()
 	{
 		var lumos = GameObject.Find("Lumos");
 
-		if (lumos != null && lumos.GetComponent<LumosAnalytics>() == null) {
-			lumos.AddComponent<LumosAnalytics>();
-			Debug.Log("Lumos Analytics setup complete.");
+		if (lumos != null && lumos.GetComponent<LumosDiagnostics>() == null) {
+			lumos.AddComponent<LumosDiagnostics>();
+			Debug.Log("Lumos Diagnostics setup complete.");
 		}
 	}
 }
