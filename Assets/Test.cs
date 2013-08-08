@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEditor;
 
 /// <summary>
 /// Used internally for testing Lumos functionality.
@@ -25,9 +24,10 @@ public class Test : MonoBehaviour
 
 	void Awake ()
 	{
-		//SetPowerupUrlsToLocal();
-		//Lumos.debug = true;
-
+		SetPowerupUrlsToLocal();
+		Lumos.debug = true;
+		Debug.Log("test 1");
+		Debug.Log("test 2");
 		/*
 		LumosEvents.Record("what_up", 0, true, "levels");
 		LumosEvents.Record("event_test", Time.time, true, "loading");
@@ -48,7 +48,7 @@ public class Test : MonoBehaviour
 				});
 		}
 	}
-
+	 */
 	void SetPowerupUrlsToLocal ()
 	{
 		LumosPlayer.baseUrl = devServer;
@@ -56,16 +56,15 @@ public class Test : MonoBehaviour
 		LumosDiagnostics.baseUrl = devServer;
 		LumosSocial.baseUrl = devServer;
 	}
-	 */
 	
 	void OnGUI()
 	{
-		if (GUILayout.Button("Delete prefs")) {
+		/*if (GUILayout.Button("Delete prefs")) {
 			EditorPrefs.DeleteKey("lumos-installed-packages");
 			EditorPrefs.DeleteKey("lumos-latest-packages");
 			EditorPrefs.SetBool("lumos-installing", false);
 			EditorPrefs.DeleteKey("lumos-install-queue");
-		}
+		}*/
 
 		// Social:
 		/*
