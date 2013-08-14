@@ -31,7 +31,8 @@ public class LumosDiagnostics : MonoBehaviour
 
 	static LumosDiagnostics instance;
 	LumosDiagnostics () {}
-
+	
+	
 	void Awake ()
 	{
 		instance = this;
@@ -40,5 +41,11 @@ public class LumosDiagnostics : MonoBehaviour
 
 		// Set up debug log redirect.
 		Application.RegisterLogCallback(LumosLogs.Record);
+	}
+	
+	
+	void OnGUI ()
+	{
+		LumosFeedbackGUI.OnGUI();
 	}
 }

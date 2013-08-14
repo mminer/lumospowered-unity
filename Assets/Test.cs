@@ -59,6 +59,11 @@ public class Test : MonoBehaviour
 	
 	void OnGUI()
 	{
+		
+		if (GUILayout.Button("do feedback")) {
+			LumosFeedbackGUI.ShowDialog();
+		}
+		
 		/*if (GUILayout.Button("Delete prefs")) {
 			EditorPrefs.DeleteKey("lumos-installed-packages");
 			EditorPrefs.DeleteKey("lumos-latest-packages");
