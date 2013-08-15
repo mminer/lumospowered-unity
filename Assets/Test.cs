@@ -21,6 +21,8 @@ public class Test : MonoBehaviour
 	string progress = "100";
 	string logMessage = "Oh no, an error!";
 	
+	bool clicked = false;
+	
 
 	void Awake ()
 	{
@@ -57,11 +59,21 @@ public class Test : MonoBehaviour
 		LumosSocial.baseUrl = devServer;
 	}
 	
+	void Callback ()
+	{
+		Debug.Log("closed!");
+	}
+	
+	
 	void OnGUI()
 	{
+		if (!clicked) {
 		
-		if (GUILayout.Button("do feedback")) {
-			LumosFeedbackGUI.ShowDialog();
+			if (GUILayout.Button("do feedback")) {
+				LumosFeedbackGUI.ShowDialog();
+				LumosFeedbackGUI.windowClosed += Callback;
+				clicked = true;
+			}
 		}
 		
 		/*if (GUILayout.Button("Delete prefs")) {

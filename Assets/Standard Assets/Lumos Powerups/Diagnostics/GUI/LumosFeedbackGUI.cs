@@ -21,8 +21,6 @@ public class LumosFeedbackGUI
 	static bool visible;
 	static bool sentMessage;
 
-	//static readonly string[] categorys = { "Feature Request", "Bug", "Question" };
-
 	static string email = "";
 	static string message = "";
 	static string category = "Feature Request";
