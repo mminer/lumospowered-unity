@@ -51,8 +51,15 @@ public static class LumosPackages
 			return dict;
 		}
 	}
-
-	static readonly Uri updatesUrl = new Uri("http://localhost:8888/api/1/powerups/files?engine=unity");
+	
+	#region Editor Pref Keys
+	static string installKey;
+	static string queueKey;
+	static string latestKey;
+	static string installedKey;
+	#endregion
+	
+	static readonly Uri updatesUrl = new Uri("https://www.lumospowered.com/api/1/powerups/files?engine=unity");
 	static Dictionary<string, Package> _packages;
 	static IList latestPackagesResponse = null;
 	static bool checkedPrefs;
@@ -114,7 +121,7 @@ public static class LumosPackages
 		}
 
 		if (!checkedPrefs) {
-			installing = EditorPrefs.GetBool("lumos-installing", false);
+			installing = EditorPrefs.GetBool(installKey, false);
 
 			if (installing) {
 				installQueue = GetInstallQueue();
@@ -150,12 +157,28 @@ public static class LumosPackages
 
 		checkedPrefs = true;
 	}
-
+	
+	/// <summary>
+	/// Updates all packages.
+	/// </summary>
 	public static void UpdateAllPackages ()
 	{
-		EditorPrefs.SetBool("lumos-installing", true);
+		setPrefKeys();
+		EditorPrefs.SetBool(installKey, true);
 		installing = true;
 		CheckForUpdates();
+	}
+	
+	/// <summary>
+	/// Sets the preference keys.
+	/// </summary>
+	public static void setPrefKeys ()
+	{
+		var gameID = LumosCredentialsManager.GetCredentials().gameID;
+		installKey = "lumos-installing-" + gameID;
+		queueKey = "lumos-install-queue-" + gameID;
+		latestKey = "lumos-latest-packages-" + gameID;
+		installedKey = "lumos-installed-packages-" + gameID;
 	}
 
 	/// <summary>
@@ -235,8 +258,8 @@ public static class LumosPackages
 	{
 		var installedPackages = new Dictionary<string, Package>();
 
-		if (EditorPrefs.HasKey("lumos-installed-packages")) {
-			var json = EditorPrefs.GetString("lumos-installed-packages");
+		if (EditorPrefs.HasKey(installedKey)) {
+			var json = EditorPrefs.GetString(installedKey);
 			var packageData = LumosJson.Deserialize(json) as IList;
 
 			foreach (Dictionary<string, object> data in packageData) {
@@ -244,7 +267,7 @@ public static class LumosPackages
 				installedPackages[powerupID] = new Package(data, Status.Installed);
 			}
 		}
-
+		
 		return installedPackages;
 	}
 
@@ -256,8 +279,8 @@ public static class LumosPackages
 	{
 		var latestPackages = new Dictionary<string, Package>();
 
-		if (EditorPrefs.HasKey("lumos-latest-packages")) {
-			var json = EditorPrefs.GetString("lumos-latest-packages");
+		if (EditorPrefs.HasKey(latestKey)) {
+			var json = EditorPrefs.GetString(latestKey);
 			var packageData = LumosJson.Deserialize(json) as IList;
 
 			foreach (Dictionary<string, object> data in packageData) {
@@ -273,8 +296,8 @@ public static class LumosPackages
 	{
 		var queue = new Dictionary<string, bool>();
 
-		if (EditorPrefs.HasKey("lumos-install-queue")) {
-			var json = EditorPrefs.GetString("lumos-install-queue");
+		if (EditorPrefs.HasKey(queueKey)) {
+			var json = EditorPrefs.GetString(queueKey);
 			var packageData = LumosJson.Deserialize(json) as IList;
 
 			if (packageData != null) {
@@ -362,7 +385,7 @@ public static class LumosPackages
 		}
 
 		var json = LumosJson.Serialize(toSerialize);
-		EditorPrefs.SetString("lumos-installed-packages", json);
+		EditorPrefs.SetString(installedKey, json);
 	}
 
 	/// <summary>
@@ -387,7 +410,7 @@ public static class LumosPackages
 		}
 
 		var json = LumosJson.Serialize(toSerialize);
-		EditorPrefs.SetString("lumos-latest-packages", json);
+		EditorPrefs.SetString(latestKey, json);
 		latestPackagesResponse = null;
 	}
 
@@ -406,7 +429,7 @@ public static class LumosPackages
 			FinishInstallation();
 		} else {
 			var json = LumosJson.Serialize(queue);
-			EditorPrefs.SetString("lumos-install-queue", json);
+			EditorPrefs.SetString(queueKey, json);
 			installQueue = queue;	
 		}
 	}
@@ -416,10 +439,10 @@ public static class LumosPackages
 		RunSetupScripts();
 		
 		installing = false;
-		EditorPrefs.SetBool("lumos-installing", false);
+		EditorPrefs.SetBool(installKey, false);
 		
-		if (EditorPrefs.HasKey("lumos-install-queue")) {
-			EditorPrefs.DeleteKey("lumos-install-queue");
+		if (EditorPrefs.HasKey(queueKey)) {
+			EditorPrefs.DeleteKey(queueKey);
 		}
 		
 		EditorApplication.update -= MonitorImports;

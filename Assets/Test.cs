@@ -26,10 +26,11 @@ public class Test : MonoBehaviour
 
 	void Awake ()
 	{
-		SetPowerupUrlsToLocal();
+		//SetPowerupUrlsToLocal();
 		Lumos.debug = true;
 		Debug.Log("test 1");
 		Debug.Log("test 2");
+		LumosSocialGUI.ShowWindow(LumosGUIWindow.Login);
 		/*
 		LumosEvents.Record("what_up", 0, true, "levels");
 		LumosEvents.Record("event_test", Time.time, true, "loading");
@@ -64,18 +65,77 @@ public class Test : MonoBehaviour
 		Debug.Log("closed!");
 	}
 	
-	
-	void OnGUI()
+	LumosUser myPlayer;
+			
+	void LoadFriendRequests()
 	{
-		if (!clicked) {
+		// Casting as LumosUser gives you more methods to use
+		myPlayer = Social.localUser as LumosUser;
 		
-			if (GUILayout.Button("do feedback")) {
-				LumosFeedbackGUI.ShowDialog();
-				LumosFeedbackGUI.windowClosed += Callback;
-				clicked = true;
+		myPlayer.LoadFriendRequests(result => {
+			if (result) {
+				foreach (var userProfile in myPlayer.friendRequests) {
+					Debug.Log("Pending friend request from " + userProfile.userName);	
+				}
+			} else {
+				Debug.LogError("Unable to load friend requests");
+			}
+		});
+	}
+	
+	void SendFriendRequest(string friendID)
+	{
+		foreach (var friend in myPlayer.friends) {
+			if (friend.id == friendID) {
+				// Don't send a friend request to someone that is already a friend
+				return;
 			}
 		}
 		
+		// Send friend request
+		myPlayer.SendFriendRequest(friendID, result => {
+			if (result) {
+				Debug.Log("Friend request sent to " + friendID);
+			} else {
+				Debug.LogError("Unable to send friend request to " + friendID);
+			}
+		});
+	}
+	
+	void AcceptFriendRequest(string friendID, bool accept)
+	{
+		if (accept) {
+			myPlayer.AcceptFriendRequest(friendID, result => {
+				if (result) {
+					Debug.Log("Friend request from " + friendID + " accepted");
+				} else {
+					Debug.LogError("Unable to accept friend request from " + friendID);
+				}
+			});
+		} else {
+			myPlayer.DeclineFriendRequest(friendID, result => {
+				if (result) {
+					Debug.Log("Declined request from " + friendID);
+				} else {
+					Debug.LogError("Unable to decline request from " + friendID);
+				}
+			});
+		}
+	}
+	
+	void RemoveFriend(string friendID)
+	{
+		myPlayer.RemoveFriend(friendID, result => {
+			if (result) {
+				Debug.Log("Removed friend: " + friendID);
+			} else {
+				Debug.LogError("Unable to remove friend: " + friendID);
+			}
+		});
+	}
+	
+	void OnGUI ()
+	{		
 		/*if (GUILayout.Button("Delete prefs")) {
 			EditorPrefs.DeleteKey("lumos-installed-packages");
 			EditorPrefs.DeleteKey("lumos-latest-packages");

@@ -21,8 +21,16 @@ public class LumosInstall : EditorWindow
 	void OnEnable ()
     {
 		credentials = LumosCredentialsManager.GetCredentials();
-		//LumosPackages.CompareLatestWithInstalled();
-		//EditorApplication.update += LumosPackages.MonitorImports;
+		
+		if (credentials.gameID != null) {
+			var installKey = "lumos-installing-" + credentials.gameID;
+			var installing = EditorPrefs.GetBool(installKey, false);
+			
+			if (installing) {
+				LumosPackages.setPrefKeys();
+				LumosPackages.CheckForUpdates();	
+			}	
+		}
 	}
 
     void OnGUI ()
