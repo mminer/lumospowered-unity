@@ -22,7 +22,6 @@ public class LumosCredentials : ScriptableObject
 			try {
 				return apiKey.Substring(0, 8);
 			} catch (System.ArgumentOutOfRangeException) {
-				Debug.LogError("[Lumos] The Lumos API key is not set or is incorrectly formatted.");
 				return null;
 			}
 		}
