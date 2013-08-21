@@ -15,19 +15,17 @@ public class LumosInstall : EditorWindow
 	const string warningMessage = "We will check for updates and missing Unity packages, new files may be imported to your project during this setup.";
 	static readonly GUIContent apiKeyLabel = new GUIContent("API Key", "Your game's API key from the Lumos website.");
 
+	LumosPackageManager packageManager;
 	LumosCredentials credentials;
 	bool showError;
 
 	void OnEnable ()
     {
 		credentials = LumosCredentialsManager.GetCredentials();
+		packageManager = LumosPackages.GetPackageManager();
 		
 		if (credentials.gameID != null) {
-			var installKey = "lumos-installing-" + credentials.gameID;
-			var installing = EditorPrefs.GetBool(installKey, false);
-			
-			if (installing) {
-				LumosPackages.setPrefKeys();
+			if (packageManager.installing) {
 				LumosPackages.CheckForUpdates();	
 			}	
 		}

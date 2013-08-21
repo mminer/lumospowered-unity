@@ -52,18 +52,11 @@ public static class LumosPackages
 		}
 	}
 	
-	#region Editor Pref Keys
-	static string installKey;
-	static string queueKey;
-	static string latestKey;
-	static string installedKey;
-	#endregion
-	
+	static LumosPackageManager packageManager;
 	static readonly Uri updatesUrl = new Uri("https://www.lumospowered.com/api/1/powerups/files?engine=unity");
 	static Dictionary<string, Package> _packages;
 	static IList latestPackagesResponse = null;
-	static bool checkedPrefs;
-	static bool installing;
+	static bool checkSavedData;
 	static Dictionary<string, bool> installQueue = new Dictionary<string, bool>();
 	public static string messageStatus = "";
 
@@ -108,7 +101,7 @@ public static class LumosPackages
 			ImportPackage(path);
 			RecordInstalledPackages(packages);
 
-			if (installing) {
+			if (packageManager.installing) {
 				messageStatus = "";
 
 				foreach (var package in installQueue) {
@@ -120,10 +113,8 @@ public static class LumosPackages
 			}
 		}
 
-		if (!checkedPrefs) {
-			installing = EditorPrefs.GetBool(installKey, false);
-
-			if (installing) {
+		if (!checkSavedData) {
+			if (packageManager.installing) {
 				installQueue = GetInstallQueue();
 				CompareLatestWithInstalled();
 
@@ -136,7 +127,7 @@ public static class LumosPackages
 		}
 
 		// Used when installing Lumos
-		if (installing && packages.Count > 0) {
+		if (packageManager.installing && packages.Count > 0) {
 			if (installQueue.Count == 0) {
 				installQueue = GetInstallQueue();
 			} else {
@@ -155,7 +146,7 @@ public static class LumosPackages
 			}
 		}
 
-		checkedPrefs = true;
+		checkSavedData = true;
 	}
 	
 	/// <summary>
@@ -163,22 +154,9 @@ public static class LumosPackages
 	/// </summary>
 	public static void UpdateAllPackages ()
 	{
-		setPrefKeys();
-		EditorPrefs.SetBool(installKey, true);
-		installing = true;
+		packageManager = GetPackageManager();
+		packageManager.installing = true;
 		CheckForUpdates();
-	}
-	
-	/// <summary>
-	/// Sets the preference keys.
-	/// </summary>
-	public static void setPrefKeys ()
-	{
-		var gameID = LumosCredentialsManager.GetCredentials().gameID;
-		installKey = "lumos-installing-" + gameID;
-		queueKey = "lumos-install-queue-" + gameID;
-		latestKey = "lumos-latest-packages-" + gameID;
-		installedKey = "lumos-installed-packages-" + gameID;
 	}
 
 	/// <summary>
@@ -249,40 +227,66 @@ public static class LumosPackages
 
 		RecordLumosInstallQueue();
 	}
+	
+	public static LumosPackageManager GetPackageManager ()
+	{
+		if (packageManager == null) {
+			packageManager = LumosPackageManager.Load();
+
+			if (packageManager == null) {
+				packageManager = CreatePackageManager();
+			}
+		}
+
+		return packageManager;
+	}
+	
+	/// <summary>
+	/// Generates a blank package manager file.
+	/// </summary>
+	/// <returns>A fresh Lumos package manager object.</returns>
+	static LumosPackageManager CreatePackageManager ()
+	{
+		// Create the Resources directory if it doesn't already exist.
+		Directory.CreateDirectory("Assets/Standard Assets/Lumos/Resources");
+
+		// Create the asset.
+		var packageManager = ScriptableObject.CreateInstance<LumosPackageManager>();
+		AssetDatabase.CreateAsset(packageManager, "Assets/Standard Assets/Lumos/Resources/PackageManager.asset");
+		return packageManager;
+	}
 
 	/// <summary>
-	/// Retrieves from EditorPrefs the packages that are currently installed.
+	/// Retrieves the packages that are currently installed.
 	/// </summary>
 	/// <returns>The currently installed powerup packages.</returns>
 	static Dictionary<string, Package> GetInstalledPackages ()
 	{
 		var installedPackages = new Dictionary<string, Package>();
-
-		if (EditorPrefs.HasKey(installedKey)) {
-			var json = EditorPrefs.GetString(installedKey);
-			var packageData = LumosJson.Deserialize(json) as IList;
-
+		var json = packageManager.installedPackages;
+		var packageData = LumosJson.Deserialize(json) as IList;
+		
+		if (packageData != null) {
 			foreach (Dictionary<string, object> data in packageData) {
 				var powerupID = data["powerup_id"] as string;
 				installedPackages[powerupID] = new Package(data, Status.Installed);
-			}
+			}	
 		}
 		
 		return installedPackages;
 	}
 
 	/// <summary>
-	/// Retrieves from EditorPrefs the latest package info retrieved from the server.
+	/// Retrieves the latest package info retrieved from the server.
 	/// </summary>
 	/// <returns>The currently installed powerup packages.</returns>
 	static Dictionary<string, Package> GetLatestPackages ()
 	{
-		var latestPackages = new Dictionary<string, Package>();
-
-		if (EditorPrefs.HasKey(latestKey)) {
-			var json = EditorPrefs.GetString(latestKey);
-			var packageData = LumosJson.Deserialize(json) as IList;
-
+		var latestPackages = new Dictionary<string, Package>();		
+		var json = packageManager.latestPackages;
+		var packageData = LumosJson.Deserialize(json) as IList;
+		
+		if (packageData != null) {
 			foreach (Dictionary<string, object> data in packageData) {
 				var powerupID = data["powerup_id"] as string;
 				latestPackages[powerupID] = new Package(data, Status.NotInstalled);
@@ -294,21 +298,18 @@ public static class LumosPackages
 
 	static Dictionary<string, bool> GetInstallQueue ()
 	{
-		var queue = new Dictionary<string, bool>();
+		var queue = new Dictionary<string, bool>();		
+		var json = packageManager.installQueue;
+		var packageData = LumosJson.Deserialize(json) as IList;
 
-		if (EditorPrefs.HasKey(queueKey)) {
-			var json = EditorPrefs.GetString(queueKey);
-			var packageData = LumosJson.Deserialize(json) as IList;
-
-			if (packageData != null) {
-				foreach (KeyValuePair<string, bool> data in packageData) {
-					// Already installed, skip
-					if (data.Value) {
-						continue;
-					}
-
-					queue[data.Key] = data.Value;
+		if (packageData != null) {
+			foreach (KeyValuePair<string, bool> data in packageData) {
+				// Already installed, skip
+				if (data.Value) {
+					continue;
 				}
+
+				queue[data.Key] = data.Value;
 			}
 		}
 
@@ -321,16 +322,6 @@ public static class LumosPackages
 	/// <param name="path">The name of the downloaded file.</param>
 	static void ImportPackage (string path)
 	{
-		/*
-		var interactive = EditorPrefs.GetBool("lumos-interactive-import", false);
-
-		if (installing) {
-			interactive = false;
-		}
-
-		AssetDatabase.ImportPackage(path, interactive);
-		*/
-
 		AssetDatabase.ImportPackage(path, false);
 	}
 
@@ -367,7 +358,7 @@ public static class LumosPackages
 	}
 
 	/// <summary>
-	/// Saves a list of installed packages to EditorPrefs.
+	/// Saves a list of installed packages.
 	/// </summary>
 	/// <param name="packages">The installed packages.</param>
 	static void RecordInstalledPackages (Dictionary<string, Package> packages)
@@ -385,11 +376,11 @@ public static class LumosPackages
 		}
 
 		var json = LumosJson.Serialize(toSerialize);
-		EditorPrefs.SetString(installedKey, json);
+		packageManager.installedPackages = json;
 	}
 
 	/// <summary>
-	/// Saves a list of the latest retrieved package information to EditorPrefs.
+	/// Saves a list of the latest retrieved package information.
 	/// </summary>
 	/// <param name="packages">The installed packages.</param>
 	static void RecordLatestPackages ()
@@ -410,7 +401,7 @@ public static class LumosPackages
 		}
 
 		var json = LumosJson.Serialize(toSerialize);
-		EditorPrefs.SetString(latestKey, json);
+		packageManager.latestPackages = json;
 		latestPackagesResponse = null;
 	}
 
@@ -429,7 +420,7 @@ public static class LumosPackages
 			FinishInstallation();
 		} else {
 			var json = LumosJson.Serialize(queue);
-			EditorPrefs.SetString(queueKey, json);
+			packageManager.installQueue = json;
 			installQueue = queue;	
 		}
 	}
@@ -437,14 +428,8 @@ public static class LumosPackages
 	static void FinishInstallation ()
 	{
 		RunSetupScripts();
-		
-		installing = false;
-		EditorPrefs.SetBool(installKey, false);
-		
-		if (EditorPrefs.HasKey(queueKey)) {
-			EditorPrefs.DeleteKey(queueKey);
-		}
-		
+		packageManager.installing = false;
+		packageManager.installQueue = "";
 		EditorApplication.update -= MonitorImports;
 		EditorWindow.GetWindow<LumosInstall>().Close();
 	}
