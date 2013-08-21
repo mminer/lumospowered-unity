@@ -32,7 +32,9 @@ public static class LumosPreferences
 		// General settings.
 		GUILayout.Label("General", EditorStyles.boldLabel);
 		credentials.apiKey = EditorGUILayout.TextField(apiKeyLabel, credentials.apiKey);
-		//interactiveImport = EditorGUILayout.Toggle(interactiveImportLabel, interactiveImport);
+		
+		EditorGUILayout.Space();
+		EditorGUILayout.HelpBox("Check the Unity Asset Store or Lumos website for updates to the core Lumos package.", MessageType.Info);
 		EditorGUILayout.Space();
 
 		// Powerups list.

@@ -207,6 +207,7 @@ public static class LumosPackages
 
 	public static void CompareLatestWithInstalled ()
 	{
+		packageManager = GetPackageManager();
 		var latestPackages = GetLatestPackages();
 
 		foreach (var latest in latestPackages.Values) {
