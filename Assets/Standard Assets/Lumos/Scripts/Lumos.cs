@@ -34,7 +34,7 @@ public partial class Lumos : MonoBehaviour
 	/// <summary>
 	/// Version number.
 	/// </summary>
-	public const string version = "1.0";
+	public const string version = "1.3";
 
 	/// <summary>
 	/// Server communication credentials.
@@ -93,7 +93,12 @@ public partial class Lumos : MonoBehaviour
 		}
 
 		instance = this;
-		timerInterval = 10;
+		
+		// Shorten the timer interval while developers are testing
+		if (runWhileInEditor && Application.isEditor) {
+			timerInterval = 3;	
+		}
+		
 		DontDestroyOnLoad(this);
 	}
 
@@ -145,7 +150,7 @@ public partial class Lumos : MonoBehaviour
 	{
 		yield return new WaitForSeconds(timerInterval);
 
-		if (!timerPaused) {
+		if (!timerPaused && OnTimerFinish != null) {
 			// Notify subscribers that the timer has completed.
 			OnTimerFinish();
 		}

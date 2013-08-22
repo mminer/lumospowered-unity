@@ -30,7 +30,7 @@ public class Test : MonoBehaviour
 		//SetPowerupUrlsToLocal();
 		Lumos.debug = true;
 		
-		//Lumos.OnReady += Callback;
+		Lumos.OnReady += Callback;
 		//LumosSocialGUI.ShowWindow(LumosGUIWindow.Login);
 		/*
 		LumosEvents.Record("what_up", 0, true, "levels");
@@ -53,17 +53,17 @@ public class Test : MonoBehaviour
 		}
 	}
 	 */
-	/*void SetPowerupUrlsToLocal ()
+	void SetPowerupUrlsToLocal ()
 	{
 		LumosPlayer.baseUrl = devServer;
-		LumosAnalytics.baseUrl = devServer;
-		LumosDiagnostics.baseUrl = devServer;
-		LumosSocial.baseUrl = devServer;
-	}*/
+		//LumosAnalytics.baseUrl = devServer;
+		//LumosDiagnostics.baseUrl = devServer;
+		//LumosSocial.baseUrl = devServer;
+	}
 	
 	void Callback ()
 	{
-		//LumosAnalytics.RecordEvent("thisisatest", 2.0f);
+		//LumosAnalytics.RecordEvent("thisisatest");
 	}
 	
 	void OnGUI ()
