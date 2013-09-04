@@ -55,7 +55,7 @@ public class Test : MonoBehaviour
 	 */
 	void SetPowerupUrlsToLocal ()
 	{
-		LumosPlayer.baseUrl = devServer;
+		//LumosPlayer.baseUrl = devServer;
 		//LumosAnalytics.baseUrl = devServer;
 		//LumosDiagnostics.baseUrl = devServer;
 		//LumosSocial.baseUrl = devServer;
@@ -63,7 +63,7 @@ public class Test : MonoBehaviour
 	
 	void Callback ()
 	{
-		//LumosAnalytics.RecordEvent("thisisatest");
+		LumosAnalytics.RecordEvent("thisisatest");
 	}
 	
 	void OnGUI ()

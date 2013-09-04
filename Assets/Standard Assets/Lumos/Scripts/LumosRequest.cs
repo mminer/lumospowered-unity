@@ -98,19 +98,36 @@ public class LumosRequest
 		// Send info to server.
 		yield return www;
 		Lumos.Log("Request: " + url + "\n" + Encoding.Default.GetString(postData));
-		Lumos.Log("Response: " + www.text);
-
-		// Parse the response.
-		var response = LumosJson.Deserialize(www.text);
-
-		if (www.error == null) {
-			if (successCallback != null) {
-				successCallback(response);
+		
+		// Handle errors
+		if (www.error != null) {					
+			switch (www.error.Trim()) {
+				case "403 Forbidden":
+					Lumos.LogError(www.error + " - You may not be subscribed to this service");
+					break;
+				case "401 Unauthorized":
+					Lumos.LogError(www.error + " - Your secret key may be incorrect");
+					break;
+				case "404 Not Found":
+					Lumos.LogError(www.error + " - An entity involved in this request does not exist");
+					break;
+				default:
+					Lumos.LogError(www.error);
+				
+					if (errorCallback != null) {
+						errorCallback(false);
+					}
+				
+					break;
 			}
+		// Handle successful requests
 		} else {
-			Lumos.Log("Error: " + www.error);
-			if (errorCallback != null) {
-				errorCallback(response);
+			Lumos.Log("Response: " + www.text);
+			
+			// Parse the response.
+			if (successCallback != null) {
+				var response = LumosJson.Deserialize(www.text);
+				successCallback(response);
 			}
 		}
 	}

@@ -67,9 +67,14 @@ public partial class LumosSocial
 	/// </summary>
 	/// <param name="user">User.</param>
 	/// <param name="callback">Callback.</param>
-	public void LoadFriends(ILocalUser user, Action<bool> callback)
+	public void LoadFriends (ILocalUser user, Action<bool> callback)
 	{
 		user.LoadFriends(callback);
+	}
+	
+	public void SetLocalUser (LumosUser user)
+	{
+		_localUser = user;
 	}
 
 	#region Added Functions

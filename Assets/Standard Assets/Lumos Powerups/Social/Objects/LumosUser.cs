@@ -89,6 +89,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			success => {
 				var resp = success as Dictionary<string, object>;
 				authenticated = true;
+				(Social.Active as LumosSocial).SetLocalUser(this);
 				Update(resp);
 
 				if (callback != null) {
