@@ -28,6 +28,11 @@ public static class LumosEvents
 	/// <param name="repeatable">Whether this event should only be logged once.</param>
 	public static void Record (string category, string eventID, float? val, bool repeatable)
 	{
+		// Checks if Lumos and LumosAnalytics is installed correctly
+		if (!LumosAnalytics.IsInitialized()) {
+			return;
+		}
+
 		if (eventID == null || eventID == "") {
 			Lumos.LogWarning("An event ID and category must be supplied. Event not recorded.");
 			return;

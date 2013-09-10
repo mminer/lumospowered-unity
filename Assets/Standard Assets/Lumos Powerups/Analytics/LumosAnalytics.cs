@@ -52,4 +52,21 @@ public partial class LumosAnalytics : MonoBehaviour
 			levelStartTime = Time.time;
 		}
 	}
+
+	public static bool IsInitialized ()
+	{
+		GameObject lumosGO = GameObject.Find("Lumos");
+
+		if (lumosGO == null) {
+			Debug.LogWarning("The Lumos Game Object has not been added to your initial scene.");
+			return false;
+		}
+
+		if (lumosGO.GetComponent<LumosAnalytics>() == null) {
+			Debug.LogWarning("The LumosAnalytics script has not been added to the Lumos GameObject.");
+			return false;
+		}
+
+		return true;
+	}
 }

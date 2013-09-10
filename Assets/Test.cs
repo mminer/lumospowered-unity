@@ -26,16 +26,10 @@ public class Test : MonoBehaviour
 
 	void Awake ()
 	{
-		
-		//SetPowerupUrlsToLocal();
+		LumosAnalytics.RecordEvent("hey");
+		SetPowerupUrlsToLocal();
 		Lumos.debug = true;
-		
 		Lumos.OnReady += Callback;
-		//LumosSocialGUI.ShowWindow(LumosGUIWindow.Login);
-		/*
-		LumosEvents.Record("what_up", 0, true, "levels");
-		LumosEvents.Record("event_test", Time.time, true, "loading");
-		*/
 	}
 	
 	/*
@@ -55,10 +49,10 @@ public class Test : MonoBehaviour
 	 */
 	void SetPowerupUrlsToLocal ()
 	{
-		//LumosPlayer.baseUrl = devServer;
-		//LumosAnalytics.baseUrl = devServer;
-		//LumosDiagnostics.baseUrl = devServer;
-		//LumosSocial.baseUrl = devServer;
+		LumosPlayer.baseUrl = devServer;
+		LumosAnalytics.baseUrl = devServer;
+		LumosDiagnostics.baseUrl = devServer;
+		LumosSocial.baseUrl = devServer;
 	}
 	
 	void Callback ()

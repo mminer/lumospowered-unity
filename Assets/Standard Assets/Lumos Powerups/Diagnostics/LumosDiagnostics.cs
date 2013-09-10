@@ -48,4 +48,21 @@ public class LumosDiagnostics : MonoBehaviour
 	{
 		LumosFeedbackGUI.OnGUI();
 	}
+
+	public static bool IsInitialized ()
+	{
+		GameObject lumosGO = GameObject.Find("Lumos");
+		
+		if (lumosGO == null) {
+			Debug.LogWarning("The Lumos Game Object has not been added to your initial scene.");
+			return false;
+		}
+		
+		if (lumosGO.GetComponent<LumosDiagnostics>() == null) {
+			Debug.LogWarning("The LumosDiagnostics script has not been added to the Lumos GameObject.");
+			return false;
+		}
+		
+		return true;
+	}
 }

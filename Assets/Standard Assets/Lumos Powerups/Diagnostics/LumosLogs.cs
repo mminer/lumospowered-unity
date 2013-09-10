@@ -39,6 +39,11 @@ public static class LumosLogs
 	/// <param name="type">Message type (debug, warning, error, etc.).</param>
 	public static void Record (string message, string trace, LogType type)
 	{
+		// Checks if Lumos and LumosDiagnostics is installed correctly
+		if (!LumosDiagnostics.IsInitialized()) {
+			return;
+		}
+
 		// Ignore logs in editor is the option is selected.
 		if (Application.isEditor && !Lumos.runInEditor) {
 			return;

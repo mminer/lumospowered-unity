@@ -86,6 +86,8 @@ public class LumosRequest
 
 			yield break;
 		}
+		
+		
 
 		var postData = SerializePostData(parameters);
 
@@ -100,7 +102,7 @@ public class LumosRequest
 		Lumos.Log("Request: " + url + "\n" + Encoding.Default.GetString(postData));
 		
 		// Handle errors
-		if (www.error != null) {					
+		if (www.error != null) {
 			switch (www.error.Trim()) {
 				case "403 Forbidden":
 					Lumos.LogError(www.error + " - You may not be subscribed to this service");
