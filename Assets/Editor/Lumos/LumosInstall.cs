@@ -81,11 +81,11 @@ public class LumosInstall : EditorWindow
 	{
 		// Stop displaying the error message
 		showError = false;
-
+		
+		Undo.RegisterSceneUndo("Add Lumos To Scene");
+		
 		var prefab = Resources.LoadAssetAtPath(prefabPath, typeof(GameObject));
-		var createdObject = PrefabUtility.InstantiatePrefab(prefab);
-
-		Undo.RegisterCreatedObjectUndo(createdObject, "Add Lumos To Scene");
+		PrefabUtility.InstantiatePrefab(prefab);
 
 		// Install missing or updated powerup scripts, if any.
 		LumosPackages.UpdateAllPackages();

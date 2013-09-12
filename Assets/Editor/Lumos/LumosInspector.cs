@@ -14,7 +14,8 @@ public class LumosInspector : Editor
 	override public void OnInspectorGUI ()
 	{
 		var lumos = target as Lumos;
-
+		
+		EditorGUIUtility.LookLikeInspector();
 		EditorGUI.indentLevel = 1;
 
 		lumos.runWhileInEditor = EditorGUILayout.Toggle(runInEditorLabel, lumos.runWhileInEditor);
