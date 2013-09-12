@@ -15,11 +15,11 @@ public class LumosWizard : ScriptableWizard
 	/// </summary>
 	void OnWizardCreate ()
 	{
-		Undo.RegisterSceneUndo("Add Lumos To Scene");
-
 		// Instantiate the Lumos object.
 		var prefab = Resources.LoadAssetAtPath(prefabPath, typeof(GameObject));
-		PrefabUtility.InstantiatePrefab(prefab);
+		var createdObject = PrefabUtility.InstantiatePrefab(prefab);
+
+		Undo.RegisterCreatedObjectUndo(createdObject, "Add Lumos To Scene");
 	}
 
 	/// <summary>

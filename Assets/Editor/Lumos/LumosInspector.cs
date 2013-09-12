@@ -15,7 +15,6 @@ public class LumosInspector : Editor
 	{
 		var lumos = target as Lumos;
 
-		EditorGUIUtility.LookLikeInspector();
 		EditorGUI.indentLevel = 1;
 
 		lumos.runWhileInEditor = EditorGUILayout.Toggle(runInEditorLabel, lumos.runWhileInEditor);
