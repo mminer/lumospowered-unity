@@ -3,6 +3,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
@@ -15,7 +16,7 @@ public class LumosPackageManager : ScriptableObject
 	/// <summary>
 	/// Whether or not the install process is currently underway.
 	/// </summary>
-	[HideInInspector] public bool installing = false;
+	[HideInInspector] public bool installing;
 	
 	/// <summary>
 	/// The queued packages (JSON).
@@ -31,6 +32,7 @@ public class LumosPackageManager : ScriptableObject
 	/// The installed packages (JSON).
 	/// </summary>
 	[HideInInspector] public string installedPackages;
+
 
 	/// <summary>
 	/// Loads the Lumos package manager file from Resources.
@@ -60,5 +62,30 @@ public class LumosPackageManager : ScriptableObject
 		var packageManager = ScriptableObject.CreateInstance<LumosPackageManager>();
 		AssetDatabase.CreateAsset(packageManager, "Assets/Standard Assets/Lumos/Resources/PackageManager.asset");
 		return packageManager;
+	}
+	
+	public Dictionary<string, LumosPackages.Package> GetInstalledPackages ()
+	{
+		return GetPackages(installedPackages, LumosPackages.Status.Installed);
+	}
+	
+	public Dictionary<string, LumosPackages.Package> GetLatestPackages ()
+	{
+		return GetPackages(latestPackages, LumosPackages.Status.NotInstalled);
+	}
+	
+	static Dictionary<string, LumosPackages.Package> GetPackages (string json, LumosPackages.Status status)
+	{
+		var packages = new Dictionary<string, LumosPackages.Package>();		
+		var packageData = LumosJson.Deserialize(json) as IList;
+		
+		if (packageData != null) {
+			foreach (Dictionary<string, object> data in packageData) {
+				var powerupID = data["powerup_id"] as string;
+				packages[powerupID] = new LumosPackages.Package(data, status);
+			}
+		}
+
+		return packages;
 	}
 }

@@ -66,7 +66,8 @@ public static class LumosPackages
 	public static Dictionary<string, Package> packages {
 		get {
 			if (_packages == null) {
-				_packages = GetInstalledPackages();
+				packageManager = GetPackageManager();
+				_packages = packageManager.GetInstalledPackages();
 				CompareLatestWithInstalled();
 			}
 
@@ -156,6 +157,7 @@ public static class LumosPackages
 	{
 		packageManager = GetPackageManager();
 		packageManager.installing = true;
+		EditorUtility.SetDirty(packageManager);
 		CheckForUpdates();
 	}
 
@@ -208,7 +210,7 @@ public static class LumosPackages
 	public static void CompareLatestWithInstalled ()
 	{
 		packageManager = GetPackageManager();
-		var latestPackages = GetLatestPackages();
+		var latestPackages = packageManager.GetLatestPackages();
 
 		foreach (var latest in latestPackages.Values) {
 			if (packages.ContainsKey(latest.powerupID)) {
@@ -233,68 +235,9 @@ public static class LumosPackages
 	{
 		if (packageManager == null) {
 			packageManager = LumosPackageManager.Load();
-
-			if (packageManager == null) {
-				packageManager = CreatePackageManager();
-			}
 		}
 
 		return packageManager;
-	}
-	
-	/// <summary>
-	/// Generates a blank package manager file.
-	/// </summary>
-	/// <returns>A fresh Lumos package manager object.</returns>
-	static LumosPackageManager CreatePackageManager ()
-	{
-		// Create the Resources directory if it doesn't already exist.
-		Directory.CreateDirectory("Assets/Standard Assets/Lumos/Resources");
-
-		// Create the asset.
-		var packageManager = ScriptableObject.CreateInstance<LumosPackageManager>();
-		AssetDatabase.CreateAsset(packageManager, "Assets/Standard Assets/Lumos/Resources/PackageManager.asset");
-		return packageManager;
-	}
-
-	/// <summary>
-	/// Retrieves the packages that are currently installed.
-	/// </summary>
-	/// <returns>The currently installed powerup packages.</returns>
-	static Dictionary<string, Package> GetInstalledPackages ()
-	{
-		var installedPackages = new Dictionary<string, Package>();
-		var json = packageManager.installedPackages;
-		var packageData = LumosJson.Deserialize(json) as IList;
-		
-		if (packageData != null) {
-			foreach (Dictionary<string, object> data in packageData) {
-				var powerupID = data["powerup_id"] as string;
-				installedPackages[powerupID] = new Package(data, Status.Installed);
-			}	
-		}
-		
-		return installedPackages;
-	}
-
-	/// <summary>
-	/// Retrieves the latest package info retrieved from the server.
-	/// </summary>
-	/// <returns>The currently installed powerup packages.</returns>
-	static Dictionary<string, Package> GetLatestPackages ()
-	{
-		var latestPackages = new Dictionary<string, Package>();		
-		var json = packageManager.latestPackages;
-		var packageData = LumosJson.Deserialize(json) as IList;
-		
-		if (packageData != null) {
-			foreach (Dictionary<string, object> data in packageData) {
-				var powerupID = data["powerup_id"] as string;
-				latestPackages[powerupID] = new Package(data, Status.NotInstalled);
-			}
-		}
-
-		return latestPackages;
 	}
 
 	static Dictionary<string, bool> GetInstallQueue ()
@@ -378,6 +321,7 @@ public static class LumosPackages
 
 		var json = LumosJson.Serialize(toSerialize);
 		packageManager.installedPackages = json;
+		EditorUtility.SetDirty(packageManager);
 	}
 
 	/// <summary>
@@ -403,6 +347,7 @@ public static class LumosPackages
 
 		var json = LumosJson.Serialize(toSerialize);
 		packageManager.latestPackages = json;
+		EditorUtility.SetDirty(packageManager);
 		latestPackagesResponse = null;
 	}
 
@@ -422,6 +367,7 @@ public static class LumosPackages
 		} else {
 			var json = LumosJson.Serialize(queue);
 			packageManager.installQueue = json;
+			EditorUtility.SetDirty(packageManager);
 			installQueue = queue;	
 		}
 	}
@@ -431,6 +377,7 @@ public static class LumosPackages
 		RunSetupScripts();
 		packageManager.installing = false;
 		packageManager.installQueue = "";
+		EditorUtility.SetDirty(packageManager);
 		EditorApplication.update -= MonitorImports;
 		EditorWindow.GetWindow<LumosInstall>().Close();
 	}
