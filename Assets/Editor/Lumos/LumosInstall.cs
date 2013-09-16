@@ -7,6 +7,8 @@ using System.Collections;
 /// <summary>
 /// Wizard that sets up Lumos before instantiating the prefab in the scene.
 /// </summary>
+/// 
+[InitializeOnLoad]
 public class LumosInstall : EditorWindow
 {
     const string prefabPath = "Assets/Standard Assets/Lumos/Lumos.prefab";
@@ -18,7 +20,24 @@ public class LumosInstall : EditorWindow
 	LumosPackageManager packageManager;
 	LumosCredentials credentials;
 	bool showError;
-
+	
+	static LumosInstall ()
+	{
+		EditorApplication.projectWindowChanged += PromptLumosInstall;
+		EditorApplication.hierarchyWindowChanged += PromptLumosInstall;
+	}
+	
+	static void PromptLumosInstall ()
+	{
+		// Makes the Lumos install window pop up if there is no credentials file
+		if (!LumosCredentialsManager.HasCredentialsFile()) {
+			EditorWindow.GetWindow<LumosInstall>(true, "Install Window");	
+		}
+		
+		EditorApplication.projectWindowChanged -= PromptLumosInstall;
+		EditorApplication.hierarchyWindowChanged -= PromptLumosInstall;
+	}
+	
 	void OnEnable ()
     {
 		credentials = LumosCredentialsManager.GetCredentials();

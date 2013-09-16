@@ -27,6 +27,12 @@ public static class LumosCredentialsManager
 
 		return credentials;
 	}
+	
+	public static bool HasCredentialsFile ()
+	{
+		credentials = LumosCredentials.Load();
+		return credentials != null;
+	}
 
 	/// <summary>
 	/// Generates a blank credentials file.
