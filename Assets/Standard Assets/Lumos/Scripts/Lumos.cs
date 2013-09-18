@@ -34,7 +34,7 @@ public partial class Lumos : MonoBehaviour
 	/// <summary>
 	/// Version number.
 	/// </summary>
-	public const string version = "1.3";
+	public const string version = "1.4";
 
 	/// <summary>
 	/// Server communication credentials.
