@@ -8,9 +8,6 @@ using UnityEngine;
 /// </summary>
 public static class LumosSpecs
 {
-
-#if !UNITY_IPHONE
-
 	/// <summary>
 	/// Sends system information.
 	/// </summary>
@@ -25,12 +22,16 @@ public static class LumosSpecs
 
 		var endpoint = LumosDiagnostics.baseUrl + "/specs/" + Lumos.playerId + "?method=PUT";
 		var payload = new Dictionary<string, object>() {
+#if !UNITY_IPHONE
 			{ "os", SystemInfo.operatingSystem },
 			{ "processor", SystemInfo.processorType },
 			{ "processor_count", SystemInfo.processorCount },
 			{ "ram", SystemInfo.systemMemorySize },
 			{ "vram", SystemInfo.graphicsMemorySize },
 			{ "graphics_card", SystemInfo.graphicsDeviceName }
+#else
+			{ "os", "iOS"}
+#endif
 		};
 
 		LumosRequest.Send(endpoint, payload,
@@ -43,14 +44,5 @@ public static class LumosSpecs
 			}
 		);
 	}
-
-#else
-
-	/// <summary>
-	/// NOOP.
-	/// </summary>
-	public static void Record () {}
-
-#endif
 
 }
