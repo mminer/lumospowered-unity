@@ -34,7 +34,7 @@ public partial class Lumos : MonoBehaviour
 	/// <summary>
 	/// Version number.
 	/// </summary>
-	public const string version = "1.4";
+	public const string version = "1.3.1";
 
 	/// <summary>
 	/// Server communication credentials.
@@ -49,7 +49,7 @@ public partial class Lumos : MonoBehaviour
 	/// <summary>
 	/// The device-specific player ID.
 	/// </summary>
-	public static string playerId { get; set; }
+	public static string playerID { get; set; }
 
 	/// <summary>
 	/// The interval (in seconds) at which queued data is sent to the server.
@@ -93,12 +93,12 @@ public partial class Lumos : MonoBehaviour
 		}
 
 		instance = this;
-		
+
 		// Shorten the timer interval while developers are testing
 		if (runWhileInEditor && Application.isEditor) {
-			timerInterval = 3;	
+			timerInterval = 3;
 		}
-		
+
 		DontDestroyOnLoad(this);
 	}
 

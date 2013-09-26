@@ -71,7 +71,7 @@ public partial class LumosSocial
 	{
 		user.LoadFriends(callback);
 	}
-	
+
 	public void SetLocalUser (LumosUser user)
 	{
 		_localUser = user;
@@ -88,7 +88,6 @@ public partial class LumosSocial
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + user.id + "?method=PUT";
 		var payload = new Dictionary<string, object>() {
-			{ "player_id", Lumos.playerId },
 			{ "password", user.password }
 		};
 

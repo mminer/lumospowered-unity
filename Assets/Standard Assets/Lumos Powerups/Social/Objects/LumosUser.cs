@@ -71,7 +71,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	{
 		// ID should be set prior to this call if login system is intended.
 		if (userID == null) {
-			userID = Lumos.playerId;
+			userID = Lumos.playerID;
 		}
 
 		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=GET";
@@ -81,7 +81,6 @@ public class LumosUser : LumosUserProfile, ILocalUser
 		}
 
 		var payload = new Dictionary<string, object>() {
-			{ "player_id", Lumos.playerId },
 			{ "password", password }
 		};
 

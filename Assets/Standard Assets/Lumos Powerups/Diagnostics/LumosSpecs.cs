@@ -13,14 +13,14 @@ public static class LumosSpecs
 	/// </summary>
 	public static void Record ()
 	{
-		var prefsKey = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_specs";
+		var prefsKey = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerID + "_sent_specs";
 
 		// Only record system information once.
 		if (PlayerPrefs.HasKey(prefsKey)) {
 			return;
 		}
 
-		var endpoint = LumosDiagnostics.baseUrl + "/specs/" + Lumos.playerId + "?method=PUT";
+		var endpoint = LumosDiagnostics.baseUrl + "/specs/" + Lumos.playerID + "?method=PUT";
 		var payload = new Dictionary<string, object>() {
 #if !UNITY_IPHONE
 			{ "os", SystemInfo.operatingSystem },

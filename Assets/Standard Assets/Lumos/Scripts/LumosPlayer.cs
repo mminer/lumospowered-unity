@@ -27,8 +27,8 @@ public class LumosPlayer
 		var idPrefsKey = "lumospowered_" + Lumos.credentials.gameID + "_playerid";
 
 		if (PlayerPrefs.HasKey(idPrefsKey)) {
-			Lumos.playerId = PlayerPrefs.GetString(idPrefsKey);
-			Lumos.Log("Using existing player " + Lumos.playerId);
+			Lumos.playerID = PlayerPrefs.GetString(idPrefsKey);
+			Lumos.Log("Using existing player " + Lumos.playerID);
 			callback(true);
 			Ping();
 		} else {
@@ -48,9 +48,9 @@ public class LumosPlayer
 			success => {
 				var idPrefsKey = "lumospowered_" + Lumos.credentials.gameID + "_playerid";
 				var resp = success as Dictionary<string, object>;
-				Lumos.playerId = resp["player_id"].ToString();
-				PlayerPrefs.SetString(idPrefsKey, Lumos.playerId);
-				Lumos.Log("Using new player " + Lumos.playerId);
+				Lumos.playerID = resp["player_id"].ToString();
+				PlayerPrefs.SetString(idPrefsKey, Lumos.playerID);
+				Lumos.Log("Using new player " + Lumos.playerID);
 
 				if (callback != null) {
 					callback(true);
@@ -63,14 +63,9 @@ public class LumosPlayer
 	/// </summary>
 	static void Ping ()
 	{
-		var endpoint = baseUrl + "/players/" + Lumos.playerId + "?method=PUT";
+		var endpoint = baseUrl + "/players/" + Lumos.playerID + "?method=PUT";
 
-		var payload = new Dictionary<string, object>() {
-			{ "player_id", Lumos.playerId },
-			{ "lumos_version", Lumos.version.ToString() }
-		};
-
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint,
 			success => {
 				//var resp = success as Dictionary<string, object>;
 				//Lumos.Log(resp["message"]);
