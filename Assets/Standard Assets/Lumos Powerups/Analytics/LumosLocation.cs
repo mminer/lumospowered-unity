@@ -14,14 +14,14 @@ public static class LumosLocation
 	/// </summary>
 	public static void Record()
 	{
-		var prefsKey = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerId + "_sent_location";
+		var prefsKey = "lumospowered_" + Lumos.credentials.gameID + "_" + Lumos.playerID + "_sent_location";
 
 		// Only record location information once.
 		if (PlayerPrefs.HasKey(prefsKey)) {
 			return;
 		}
 
-		var endpoint = LumosAnalytics.baseUrl + "/location/" + Lumos.playerId + "?method=PUT";
+		var endpoint = LumosAnalytics.baseUrl + "/location/" + Lumos.playerID + "?method=PUT";
 		var payload = new Dictionary<string, object>() {
 			{ "language", Application.systemLanguage.ToString() }
 		};

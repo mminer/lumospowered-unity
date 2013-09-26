@@ -8,7 +8,6 @@ using UnityEngine;
 /// </summary>
 public static class LumosFeedback
 {
-
 	/// <summary>
 	/// Records feedback.
 	/// </summary>
@@ -25,10 +24,9 @@ public static class LumosFeedback
 		var feedback = new Dictionary<string, object>() {
 			{ "message", message },
 			{ "category", category },
-			{ "email", email },
-			{ "player_id", Lumos.playerId }
+			{ "email", email }
 		};
-		
+
 		Send(feedback);
 	}
 

@@ -86,21 +86,23 @@ public class LumosRequest
 
 			yield break;
 		}
-		
-		
 
 		var postData = SerializePostData(parameters);
 
 		var headers = new Hashtable() {
 			{ "Content-Type", "application/json" },
-			{ "Authorization", GenerateAuthorizationHeader(Lumos.credentials, postData) }
+			{ "Authorization", GenerateAuthorizationHeader(Lumos.credentials, postData) },
+			// Non-standard headers:
+			{ "Lumos-Game-ID", Lumos.credentials.gameID },
+			{ "Lumos-Player-ID", Lumos.playerID },
+			{ "Lumos-Client-Version", "Unity/" + Lumos.version }
 		};
 		var www = new WWW(url, postData, headers);
 
 		// Send info to server.
 		yield return www;
 		Lumos.Log("Request: " + url + "\n" + Encoding.Default.GetString(postData));
-		
+
 		// Handle errors
 		if (www.error != null) {
 			switch (www.error.Trim()) {
@@ -115,17 +117,17 @@ public class LumosRequest
 					break;
 				default:
 					Lumos.LogError(www.error);
-				
+
 					if (errorCallback != null) {
 						errorCallback(false);
 					}
-				
+
 					break;
 			}
 		// Handle successful requests
 		} else {
 			Lumos.Log("Response: " + www.text);
-			
+
 			// Parse the response.
 			if (successCallback != null) {
 				var response = LumosJson.Deserialize(www.text);
