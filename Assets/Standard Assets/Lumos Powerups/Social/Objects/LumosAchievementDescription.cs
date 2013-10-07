@@ -46,6 +46,7 @@ public class LumosAchievementDescription : IAchievementDescription
 		// Load image from remote server.
 		if (info.ContainsKey("icon")) {
 			var imageLocation = info["icon"] as string;
+			image = new Texture2D(512, 512);
 			LumosRequest.LoadImage(imageLocation, image);
 		}
 	}

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
+using UnityEngine.SocialPlatforms.GameCenter;
 
 /// <summary>
 /// An achievement a player has earned.
@@ -84,7 +85,11 @@ public class LumosAchievement : IAchievement
 				// Update timestamp.
 				var timestamp = Convert.ToDouble(info["updated"]);
 				lastReportedDate = LumosUtil.UnixTimestampToDateTime(timestamp);
-
+				
+				if (Application.platform == RuntimePlatform.IPhonePlayer && LumosSocialSettings.useGameCenter) {
+					ReportProgressToGameCenter(id, percentCompleted);
+				}
+			
 				if (callback != null) {
 					callback(true);
 				}
@@ -94,5 +99,19 @@ public class LumosAchievement : IAchievement
 					callback(false);
 				}
 			});
+	}
+	
+	void ReportProgressToGameCenter (string achievementID, double percentCompleted)
+	{
+		var temp = Social.Active;
+		Social.Active = new GameCenterPlatform();
+		
+		if (Social.localUser != null && Social.localUser.authenticated) {
+			Social.ReportProgress(achievementID, percentCompleted, delegate {
+				Lumos.Log("Reported achievement progress to Game Center.");
+			});	
+		}
+		
+		Social.Active = temp;
 	}
 }

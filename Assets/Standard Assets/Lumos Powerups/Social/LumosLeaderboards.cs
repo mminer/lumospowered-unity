@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
+using UnityEngine.SocialPlatforms.GameCenter;
 using UnityEngine.SocialPlatforms.Impl;
 
 
@@ -53,6 +54,10 @@ public partial class LumosSocial
 
 		LumosRequest.Send(endpoint, payload,
 			success => {
+				if (Application.platform == RuntimePlatform.IPhonePlayer && LumosSocialSettings.useGameCenter) {
+					ReportScoreToGameCenter(leaderboardID, score);
+				}
+			
 				if (callback != null) {
 					callback(true);
 				}
@@ -167,6 +172,20 @@ public partial class LumosSocial
 					callback(false);
 				}
 			});
+	}
+	
+	void ReportScoreToGameCenter (string leaderboardID, System.Int64 score)
+	{
+		var temp = Social.Active;
+		Social.Active = new GameCenterPlatform();
+		
+		if (Social.localUser != null && Social.localUser.authenticated) {
+			Social.ReportScore(score, leaderboardID, delegate {
+				Lumos.Log("Reported leaderboard score to Game Center.");
+			});	
+		}
+		
+		Social.Active = temp;
 	}
 
 	#endregion
