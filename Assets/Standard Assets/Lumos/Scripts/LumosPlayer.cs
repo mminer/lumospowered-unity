@@ -75,4 +75,20 @@ public class LumosPlayer
 				//Lumos.LogError(resp["message"]);
 			});
 	}
+	
+	/// <summary>
+	/// Gets the settings for a powerup used by this game
+	/// </summary>
+	public static void GetPowerupSettings (string powerupID, Action<Dictionary<string, object>> callback)
+	{
+		var endpoint = baseUrl + "/settings/" + powerupID;
+
+		LumosRequest.Send(endpoint, "GET", 
+			success => {
+				callback(success as Dictionary<string, object>);
+			},
+			error => {
+				callback(null);
+			});
+	}
 }
