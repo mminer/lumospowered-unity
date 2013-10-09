@@ -42,7 +42,7 @@ public partial class LumosSocial
 	public void ReportScore (System.Int64 score, string leaderboardID, Action<bool> callback)
 	{
 		if (localUser == null) {
-			Debug.LogWarning("[Lumos] The user must be authenticated before recording their score.");
+			Lumos.LogWarning("[Lumos] The user must be authenticated before recording their score.");
 			callback(false);
 			return;
 		}
@@ -175,17 +175,10 @@ public partial class LumosSocial
 	}
 	
 	void ReportScoreToGameCenter (string leaderboardID, System.Int64 score)
-	{
-		var temp = Social.Active;
-		Social.Active = new GameCenterPlatform();
-		
-		if (Social.localUser != null && Social.localUser.authenticated) {
-			Social.ReportScore(score, leaderboardID, delegate {
-				Lumos.Log("Reported leaderboard score to Game Center.");
-			});	
-		}
-		
-		Social.Active = temp;
+	{		
+		LumosSocialSettings.gameCenterPlatform.ReportScore(score, leaderboardID, delegate {
+			Lumos.Log("Reported leaderboard score to Game Center.");
+		});
 	}
 
 	#endregion

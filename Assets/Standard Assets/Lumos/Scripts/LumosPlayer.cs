@@ -81,9 +81,9 @@ public class LumosPlayer
 	/// </summary>
 	public static void GetPowerupSettings (string powerupID, Action<Dictionary<string, object>> callback)
 	{
-		var endpoint = baseUrl + "/settings/" + powerupID;
+		var endpoint = baseUrl + "/settings/" + powerupID + "?method=GET";
 
-		LumosRequest.Send(endpoint, "GET", 
+		LumosRequest.Send(endpoint, 
 			success => {
 				callback(success as Dictionary<string, object>);
 			},

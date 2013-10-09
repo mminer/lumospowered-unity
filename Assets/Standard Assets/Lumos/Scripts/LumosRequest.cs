@@ -94,9 +94,13 @@ public class LumosRequest
 			{ "Authorization", GenerateAuthorizationHeader(Lumos.credentials, postData) },
 			// Non-standard headers:
 			{ "Lumos-Game-ID", Lumos.credentials.gameID },
-			{ "Lumos-Player-ID", Lumos.playerID },
 			{ "Lumos-Client-Version", "Unity/" + Lumos.version }
 		};
+		
+		if (Lumos.playerID != null) {
+			headers["Lumos-Player-ID"] = Lumos.playerID;
+		}
+		
 		var www = new WWW(url, postData, headers);
 
 		// Send info to server.
@@ -117,12 +121,11 @@ public class LumosRequest
 					break;
 				default:
 					Lumos.LogError(www.error);
-
-					if (errorCallback != null) {
-						errorCallback(false);
-					}
-
 					break;
+			}
+			
+			if (errorCallback != null) {
+				errorCallback(false);
 			}
 		// Handle successful requests
 		} else {

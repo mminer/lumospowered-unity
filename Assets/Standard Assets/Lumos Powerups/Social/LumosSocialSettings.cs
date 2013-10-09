@@ -1,10 +1,16 @@
 ﻿using UnityEngine;
+using UnityEngine.SocialPlatforms.GameCenter;
 using System.Collections;
 using System.Collections.Generic;
 
 public class LumosSocialSettings : MonoBehaviour 
 {
 	public static bool useGameCenter {
+		protected set;
+		get;
+	}
+	
+	public static GameCenterPlatform gameCenterPlatform {
 		protected set;
 		get;
 	}
@@ -16,7 +22,10 @@ public class LumosSocialSettings : MonoBehaviour
 	
 	void Ready ()
 	{
-		LumosPlayer.GetPowerupSettings("social", LoadedSettings);
+		// For now Social settings are only used for Game Center
+		if (Application.platform == RuntimePlatform.IPhonePlayer) {
+			LumosPlayer.GetPowerupSettings("social", LoadedSettings);
+		}
 	}
 
 	void LoadedSettings (Dictionary<string, object> settings)
@@ -25,6 +34,16 @@ public class LumosSocialSettings : MonoBehaviour
 		
 		if (settings != null && settings.ContainsKey(gameCenterKey)) {
 			useGameCenter = System.Convert.ToBoolean(settings[gameCenterKey]);
+		}
+		
+		if (useGameCenter && Application.platform == RuntimePlatform.IPhonePlayer) {			
+			gameCenterPlatform = new GameCenterPlatform();
+			
+			gameCenterPlatform.localUser.Authenticate(success => {
+				if (success) {
+					Lumos.Log("Authenticated with game center.");
+				}
+			});
 		}
 	}
 

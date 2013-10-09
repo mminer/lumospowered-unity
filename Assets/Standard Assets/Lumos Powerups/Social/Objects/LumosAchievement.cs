@@ -101,17 +101,14 @@ public class LumosAchievement : IAchievement
 			});
 	}
 	
+	#region Added Functions
+	
 	void ReportProgressToGameCenter (string achievementID, double percentCompleted)
 	{
-		var temp = Social.Active;
-		Social.Active = new GameCenterPlatform();
-		
-		if (Social.localUser != null && Social.localUser.authenticated) {
-			Social.ReportProgress(achievementID, percentCompleted, delegate {
-				Lumos.Log("Reported achievement progress to Game Center.");
-			});	
-		}
-		
-		Social.Active = temp;
+		LumosSocialSettings.gameCenterPlatform.ReportProgress(achievementID, percentCompleted, delegate {
+			Lumos.Log("Reported achievement progress to Game Center.");
+		});
 	}
+	
+	#endregion
 }
