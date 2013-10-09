@@ -44,7 +44,7 @@ public class LumosPlayer
 		// Get a new player ID from Lumos.
 		var endpoint = baseUrl + "/players";
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.POST,
 			success => {
 				var idPrefsKey = "lumospowered_" + Lumos.credentials.gameID + "_playerid";
 				var resp = success as Dictionary<string, object>;
@@ -63,9 +63,9 @@ public class LumosPlayer
 	/// </summary>
 	static void Ping ()
 	{
-		var endpoint = baseUrl + "/players/" + Lumos.playerID + "?method=PUT";
+		var endpoint = baseUrl + "/players/" + Lumos.playerID;
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.PUT,
 			success => {
 				//var resp = success as Dictionary<string, object>;
 				//Lumos.Log(resp["message"]);
@@ -75,15 +75,15 @@ public class LumosPlayer
 				//Lumos.LogError(resp["message"]);
 			});
 	}
-	
+
 	/// <summary>
 	/// Gets the settings for a powerup used by this game
 	/// </summary>
 	public static void GetPowerupSettings (string powerupID, Action<Dictionary<string, object>> callback)
 	{
-		var endpoint = baseUrl + "/settings/" + powerupID + "?method=GET";
+		var endpoint = baseUrl + "/settings/" + powerupID;
 
-		LumosRequest.Send(endpoint, 
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET,
 			success => {
 				callback(success as Dictionary<string, object>);
 			},

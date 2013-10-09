@@ -74,7 +74,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			userID = Lumos.playerID;
 		}
 
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/users/" + userID;
 
 		if (password == null) {
 			password = "default";
@@ -84,7 +84,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			{ "password", password }
 		};
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET, payload,
 			success => {
 				var resp = success as Dictionary<string, object>;
 				authenticated = true;
@@ -105,9 +105,9 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	// Loads the user's friends list.
 	public void LoadFriends (Action<bool> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends";
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET,
 			success => {
 				var resp = success as IList;
 				friends = ParseFriends(resp);
@@ -131,9 +131,9 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// <param name="callback">Callback.</param>
 	public void LoadFriendRequests (Action<bool> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friend-requests?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friend-requests";
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET,
 			success => {
 				if (success != null) {
 					var resp = success as IList;
@@ -164,7 +164,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			{ "friend", friendID }
 		};
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.POST, payload,
 			success => {
 				if (callback != null) {
 					callback(false);
@@ -184,9 +184,9 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// <param name="callback">Callback.</param>
 	public void AcceptFriendRequest (string friendID, Action<bool> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends/" + friendID + "?method=PUT";
+		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends/" + friendID;
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.PUT,
 			success => {
 				var resp = success as Dictionary<string, object>;
 				friends = ParseFriends(resp["friends"] as IList);
@@ -216,7 +216,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			{ "decline", true }
 		};
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.POST, payload,
 			success => {
 				var resp = success as Dictionary<string, object>;
 
@@ -242,9 +242,9 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// <param name="callback">Callback.</param>
 	public void RemoveFriend (string friendID, Action<bool> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends/" + friendID + "?method=DELETE";
+		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "/friends/" + friendID;
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.DELETE,
 			success => {
 				var resp = success as IList;
 				friends = ParseFriends(resp);
@@ -266,9 +266,9 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// <param name="callback">Callback.</param>
 	public void LoadFriendLeaderboardScores (Action<bool> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + id + "/friends/scores?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/users/" + id + "/friends/scores";
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET,
 			success => {
 				var resp = success as IList;
 				var leaderboards = new LumosLeaderboard[resp.Count];
@@ -311,7 +311,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// <param name="callback">Callback.</param>
 	public void UpdateInfo (string name=null, string email=null, string password=null, Dictionary<string, object> other=null, Action<bool> callback=null)
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + userID + "?method=PUT";
+		var endpoint = LumosSocial.baseUrl + "/users/" + userID;
 
 		var payload = new Dictionary<string, object>();
 		LumosUtil.AddToDictionaryIfNonempty(payload, "name", name);
@@ -322,7 +322,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 			payload["other"] = LumosJson.Serialize(other);
 		}
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.PUT, payload,
 			success => {
 				var resp = success as Dictionary<string, object>;
 				Update(resp);

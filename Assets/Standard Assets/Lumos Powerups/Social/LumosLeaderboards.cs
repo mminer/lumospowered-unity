@@ -11,7 +11,7 @@ using UnityEngine.SocialPlatforms.Impl;
 
 
 // Functions dealing with fetching and posting to leaderboards.
-public partial class LumosSocial 
+public partial class LumosSocial
 {
 	static Dictionary<string, LumosLeaderboard> _leaderboards;
 
@@ -29,14 +29,12 @@ public partial class LumosSocial
 		}
 	}
 
-
 	// Creates an empty leaderboard object.
 	public ILeaderboard CreateLeaderboard ()
 	{
 		var leaderboard = new LumosLeaderboard();
 		return leaderboard;
 	}
-
 
 	/// Reports a new score.
 	public void ReportScore (System.Int64 score, string leaderboardID, Action<bool> callback)
@@ -47,17 +45,17 @@ public partial class LumosSocial
 			return;
 		}
 
-		var endpoint = LumosSocial.baseUrl + "/users/" + localUser.id + "/scores/" + leaderboardID + "?method=PUT";
+		var endpoint = LumosSocial.baseUrl + "/users/" + localUser.id + "/scores/" + leaderboardID;
 		var payload = new Dictionary<string, object>() {
 			{ "score", (int)score }
 		};
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.PUT, payload,
 			success => {
 				if (Application.platform == RuntimePlatform.IPhonePlayer && LumosSocialSettings.useGameCenter) {
 					ReportScoreToGameCenter(leaderboardID, score);
 				}
-			
+
 				if (callback != null) {
 					callback(true);
 				}
@@ -151,9 +149,9 @@ public partial class LumosSocial
 	/// <param name="callback">Callback.</param>
 	public static void LoadLeaderboardDescriptions(Action<bool> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/leaderboards/info?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/leaderboards/info";
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET,
 			success => {
 				var resp = success as IList;
 				_leaderboards = new Dictionary<string, LumosLeaderboard>();
@@ -173,9 +171,9 @@ public partial class LumosSocial
 				}
 			});
 	}
-	
+
 	void ReportScoreToGameCenter (string leaderboardID, System.Int64 score)
-	{		
+	{
 		LumosSocialSettings.gameCenterPlatform.ReportScore(score, leaderboardID, delegate {
 			Lumos.Log("Reported leaderboard score to Game Center.");
 		});

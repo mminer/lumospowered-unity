@@ -72,24 +72,24 @@ public class LumosAchievement : IAchievement
 			return;
 		}
 
-		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/achievements/" + id + "?method=PUT";
+		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/achievements/" + id;
 
 		var payload = new Dictionary<string, object>() {
 			{ "percent_completed", percentCompleted }
 		};
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.PUT, payload,
 			success => {
 				var info = success as Dictionary<string, object>;
 
 				// Update timestamp.
 				var timestamp = Convert.ToDouble(info["updated"]);
 				lastReportedDate = LumosUtil.UnixTimestampToDateTime(timestamp);
-				
+
 				if (Application.platform == RuntimePlatform.IPhonePlayer && LumosSocialSettings.useGameCenter) {
 					ReportProgressToGameCenter(id, percentCompleted);
 				}
-			
+
 				if (callback != null) {
 					callback(true);
 				}
@@ -100,15 +100,15 @@ public class LumosAchievement : IAchievement
 				}
 			});
 	}
-	
+
 	#region Added Functions
-	
+
 	void ReportProgressToGameCenter (string achievementID, double percentCompleted)
 	{
 		LumosSocialSettings.gameCenterPlatform.ReportProgress(achievementID, percentCompleted, delegate {
 			Lumos.Log("Reported achievement progress to Game Center.");
 		});
 	}
-	
+
 	#endregion
 }

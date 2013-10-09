@@ -35,12 +35,12 @@ public partial class LumosSocial
 	/// Loads the specified users.
 	public void LoadUsers(string[] userIDs, Action<IUserProfile[]> callback)
 	{
-		var endpoint = baseUrl + "/users?method=GET";
+		var endpoint = baseUrl + "/users";
 		var payload = new Dictionary<string, object>() {
 			{ "user_ids", userIDs }
 		};
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET, payload,
 			success => {
 				var resp = success as Dictionary<string, object>;
 				var users = new List<IUserProfile>(resp.Count);
@@ -86,14 +86,14 @@ public partial class LumosSocial
 	/// <param name="callback">Callback.</param>
 	public static void RegisterUser (LumosUser user, Action<bool> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + user.id + "?method=PUT";
+		var endpoint = LumosSocial.baseUrl + "/users/" + user.id;
 		var payload = new Dictionary<string, object>() {
 			{ "password", user.password }
 		};
 
 		LumosUtil.AddToDictionaryIfNonempty(payload, "email", user.email);
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.PUT, payload,
 			success => {
 				var info = success as Dictionary<string, object>;
 				user.authenticated = true;
@@ -120,7 +120,7 @@ public partial class LumosSocial
 	{
 		var endpoint = LumosSocial.baseUrl + "/users/" + username + "/password";
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.POST,
 			success => {
 				if (callback != null) {
 					callback(true);

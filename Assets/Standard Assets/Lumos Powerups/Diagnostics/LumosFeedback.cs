@@ -37,7 +37,7 @@ public static class LumosFeedback
 	{
 		var endpoint = LumosDiagnostics.baseUrl + "/feedback";
 
-		LumosRequest.Send(endpoint, feedback,
+		LumosRequest.Send(endpoint, LumosRequest.Method.POST, feedback,
 			success => {
 				Lumos.Log("Feedback sent.");
 			},

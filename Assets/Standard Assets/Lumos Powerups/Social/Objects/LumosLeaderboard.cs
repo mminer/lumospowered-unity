@@ -83,10 +83,10 @@ public class LumosLeaderboard : ILeaderboard
 			return;
 		}
 
-		var endpoint = LumosSocial.baseUrl + "/leaderboards/" + id + "?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/leaderboards/" + id;
 		loading = true;
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET,
 			success => {
 				var info = success as Dictionary<string, object>;
 				title = info["name"] as string;
@@ -150,13 +150,13 @@ public class LumosLeaderboard : ILeaderboard
 	void FetchScores (int limit, int offset, Action<Score[]> callback)
 	{
 		loading = true;
-		var endpoint = LumosSocial.baseUrl + "/leaderboards/" + id + "/scores?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/leaderboards/" + id + "/scores";
 		var payload = new Dictionary<string, object>() {
 			{ "limit", limit },
 			{ "offset", offset }
 		};
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET, payload,
 			success => {
 				var resp = success as Dictionary<string, object>;
 				var scoreList = resp["scores"] as IList;
@@ -184,14 +184,14 @@ public class LumosLeaderboard : ILeaderboard
 	/// <param name="callback">Callback.</param>
 	void FetchUserScores (int limit, Action<Score[]> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/scores/" + id + "?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/scores/" + id;
 		loading = true;
 
 		var payload = new Dictionary<string, object>() {
 			{ "limit", limit }
 		};
 
-		LumosRequest.Send(endpoint, payload,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET, payload,
 			success => {
 				var resp = success as Dictionary<string, object>;
 				var scoreList = resp["scores"] as IList;
@@ -217,10 +217,10 @@ public class LumosLeaderboard : ILeaderboard
 	/// </summary>
 	void FetchFriendScores ()
 	{
-		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/friends/scores/" + id + "?method=GET";
+		var endpoint = LumosSocial.baseUrl + "/users/" + Social.localUser.id + "/friends/scores/" + id;
 		loading = true;
 
-		LumosRequest.Send(endpoint,
+		LumosRequest.Send(endpoint, LumosRequest.Method.GET,
 			success => {
 				var resp = success as Dictionary<string, object>;
 				var scoreList = resp["scores"] as IList;
