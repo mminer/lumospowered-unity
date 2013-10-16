@@ -19,31 +19,34 @@ public class LumosRequest
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	/// <param name="url">The URL endpoint.</param>
+	/// <param name="powerup">The powerup instance.</param>
+	/// <param name="endpoint">The URL endpoint.</param>
 	/// <param name="method">The HTTP method to use.</param>
-	public static Coroutine Send (string url, Method method)
+	public static Coroutine Send (ILumosPowerup powerup, string endpoint, Method method)
 	{
-		return Lumos.RunRoutine(SendCoroutine(url, method, null, null, null));
+		return Lumos.RunRoutine(SendCoroutine(powerup, endpoint, method, null, null, null));
 	}
 
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	/// <param name="url">The URL endpoint.</param>
+	/// <param name="powerup">The powerup instance.</param>
+	/// <param name="endpoint">The URL endpoint.</param>
 	/// <param name="method">The HTTP method to use.</param>
-	public static Coroutine Send (string url, Method method, Action<object> successCallback)
+	public static Coroutine Send (ILumosPowerup powerup, string endpoint, Method method, Action<object> successCallback)
 	{
-		return Lumos.RunRoutine(SendCoroutine(url, method, null, successCallback, null));
+		return Lumos.RunRoutine(SendCoroutine(powerup, endpoint, method, null, successCallback, null));
 	}
 
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	/// <param name="url">The URL endpoint.</param>
+	/// <param name="powerup">The powerup instance.</param>
+	/// <param name="endpoint">The URL endpoint.</param>
 	/// <param name="method">The HTTP method to use.</param>
-	public static Coroutine Send (string url, Method method, Action<object> successCallback, Action<object> errorCallback)
+	public static Coroutine Send (ILumosPowerup powerup, string endpoint, Method method, Action<object> successCallback, Action<object> errorCallback)
 	{
-		return Lumos.RunRoutine(SendCoroutine(url, method, null, successCallback, errorCallback));
+		return Lumos.RunRoutine(SendCoroutine(powerup, endpoint, method, null, successCallback, errorCallback));
 	}
 
 	// With parameters:
@@ -51,47 +54,51 @@ public class LumosRequest
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	/// <param name="url">The URL endpoint.</param>
+	/// <param name="powerup">The powerup instance.</param>
+	/// <param name="endpoint">The URL endpoint.</param>
 	/// <param name="method">The HTTP method to use.</param>
 	/// <param name="parameters">Data to send.</param>
-	public static Coroutine Send (string url, Method method, object parameters)
+	public static Coroutine Send (ILumosPowerup powerup, string endpoint, Method method, object parameters)
 	{
-		return Lumos.RunRoutine(SendCoroutine(url, method, parameters, null, null));
+		return Lumos.RunRoutine(SendCoroutine(powerup, endpoint, method, parameters, null, null));
 	}
 
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	/// <param name="url">The URL endpoint.</param>
-	/// <param name="method">The HTTP method to use.</param>
-	/// <param name="parameters">Data to send.</param>
-	/// <param name="successCallback">Callback to run on successful response.</param>
-	public static Coroutine Send (string url, Method method, object parameters, Action<object> successCallback)
-	{
-		return Lumos.RunRoutine(SendCoroutine(url, method, parameters, successCallback, null));
-	}
-
-	/// <summary>
-	/// Sends data to Lumos' servers.
-	/// </summary>
-	/// <param name="url">The URL endpoint.</param>
+	/// <param name="powerup">The powerup instance.</param>
+	/// <param name="endpoint">The URL endpoint.</param>
 	/// <param name="method">The HTTP method to use.</param>
 	/// <param name="parameters">Data to send.</param>
 	/// <param name="successCallback">Callback to run on successful response.</param>
-	/// <param name="errorCallback">Callback to run on failed response.</param>
-	public static Coroutine Send (string url, Method method, object parameters, Action<object> successCallback, Action<object> errorCallback)
+	public static Coroutine Send (ILumosPowerup powerup, string endpoint, Method method, object parameters, Action<object> successCallback)
 	{
-		return Lumos.RunRoutine(SendCoroutine(url, method, parameters, successCallback, errorCallback));
+		return Lumos.RunRoutine(SendCoroutine(powerup, endpoint, method, parameters, successCallback, null));
 	}
 
 	/// <summary>
 	/// Sends data to Lumos' servers.
 	/// </summary>
-	/// <param name="url">The URL endpoint.</param>
+	/// <param name="powerup">The powerup instance.</param>
+	/// <param name="endpoint">The URL endpoint.</param>
+	/// <param name="method">The HTTP method to use.</param>
 	/// <param name="parameters">Data to send.</param>
 	/// <param name="successCallback">Callback to run on successful response.</param>
 	/// <param name="errorCallback">Callback to run on failed response.</param>
-	static IEnumerator SendCoroutine (string url, Method method, object parameters, Action<object> successCallback, Action<object> errorCallback)
+	public static Coroutine Send (ILumosPowerup powerup, string endpoint, Method method, object parameters, Action<object> successCallback, Action<object> errorCallback)
+	{
+		return Lumos.RunRoutine(SendCoroutine(powerup, endpoint, method, parameters, successCallback, errorCallback));
+	}
+
+	/// <summary>
+	/// Sends data to Lumos' servers.
+	/// </summary>
+	/// <param name="powerup">The powerup instance.</param>
+	/// <param name="endpoint">The URL endpoint.</param>
+	/// <param name="parameters">Data to send.</param>
+	/// <param name="successCallback">Callback to run on successful response.</param>
+	/// <param name="errorCallback">Callback to run on failed response.</param>
+	static IEnumerator SendCoroutine (ILumosPowerup powerup, string endpoint, Method method, object parameters, Action<object> successCallback, Action<object> errorCallback)
 	{
 		if (Application.isEditor && !Lumos.runInEditor) {
 			yield break;
@@ -106,11 +113,17 @@ public class LumosRequest
 			yield break;
 		}
 
-		// Add GET parameters to URL to circumvent poor HTTP support.
-		url += "?lousyclient=true&method=" + method.ToString();
+		// Skip out early if the current player isn't in the game's quota.
+		// The server rejects such calls anyway, but this saves unnecessary outgoing requests.
+		if ((powerup.id == "analytics" || powerup.id == "diagnostics") &&
+		    	!LumosPowerups.powerups[powerup.id].playerInQuota) {
+			yield break;
+		}
 
+		// Add GET parameters to URL to circumvent poor HTTP support.
+		var url = powerup.baseURL + endpoint + "?lousyclient=true&method=" + method.ToString();
 		var postData = SerializePostData(parameters);
-		var headers = GetHeaders(postData);
+		var headers = GetHeaders(powerup, postData);
 		var www = new WWW(url, postData, headers);
 
 		// Send info to server.
@@ -219,16 +232,23 @@ public class LumosRequest
 	/// <summary>
 	/// Creates the headers for the outgoing request.
 	/// </summary>
+	/// <param name="powerup">The powerup instance.</param>
 	/// <returns>A table of request headers.</returns>
-	static Hashtable GetHeaders (byte[] postData)
+	static Hashtable GetHeaders (ILumosPowerup powerup, byte[] postData)
 	{
+		var versionData = new Dictionary<string, string>() {
+			{ "lumos", Lumos.version },
+			{ "client", "Unity " + Application.unityVersion },
+			{ "powerup", powerup.id + " " + powerup.version }
+		};
+
 		var headers = new Hashtable() {
 			{ "Content-Type", "application/json" },
 			{ "Authorization", GenerateAuthorizationHeader(Lumos.credentials, postData) },
 
 			// Non-standard headers:
 			{ "Lumos-Game-ID", Lumos.credentials.gameID },
-			{ "Lumos-Client-Version", "Unity/" + Lumos.version }
+			{ "Lumos-Version", LumosJson.Serialize(versionData) }
 		};
 
 		if (Lumos.playerID != null) {

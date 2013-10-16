@@ -79,10 +79,10 @@ public static class LumosEvents
 			return;
 		}
 
-		var endpoint = LumosAnalytics.baseUrl + "/events";
+		var endpoint = "/events";
 		var payload = new List<Dictionary<string, object>>(events.Values);
 
-		LumosRequest.Send(endpoint, LumosRequest.Method.POST, payload,
+		LumosRequest.Send(LumosAnalytics.instance, endpoint, LumosRequest.Method.POST, payload,
 			success => {
 				var now = System.DateTime.Now.ToString();
 

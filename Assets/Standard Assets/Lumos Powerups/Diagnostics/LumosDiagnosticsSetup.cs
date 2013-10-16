@@ -13,7 +13,7 @@ public class LumosDiagnosticsSetup : ILumosSetup
 
 		if (lumos != null && lumos.GetComponent<LumosDiagnostics>() == null) {
 			lumos.AddComponent<LumosDiagnostics>();
-			Debug.Log("Lumos Diagnostics setup complete.");
+			Debug.Log("[Lumos] Lumos Diagnostics setup complete.");
 		}
 	}
 }

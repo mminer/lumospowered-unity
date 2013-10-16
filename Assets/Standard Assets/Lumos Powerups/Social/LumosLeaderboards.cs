@@ -45,14 +45,14 @@ public partial class LumosSocial
 			return;
 		}
 
-		var endpoint = LumosSocial.baseUrl + "/users/" + localUser.id + "/scores/" + leaderboardID;
+		var endpoint = "/users/" + localUser.id + "/scores/" + leaderboardID;
 		var payload = new Dictionary<string, object>() {
 			{ "score", (int)score }
 		};
 
-		LumosRequest.Send(endpoint, LumosRequest.Method.PUT, payload,
+		LumosRequest.Send(LumosSocial.instance, endpoint, LumosRequest.Method.PUT, payload,
 			success => {
-				if (Application.platform == RuntimePlatform.IPhonePlayer && LumosSocialSettings.useGameCenter) {
+				if (Application.platform == RuntimePlatform.IPhonePlayer && LumosSocial.useGameCenter) {
 					ReportScoreToGameCenter(leaderboardID, score);
 				}
 
@@ -149,9 +149,9 @@ public partial class LumosSocial
 	/// <param name="callback">Callback.</param>
 	public static void LoadLeaderboardDescriptions(Action<bool> callback)
 	{
-		var endpoint = LumosSocial.baseUrl + "/leaderboards/info";
+		var endpoint = "/leaderboards/info";
 
-		LumosRequest.Send(endpoint, LumosRequest.Method.GET,
+		LumosRequest.Send(LumosSocial.instance, endpoint, LumosRequest.Method.GET,
 			success => {
 				var resp = success as IList;
 				_leaderboards = new Dictionary<string, LumosLeaderboard>();
@@ -174,7 +174,7 @@ public partial class LumosSocial
 
 	void ReportScoreToGameCenter (string leaderboardID, System.Int64 score)
 	{
-		LumosSocialSettings.gameCenterPlatform.ReportScore(score, leaderboardID, delegate {
+		LumosSocial.gameCenterPlatform.ReportScore(score, leaderboardID, delegate {
 			Lumos.Log("Reported leaderboard score to Game Center.");
 		});
 	}

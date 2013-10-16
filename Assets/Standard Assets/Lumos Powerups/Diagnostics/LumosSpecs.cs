@@ -20,7 +20,7 @@ public static class LumosSpecs
 			return;
 		}
 
-		var endpoint = LumosDiagnostics.baseUrl + "/specs/" + Lumos.playerID;
+		var endpoint = "/specs/" + Lumos.playerID;
 		var payload = new Dictionary<string, object>() {
 #if !UNITY_IPHONE
 			{ "os", SystemInfo.operatingSystem },
@@ -34,7 +34,7 @@ public static class LumosSpecs
 #endif
 		};
 
-		LumosRequest.Send(endpoint, LumosRequest.Method.PUT, payload,
+		LumosRequest.Send(LumosDiagnostics.instance, endpoint, LumosRequest.Method.PUT, payload,
 			success => {
 				PlayerPrefs.SetString(prefsKey, System.DateTime.Now.ToString());
 				Lumos.Log("System information successfully sent.");
@@ -44,5 +44,4 @@ public static class LumosSpecs
 			}
 		);
 	}
-
 }

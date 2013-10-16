@@ -9,6 +9,8 @@ using UnityEngine;
 /// </summary>
 public partial class Lumos : MonoBehaviour
 {
+	public const string version = "1.4";
+
 	#region Inspector Settings
 
 	public bool runWhileInEditor;
@@ -29,13 +31,6 @@ public partial class Lumos : MonoBehaviour
 
 	#endregion
 
-	static float _timerInterval = 30; // Seconds
-
-	/// <summary>
-	/// Version number.
-	/// </summary>
-	public const string version = "1.3.1";
-
 	/// <summary>
 	/// Server communication credentials.
 	/// </summary>
@@ -50,6 +45,8 @@ public partial class Lumos : MonoBehaviour
 	/// The device-specific player ID.
 	/// </summary>
 	public static string playerID { get; set; }
+
+	static float _timerInterval = 30; // Seconds
 
 	/// <summary>
 	/// The interval (in seconds) at which queued data is sent to the server.
@@ -71,7 +68,13 @@ public partial class Lumos : MonoBehaviour
 		get { return instance.runWhileInEditor; }
 	}
 
-	static Lumos instance;
+	/// <summary>
+	/// Whether Lumos has been initialized and is ready to receive data.
+	/// </summary>
+	public static bool ready { get; private set; }
+
+	public static Lumos instance;
+
 	Lumos () {}
 
 	void Awake ()
@@ -105,14 +108,27 @@ public partial class Lumos : MonoBehaviour
 	/// <summary>
 	/// Sends the opening request.
 	/// <summary>
-	void Start ()
+	IEnumerator Start ()
 	{
-		LumosPlayer.Init(delegate {
-			if (OnReady != null) {
-				OnReady();
-				Lumos.RunRoutine(SendQueuedData());
-			}
-		});
+		var idPrefsKey = "lumospowered_" + credentials.gameID + "_playerid";
+
+		// Wait until a player ID is set.
+		if (PlayerPrefs.HasKey(idPrefsKey)) {
+			Lumos.playerID = PlayerPrefs.GetString(idPrefsKey);
+			Lumos.Log("Using existing player " + Lumos.playerID);
+		} else {
+			yield return LumosCore.RequestPlayerID();
+		}
+
+		// Wait until server has been contacted.
+		yield return LumosCore.Ping();
+
+		if (OnReady != null) {
+			OnReady();
+			RunRoutine(SendQueuedData());
+		}
+
+		ready = true;
 	}
 
 	/// <summary>

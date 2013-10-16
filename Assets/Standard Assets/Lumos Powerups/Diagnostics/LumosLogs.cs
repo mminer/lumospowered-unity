@@ -103,10 +103,10 @@ public static class LumosLogs
 			return;
 		}
 
-		var endpoint = LumosDiagnostics.baseUrl + "/logs";
+		var endpoint = "/logs";
 		var payload = new List<Dictionary<string, object>>(logs.Values);
 
-		LumosRequest.Send(endpoint, LumosRequest.Method.POST, payload,
+		LumosRequest.Send(LumosDiagnostics.instance, endpoint, LumosRequest.Method.POST, payload,
 			success => {
 				logs.Clear();
 			},

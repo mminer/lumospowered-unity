@@ -5,8 +5,14 @@ using UnityEngine;
 /// <summary>
 /// Lumos diagnostics.
 /// </summary>
-public class LumosDiagnostics : MonoBehaviour
+public class LumosDiagnostics : MonoBehaviour, ILumosPowerup
 {
+	public string id { get { return "diagnostics"; } }
+	public string version { get { return "1.4"; } }
+	public string baseURL { get { return _baseURL; } }
+
+	public static string _baseURL = "https://diagnostics.lumospowered.com/api/1";
+
 	#region Inspector Settings
 
 	public bool recordLogs = false;
@@ -19,34 +25,33 @@ public class LumosDiagnostics : MonoBehaviour
 
 	#endregion
 
-	static string _baseUrl = "https://diagnostics.lumospowered.com/api/1";
+	public static LumosDiagnostics instance { get; private set; }
 
-	/// <summary>
-	/// The API's host domain.
-	/// </summary>
-	public static string baseUrl {
-		get { return _baseUrl; }
-		set { _baseUrl = value; }
-	}
-
-	static LumosDiagnostics instance;
 	LumosDiagnostics () {}
-	
 	
 	void Awake ()
 	{
 		instance = this;
-		Lumos.OnReady += LumosSpecs.Record;
-		Lumos.OnTimerFinish += LumosLogs.Send;
-
-		// Set up debug log redirect.
-		Application.RegisterLogCallback(LumosLogs.Record);
+		Lumos.OnReady += Ready;
 	}
-	
-	
+
 	void OnGUI ()
 	{
 		LumosFeedbackGUI.OnGUI();
+	}
+
+	void Ready ()
+	{
+		if (!LumosPowerups.powerups.ContainsKey(id)) {
+			enabled = false;
+			return;
+		}
+
+		Lumos.OnTimerFinish += LumosLogs.Send;
+		LumosSpecs.Record();
+		
+		// Set up debug log redirect.
+		Application.RegisterLogCallback(LumosLogs.Record);
 	}
 
 	public static bool IsInitialized ()

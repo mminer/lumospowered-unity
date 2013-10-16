@@ -55,9 +55,9 @@ public partial class LumosSocial
 		if (achievementDescriptions == null && !loadingAchievementDescriptions) {
 			// Load the achievement descriptions from the server.
 			loadingAchievementDescriptions = true;
-			var endpoint = baseUrl + "/achievements";
+			var endpoint = "/achievements";
 
-			LumosRequest.Send(endpoint, LumosRequest.Method.GET,
+			LumosRequest.Send(LumosSocial.instance, endpoint, LumosRequest.Method.GET,
 				success => {
 					var resp = success as IList;
 					achievementDescriptions = new LumosAchievementDescription[resp.Count];
@@ -91,9 +91,9 @@ public partial class LumosSocial
 		if (achievements == null && !loadingAchievements) {
 			// Load the achievements from the server.
 			loadingAchievements = true;
-			var endpoint = baseUrl + "/users/" + localUser.id + "/achievements";
+			var endpoint = "/users/" + localUser.id + "/achievements";
 
-			LumosRequest.Send(endpoint, LumosRequest.Method.GET,
+			LumosRequest.Send(LumosSocial.instance, endpoint, LumosRequest.Method.GET,
 				success => {
 					var resp = success as IList;
 					_achievements = new Dictionary<string, LumosAchievement>();

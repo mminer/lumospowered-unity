@@ -21,7 +21,7 @@ public static class LumosLocation
 			return;
 		}
 
-		var endpoint = LumosAnalytics.baseUrl + "/location/" + Lumos.playerID;
+		var endpoint = "/location/" + Lumos.playerID;
 		var payload = new Dictionary<string, object>() {
 			{ "language", Application.systemLanguage.ToString() }
 		};
@@ -30,7 +30,7 @@ public static class LumosLocation
 			payload["origin"] = Application.absoluteURL;
 		}
 
-		LumosRequest.Send(endpoint, LumosRequest.Method.PUT, payload,
+		LumosRequest.Send(LumosAnalytics.instance, endpoint, LumosRequest.Method.PUT, payload,
 			success => {
 				PlayerPrefs.SetString(prefsKey, System.DateTime.Now.ToString());
 				Lumos.Log("Location information successfully sent.");
