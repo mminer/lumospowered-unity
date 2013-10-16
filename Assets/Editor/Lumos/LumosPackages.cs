@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -183,26 +184,45 @@ public static class LumosPackages
 		};
 	}
 
+	
 	/// <summary>
 	/// Checks for updated powerup packages.
 	/// </summary>
 	public static void CheckForUpdates ()
 	{
 		checkingForUpdates = true;
-
-		var client = new WebClient();
+		
+		var request = WebRequest.Create(updatesUrl);
+		request.ContentType = "application/json; charset=utf-8";
+		
 		var authorizationHeader =
 			LumosRequest.GenerateAuthorizationHeader(LumosCredentialsManager.GetCredentials(), null);
-		client.Headers.Add("Authorization", authorizationHeader);
-		client.DownloadStringAsync(updatesUrl);
-		client.DownloadStringCompleted += CheckForUpdatesCallback;
+		request.Headers.Add("Authorization", authorizationHeader);
+		
+		string text;
+		
+		var failedSSLCallback = new RemoteCertificateValidationCallback(delegate { return true; });
+		ServicePointManager.ServerCertificateValidationCallback += failedSSLCallback;
+		
+		try {
+			var response = (HttpWebResponse) request.GetResponse();
+			using (var sr = new StreamReader(response.GetResponseStream()))
+			{
+			    text = sr.ReadToEnd();
+				CheckForUpdatesCallback(text);
+			}
+		} catch (WebException e) {
+			Debug.Log("Web exception: " + e.Message);
+		} finally {
+			ServicePointManager.ServerCertificateValidationCallback -= failedSSLCallback;
+		}
 	}
 
 	/// <summary>
 	/// Parses the results of checking for powerup package updates.
 	/// </summary>
-	static void CheckForUpdatesCallback (object sender, DownloadStringCompletedEventArgs e) {
-		latestPackagesResponse = LumosJson.Deserialize(e.Result) as IList;
+	static void CheckForUpdatesCallback (string result) {
+		latestPackagesResponse = LumosJson.Deserialize(result) as IList;
 		checkingForUpdates = false;
 		EditorApplication.update += LumosPackages.MonitorImports;
 	}
