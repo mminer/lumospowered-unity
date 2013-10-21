@@ -14,12 +14,11 @@ public class LumosInstall : EditorWindow
     const string prefabPath = "Assets/Standard Assets/Lumos/Lumos.prefab";
 	const string errorMessage = "Enter your game's API key from the Lumos website.";
 	const string instructions = "Ensure you complete this installation in the scene you want Lumos to first initiate.";
-	const string warningMessage = "We will check for updates and missing Unity packages, new files may be imported to your project during this setup.";
 	static readonly GUIContent apiKeyLabel = new GUIContent("API Key", "Your game's API key from the Lumos website.");
 
-	LumosPackageManager packageManager;
-	LumosCredentials credentials;
+	static LumosCredentials credentials;
 	bool showError;
+	
 	
 	static LumosInstall ()
 	{
@@ -29,29 +28,28 @@ public class LumosInstall : EditorWindow
 	
 	static void PromptLumosInstall ()
 	{
-		// Makes the Lumos install window pop up if there is no credentials file
-		if (!LumosCredentialsManager.HasCredentialsFile()) {
-			EditorWindow.GetWindow<LumosInstall>(true, "Install Window");	
-		}
-		
 		EditorApplication.projectWindowChanged -= PromptLumosInstall;
 		EditorApplication.hierarchyWindowChanged -= PromptLumosInstall;
+		
+		// Make window pop up
+		 EditorWindow.GetWindow<LumosInstall>(true, "Install Window");	
 	}
 	
 	void OnEnable ()
-    {
-		credentials = LumosCredentialsManager.GetCredentials();
-		packageManager = LumosPackages.GetPackageManager();
-		
-		if (credentials.gameID != null) {
-			if (packageManager.installing) {
-				LumosPackages.CheckForUpdates();	
-			}	
+	{
+		if (LumosPackages.package == LumosPackages.Update.None || LumosPackages.package == LumosPackages.Update.CheckingVersion) {
+			LumosPackages.CheckForUpdates();
 		}
+		
+		credentials = LumosCredentialsManager.GetCredentials();
 	}
-
+	
     void OnGUI ()
 	{
+		if (credentials == null) {
+			return;
+		}
+		
 		EditorGUILayout.HelpBox(instructions + " " + errorMessage, MessageType.Info);
 		EditorGUILayout.Space();
 
@@ -60,16 +58,30 @@ public class LumosInstall : EditorWindow
 		// Displays an error message if something has gone wrong.
 		if (showError) {
 			EditorGUILayout.HelpBox(errorMessage, MessageType.Error);
+		} else {
+			EditorGUILayout.Space();
+			EditorGUILayout.Space();
 		}
 
 		EditorGUILayout.Space();
 		
-		EditorGUILayout.HelpBox(warningMessage, MessageType.Info);
-
-		GUILayout.Label(LumosPackages.messageStatus);
+		EditorGUILayout.LabelField("Version", Lumos.version);
+		
+		if (LumosPackages.package == LumosPackages.Update.CheckingVersion) {
+			GUILayout.Label("Checking for updates...");
+		} else if (LumosPackages.package == LumosPackages.Update.OutOfDate) {
+			EditorGUILayout.Space();
+			EditorGUILayout.HelpBox("Your Lumos version is out of date. Please download the latest version from our website.", MessageType.Warning);
+			EditorGUILayout.Space();
+			
+			if (GUILayout.Button("Download Lumos " + LumosPackages.latestVersion, GUILayout.Width(Screen.width / 2))) {
+				Application.OpenURL("https://www.lumospowered.com/downloads");
+			}
+		}
+		
 		GUILayout.FlexibleSpace();
 
-		// "Install" & "Cancel" buttons.
+		// Install & Cancel buttons
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 
@@ -90,23 +102,20 @@ public class LumosInstall : EditorWindow
 		GUILayout.EndHorizontal();
 
 		EditorGUILayout.Space();
-
+		
+		// Save the new credentials
 		if (GUI.changed) {
 			EditorUtility.SetDirty(credentials);
 		}
-    }
+	}
 
 	void InstallLumos ()
 	{
-		// Stop displaying the error message
 		showError = false;
-		
 		Undo.RegisterSceneUndo("Add Lumos To Scene");
-		
 		var prefab = Resources.LoadAssetAtPath(prefabPath, typeof(GameObject));
 		PrefabUtility.InstantiatePrefab(prefab);
-
-		// Install missing or updated powerup scripts, if any.
-		LumosPackages.UpdateAllPackages();
+		LumosPackages.RunSetupScripts();
+		this.Close();
 	}
 }
