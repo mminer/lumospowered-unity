@@ -60,7 +60,10 @@ public class LumosCore : ILumosPowerup
 
 				if (error != null) {
 					var resp = error as Dictionary<string, object>;
-					message += " Error: " + resp["message"];
+				
+					if (resp.ContainsKey("message")) {
+						message += " Error: " + resp["message"];
+					}
 				}
 
 				Debug.LogWarning(message);

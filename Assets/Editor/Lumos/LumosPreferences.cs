@@ -12,7 +12,7 @@ public static class LumosPreferences
 	static readonly GUIContent apiKeyLabel = new GUIContent("API Key", "Your game's secret key, assigned on the website.");
 	static bool prefsLoaded;
 	static LumosCredentials credentials;
-
+	
     [PreferenceItem("Lumos")]
     public static void PreferencesGUI ()
 	{
@@ -26,6 +26,16 @@ public static class LumosPreferences
 		GUILayout.Label("General", EditorStyles.boldLabel);
 		EditorGUILayout.LabelField("Version", Lumos.version);
 		credentials.apiKey = EditorGUILayout.TextField(apiKeyLabel, credentials.apiKey);
+		
+		EditorGUILayout.Space();
+		
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+		
+			if (GUILayout.Button(new GUIContent("Run Setup Scripts", "Attaches required powerup scripts to the Lumos GameObject. Click this if you subscribed to new powerups since first installing Lumos."), GUILayout.Width(Screen.width / 2.9f))) {
+				LumosPackages.RunSetupScripts();
+			}
+		GUILayout.EndHorizontal();
 		
 		EditorGUILayout.Space();
 

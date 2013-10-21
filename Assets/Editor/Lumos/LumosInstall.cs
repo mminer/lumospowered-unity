@@ -21,7 +21,7 @@ public class LumosInstall : EditorWindow
 	
 	
 	static LumosInstall ()
-	{
+	{		
 		EditorApplication.projectWindowChanged += PromptLumosInstall;
 		EditorApplication.hierarchyWindowChanged += PromptLumosInstall;
 	}
@@ -31,17 +31,23 @@ public class LumosInstall : EditorWindow
 		EditorApplication.projectWindowChanged -= PromptLumosInstall;
 		EditorApplication.hierarchyWindowChanged -= PromptLumosInstall;
 		
+		credentials = LumosCredentialsManager.GetCredentials();
+		
+		if (credentials.apiKey.Length >= 32) {
+			return;
+		}
+		
 		// Make window pop up
 		 EditorWindow.GetWindow<LumosInstall>(true, "Install Window");	
 	}
 	
 	void OnEnable ()
 	{
+		credentials = LumosCredentialsManager.GetCredentials();
+		
 		if (LumosPackages.package == LumosPackages.Update.None || LumosPackages.package == LumosPackages.Update.CheckingVersion) {
 			LumosPackages.CheckForUpdates();
 		}
-		
-		credentials = LumosCredentialsManager.GetCredentials();
 	}
 	
     void OnGUI ()

@@ -7,6 +7,10 @@ using UnityEngine;
 /// </summary>
 public class LumosAnalyticsSetup : ILumosSetup
 {
+	public string powerupID {
+		get { return "analytics"; }
+	}
+	
 	public void Setup ()
 	{
 		var lumos = GameObject.Find("Lumos");

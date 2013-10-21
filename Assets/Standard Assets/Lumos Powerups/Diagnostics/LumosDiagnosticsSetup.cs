@@ -7,8 +7,12 @@ using UnityEngine;
 /// </summary>
 public class LumosDiagnosticsSetup : ILumosSetup
 {
+	public string powerupID {
+		get { return "diagnostics"; }
+	}
+	
 	public void Setup ()
-	{
+	{		
 		var lumos = GameObject.Find("Lumos");
 
 		if (lumos != null && lumos.GetComponent<LumosDiagnostics>() == null) {

@@ -17,9 +17,12 @@ using UnityEngine;
 public static class LumosPackages
 {	
 	static readonly Uri updatesUrl = new Uri("https://www.lumospowered.com/api/1/powerups/updates?engine=unity");
+	static readonly Uri subscribedUrl = new Uri("https://www.lumospowered.com/api/1/powerups/files?engine=unity");
 	public static string latestVersion;
 	public enum Update { None, CheckingVersion, OutOfDate, UpToDate };
 	public static Update package;
+	public static List<string> subscriptions = new List<string>();
+	static List<Type> setupScripts;
 	
 	/// <summary>
 	/// Checks if there is a newer Lumos package.
@@ -28,7 +31,34 @@ public static class LumosPackages
 	{
 		package = Update.CheckingVersion;
 		
-		var request = WebRequest.Create(updatesUrl);
+		DoRequest(updatesUrl, delegate (string result) {
+			latestVersion = LumosJson.Deserialize(result) as string;
+			var outOfDate = IsOutdated(Lumos.version, latestVersion);
+			package = (outOfDate) ? Update.OutOfDate : Update.UpToDate;
+		});
+	}
+	
+	/// <summary>
+	/// Checks which powerups this game is subscribed to.
+	/// </summary>
+	public static void CheckSubscribedPowerups ()
+	{
+		DoRequest(subscribedUrl, delegate (string result) {
+			var response = LumosJson.Deserialize(result) as IList;
+			subscriptions = new List<string>();
+
+		    foreach (Dictionary<string, object> data in response) {
+	            var powerupID = data["powerup_id"] as string;
+				subscriptions.Add(powerupID);
+		    }
+			
+			DoSetups();
+		});
+	}
+	
+	static void DoRequest (Uri uri, Action<string> callback)
+	{
+		var request = WebRequest.Create(uri);
 		request.ContentType = "application/json; charset=utf-8";
 		
 		var authorizationHeader =
@@ -44,22 +74,13 @@ public static class LumosPackages
 			var response = (HttpWebResponse) request.GetResponse();
 			using (var sr = new StreamReader(response.GetResponseStream())) {
 			    text = sr.ReadToEnd();
-				CheckForUpdatesCallback(text);
+				callback(text);
 			}
 		} catch (WebException e) {
 			Lumos.Log("Web exception: " + e.Message);
 		} finally {
 			ServicePointManager.ServerCertificateValidationCallback -= failedSSLCallback;
 		}
-	}
-
-	/// <summary>
-	/// Determines if the Lumos package is out of date
-	/// </summary>
-	static void CheckForUpdatesCallback (string result) {
-		latestVersion = LumosJson.Deserialize(result) as string;
-		var outOfDate = IsOutdated(Lumos.version, latestVersion);
-		package = (outOfDate) ? Update.OutOfDate : Update.UpToDate;
 	}
 	
 	static bool IsOutdated (String current, String latest)
@@ -90,14 +111,24 @@ public static class LumosPackages
 			        where t.IsClass && t.GetInterfaces().Contains(typeof(ILumosSetup))
 			        select t;
 
-			var setupScripts = q.ToList();
+			setupScripts = q.ToList();
 
 			if (setupScripts.Count > 0) {
-				foreach (var setup in setupScripts) {
-					var instance = Activator.CreateInstance(setup);
-					Convert.ChangeType(instance, setup);
-					setup.GetMethod("Setup").Invoke(instance, null);
-				}
+				CheckSubscribedPowerups();
+			}
+		}
+	}
+	
+	static void DoSetups ()
+	{
+		foreach (var setup in setupScripts) {
+			var instance = Activator.CreateInstance(setup);
+			Convert.ChangeType(instance, setup);
+			
+			var powerupID = setup.GetProperty("powerupID").GetValue(instance, null) as string;
+			
+			if (subscriptions.Contains(powerupID)) {
+				setup.GetMethod("Setup").Invoke(instance, null);	
 			}
 		}
 	}
