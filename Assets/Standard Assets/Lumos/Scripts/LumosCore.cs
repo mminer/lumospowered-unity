@@ -50,7 +50,7 @@ public class LumosCore : ILumosPowerup
 	{
 		return LumosRequest.Send(instance, "/ping", LumosRequest.Method.POST,
 			success => {
-				Debug.Log ("Returned Ping reuqest qith user " + Lumos.playerID);
+				Lumos.Log ("Returned Ping request with user " + Lumos.playerID);
 				var resp = success as Dictionary<string, object>;
 				var powerupInfo = resp["powerups"] as IList;
 				LumosPowerups.LoadPowerupInfo(powerupInfo);
