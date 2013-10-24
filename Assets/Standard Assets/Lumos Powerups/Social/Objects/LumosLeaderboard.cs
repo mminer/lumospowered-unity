@@ -117,7 +117,13 @@ public class LumosLeaderboard : ILeaderboard
 		loading = true;
 
 		if (friendScores == null && !loading) {
-			FetchFriendScores();
+			FetchFriendScores((success) => {
+				if (success) {
+					Lumos.Log("Loaded friend scores for " + id);
+				} else {
+					Debug.LogError("[Lumos] Unable to load friend scores for " + id);
+				}
+			});
 		}
 
 		FetchScores(limit, offset,
@@ -139,6 +145,11 @@ public class LumosLeaderboard : ILeaderboard
 		}
 
 		FetchUserScores(limit, callback);
+	}
+	
+	public void LoadFriendScores (Action<bool> callback)
+	{
+		FetchFriendScores(callback);
 	}
 
 	/// <summary>
@@ -215,7 +226,7 @@ public class LumosLeaderboard : ILeaderboard
 	/// <summary>
 	/// Fetches the friend scores.
 	/// </summary>
-	void FetchFriendScores ()
+	void FetchFriendScores (Action<bool> callback)
 	{
 		var endpoint = "/users/" + Social.localUser.id + "/friends/scores/" + id;
 		loading = true;
@@ -226,9 +237,11 @@ public class LumosLeaderboard : ILeaderboard
 				var scoreList = resp["scores"] as IList;
 				friendScores = ParseScores(id, scoreList);
 				loading = false;
+				callback(true);
 			},
 			error => {
 				loading = false;
+				callback(false);
 			});
 	}
 

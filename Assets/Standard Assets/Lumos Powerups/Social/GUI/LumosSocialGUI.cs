@@ -211,6 +211,11 @@ public class LumosSocialGUI : MonoBehaviour
 			ShowWindow(LumosGUIWindow.Login);
 		}
 	}
+	
+	public static bool isShowing ()
+	{
+		return visibleWindow != LumosGUIWindow.None;
+	}
 
 	/// <summary>
 	/// Centers the window.
@@ -220,7 +225,7 @@ public class LumosSocialGUI : MonoBehaviour
 		var width = Screen.width - (Screen.width * 0.3f);
 		var height = Screen.height - (Screen.height * 0.3f);
 		var x = (Screen.width - width) / 2;
-		var y = (Screen.height - width) / 2;
+		var y = (Screen.height - height) / 2;
 		var rect = new Rect(x, y, width, height);
 		return rect;
 	}
