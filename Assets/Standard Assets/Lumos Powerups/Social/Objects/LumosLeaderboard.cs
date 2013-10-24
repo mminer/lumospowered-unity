@@ -272,7 +272,7 @@ public class LumosLeaderboard : ILeaderboard
 		var timestamp = Convert.ToDouble(info["created"]);
 		var date = LumosUtil.UnixTimestampToDateTime(timestamp);
 		var formattedValue = ""; // Lumos lacks support for this.
-		var userID = info["username"] as string;
+		var userID = info["user_id"] as string;
 		var rank = Convert.ToInt32(info["rank"]);
 		var score = new Score(leaderboardID, val, userID, date, formattedValue, rank);
 		return score;
