@@ -1,15 +1,31 @@
 Lumos
 =====
 
-TODO: Write introduction.
+Thank you for using Lumos. This package enables your game to have 
+several online services at its disposal. 
 
-Current version: 1.0
+Current version: 1.5
 
 
 Getting Started
 ---------------
 
-TODO: Write getting started instructions.
+1. Create an account on https://www.lumospowered.com
+2. Register (create) your game
+3. Subscribe to powerups (online services) your game will use
+4. Copy your secret key from your game settings page
+5. Paste your secret key into the Lumos Install window. 
+	- If this window is not present, go to GameObject -> Create Other ->
+	Lumos...
+
+For more detailed instructions, please visit https://www.lumospowered.com/docs
+
+Adding Powerups
+---------------
+
+If you installed Lumos and later subscribe to a new powerup, please check 
+the new powerup's documentation page for instructions. In some cases there 
+may be scripts that you need to attach to the Lumos GameObject.
 
 
 Contact Us
@@ -17,4 +33,4 @@ Contact Us
 
 If you run into a problem or have a suggestion, let us know by emailing
 support@lumospowered.com or by visiting our support page at
-http://support.lumospowered.com.
+https://www.lumospowered.com/docs
