@@ -5,6 +5,7 @@ Thank you for using Lumos. This package enables your game to have
 several online services at its disposal. 
 
 Current version: 1.5
+Supports: Unity 3 and 4
 
 
 Getting Started
@@ -26,6 +27,10 @@ Adding Powerups
 If you installed Lumos and later subscribe to a new powerup, please check 
 the new powerup's documentation page for instructions. In some cases there 
 may be scripts that you need to attach to the Lumos GameObject.
+
+Alternatively you can open Unity's preferences, go to the Lumos panel, and 
+click the "Run Setup Scripts" button. This will attempt to add any missing 
+components to the Lumos prefab.
 
 
 Contact Us
