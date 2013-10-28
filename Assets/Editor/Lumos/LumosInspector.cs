@@ -10,6 +10,7 @@ using UnityEngine;
 public class LumosInspector : Editor
 {
 	GUIContent runInEditorLabel = new GUIContent("Record While In Editor", "Send data to Lumos during development.");
+	GUIContent showDebugLogLabel = new GUIContent("Show Debug Log", "Makes Lumos logs/warnings/errors appear in the debug window.");
 
 	override public void OnInspectorGUI ()
 	{
@@ -19,6 +20,7 @@ public class LumosInspector : Editor
 		EditorGUI.indentLevel = 1;
 
 		lumos.runWhileInEditor = EditorGUILayout.Toggle(runInEditorLabel, lumos.runWhileInEditor);
+		Lumos.debug = EditorGUILayout.Toggle(showDebugLogLabel, Lumos.debug);
 
 		if (GUI.changed) {
 			EditorUtility.SetDirty(lumos);

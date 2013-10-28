@@ -13,7 +13,12 @@ public partial class Lumos : MonoBehaviour
 
 	#region Inspector Settings
 
-	public bool runWhileInEditor;
+	public bool runWhileInEditor = true;
+	
+	/// <summary>
+	/// When true, displays result of web requests and responses.
+	/// </summary>
+	public static bool debug { get; set; }
 
 	#endregion
 
@@ -35,11 +40,6 @@ public partial class Lumos : MonoBehaviour
 	/// Server communication credentials.
 	/// </summary>
 	public static LumosCredentials credentials { get; private set; }
-
-	/// <summary>
-	/// When true, displays result of web requests and responses.
-	/// </summary>
-	public static bool debug { get; set; }
 
 	/// <summary>
 	/// The device-specific player ID.
