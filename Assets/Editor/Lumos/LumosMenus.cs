@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public static class LumosMenus
 {
-	const string supportUrl = "http://support.lumospowered.com/";
+	const string websiteURL = "https://www.lumospowered.com/";
 
 	/// <summary>
 	/// Adds a Lumos menu item to the Window menu.
@@ -32,11 +32,11 @@ public static class LumosMenus
 	}
 
 	/// <summary>
-	/// Adds link to Lumos support website to Help menu.
+	/// Adds a link to the Lumos website to the Help menu.
 	/// </summary>
-	[MenuItem("Help/Lumos/Support")]
-	static void DisplaySupportSite ()
+	[MenuItem("Help/Lumos Website")]
+	static void OpenWebsite ()
 	{
-		Help.BrowseURL(supportUrl);
+		Help.BrowseURL(websiteURL);
 	}
 }
