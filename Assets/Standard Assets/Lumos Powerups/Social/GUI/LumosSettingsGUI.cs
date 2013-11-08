@@ -10,8 +10,9 @@ public static class LumosSettingsGUI
 {
 	static readonly GUIContent nameLabel = new GUIContent("Name", "Your name.");
 	static readonly GUIContent emailLabel = new GUIContent("Email", "Your email address.");
-	static readonly GUIContent passwordLabel = new GUIContent("Password", "Your password.");
-	static readonly GUIContent confirmPasswordLabel = new GUIContent("Confirm Password", "Your password as typed above.");
+	static readonly GUIContent currentPasswordLabel = new GUIContent("Current Password", "Your current password.");
+	static readonly GUIContent passwordLabel = new GUIContent("New Password", "Your new password.");
+	static readonly GUIContent confirmPasswordLabel = new GUIContent("Confirm New Password", "Your new password as typed above.");
 	static readonly GUIContent otherLabel = new GUIContent("Other", "Additional information.");
 	static readonly GUIContent updateLabel = new GUIContent("Update Settings", "Save the updated settings.");
 
@@ -21,12 +22,17 @@ public static class LumosSettingsGUI
 	static string name = "";
 
 	/// <summary>
-	/// The user's password.
+	/// The user's current password.
+	/// </summary>
+	static string currentPassword = "";
+
+	/// <summary>
+	/// The user's new password.
 	/// </summary>
 	static string password = "";
 
 	/// <summary>
-	/// Confirmation of the password.
+	/// Confirmation of the new password.
 	/// </summary>
 	static string passwordConfirmation = "";
 
@@ -67,14 +73,21 @@ public static class LumosSettingsGUI
 			name = GUILayout.TextField(name, GUILayout.Width(halfWidth));
 		GUILayout.EndHorizontal();
 
-		// Password field.
+		// Current Password field.
+		GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			GUILayout.Label(currentPasswordLabel);
+		currentPassword = GUILayout.PasswordField(currentPassword, '*', GUILayout.Width(halfWidth));
+		GUILayout.EndHorizontal();
+
+		// New Password field.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			GUILayout.Label(passwordLabel);
 			password = GUILayout.PasswordField(password, '*', GUILayout.Width(halfWidth));
 		GUILayout.EndHorizontal();
 
-		// Password confirmation field.
+		// New Password confirmation field.
 		GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			GUILayout.Label(confirmPasswordLabel);
@@ -130,12 +143,18 @@ public static class LumosSettingsGUI
 		if (password.Length > 0 && password != passwordConfirmation) {
 			LumosSocialGUI.statusMessage = "The supplied passwords do not match.";
 			return;
+		} else if (password.Length > 0 && currentPassword.Length == 0) {
+			LumosSocialGUI.statusMessage = "You must also provide your current password in order to change it.";
+			return;
+		} else if (currentPassword.Length > 0 && password.Length == 0) {
+			LumosSocialGUI.statusMessage = "Your new password cannot be blank.";
+			return;
 		}
 
 		LumosSocialGUI.inProgress = true;
 		LumosSocialGUI.statusMessage = "Updating settings...";
 
-		LumosSocialGUI.currentUser.UpdateInfo(name, email, password, other,
+		LumosSocialGUI.currentUser.UpdateInfo(name, email, currentPassword, password, other,
 			success => {
 				if (success) {
 					LumosSocialGUI.inProgress = false;

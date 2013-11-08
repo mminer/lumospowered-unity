@@ -309,14 +309,23 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	/// <param name="password">Password.</param>
 	/// <param name="other">Additional information.</param>
 	/// <param name="callback">Callback.</param>
-	public void UpdateInfo (string name=null, string email=null, string password=null, Dictionary<string, object> other=null, Action<bool> callback=null)
+	public void UpdateInfo (string name=null, string email=null, string password=null, string new_password=null, Dictionary<string, object> other=null, Action<bool> callback=null)
 	{
+		// Check if the user is updating their password
+		// If they are, make sure both the current and new password are provided.
+		if ((LumosUtil.IsNonemptyString(password) && new_password == null) || (password == null && LumosUtil.IsNonemptyString(new_password))) {
+			Debug.LogError("[Lumos] If you update a user's password, you must provide both their current and new password.");
+			callback(false);
+			return;
+		}
+
 		var endpoint = "/users/" + userID;
 
 		var payload = new Dictionary<string, object>();
 		LumosUtil.AddToDictionaryIfNonempty(payload, "name", name);
 		LumosUtil.AddToDictionaryIfNonempty(payload, "email", email);
 		LumosUtil.AddToDictionaryIfNonempty(payload, "password", password);
+		LumosUtil.AddToDictionaryIfNonempty(payload, "new_password", new_password);
 
 		if (other != null) {
 			payload["other"] = LumosJson.Serialize(other);

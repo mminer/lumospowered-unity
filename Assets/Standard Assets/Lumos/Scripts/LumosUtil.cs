@@ -62,8 +62,13 @@ public static class LumosUtil
 	/// <param name="val">The dictionary value.</param>
 	public static void AddToDictionaryIfNonempty (IDictionary dict, object key, string val)
 	{
-		if (val != null && val != "") {
+		if (IsNonemptyString(val)) {
 			dict[key] = val;
 		}
+	}
+
+	public static bool IsNonemptyString (string val)
+	{
+		return (val != null && val != "");
 	}
 }
