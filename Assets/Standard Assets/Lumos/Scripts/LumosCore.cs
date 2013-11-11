@@ -46,7 +46,7 @@ public class LumosCore : ILumosPowerup
 	/// <summary>
 	/// Notifies the server that the player is playing.
 	/// </summary>
-	public static Coroutine Ping ()
+	public static Coroutine Ping (Action<bool> callback)
 	{
 		return LumosRequest.Send(instance, "/ping", LumosRequest.Method.POST,
 			success => {
@@ -54,6 +54,7 @@ public class LumosCore : ILumosPowerup
 				var resp = success as Dictionary<string, object>;
 				var powerupInfo = resp["powerups"] as IList;
 				LumosPowerups.LoadPowerupInfo(powerupInfo);
+				callback(true);
 			},
 			error => {
 				var message = "[Lumos] There was a problem establishing communication with Lumos. No information will be recorded for this play session.";
@@ -67,6 +68,7 @@ public class LumosCore : ILumosPowerup
 				}
 
 				Debug.LogWarning(message);
+				callback(false);
 			});
 	}
 }

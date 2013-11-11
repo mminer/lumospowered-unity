@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 public partial class Lumos : MonoBehaviour
 {
-	public const string version = "1.5";
+	public const string version = "1.6";
 
 	#region Inspector Settings
 
@@ -121,13 +121,20 @@ public partial class Lumos : MonoBehaviour
 		}
 
 		// Wait until server has been contacted.
-		yield return LumosCore.Ping();
+		yield return LumosCore.Ping(PingComplete);
+	}
+
+	static void PingComplete (bool success)
+	{
+		if (!success) {
+			return;
+		}
 
 		if (OnReady != null) {
 			OnReady();
 			RunRoutine(SendQueuedData());
 		}
-
+		
 		ready = true;
 	}
 
