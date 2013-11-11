@@ -20,7 +20,7 @@ public class LumosInspector : Editor
 		EditorGUI.indentLevel = 1;
 
 		lumos.runWhileInEditor = EditorGUILayout.Toggle(runInEditorLabel, lumos.runWhileInEditor);
-		Lumos.debug = EditorGUILayout.Toggle(showDebugLogLabel, Lumos.debug);
+		lumos.debugSetting = EditorGUILayout.Toggle(showDebugLogLabel, lumos.debugSetting);
 
 		if (GUI.changed) {
 			EditorUtility.SetDirty(lumos);

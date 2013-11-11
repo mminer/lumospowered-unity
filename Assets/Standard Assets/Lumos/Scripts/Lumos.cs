@@ -18,7 +18,14 @@ public partial class Lumos : MonoBehaviour
 	/// <summary>
 	/// When true, displays result of web requests and responses.
 	/// </summary>
-	public static bool debug { get; set; }
+	public static bool debug { 
+		get { 
+			return instance.debugSetting;
+		}
+		set{}
+	}
+	
+	public bool debugSetting = false;
 
 	#endregion
 
