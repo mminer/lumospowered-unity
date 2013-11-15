@@ -122,4 +122,53 @@ public class LumosSocialDemoBasic : MonoBehaviour
 	});
 	
 	*/
+
+	public static void SendFriendRequest(string friendID)
+	{
+		var user = Social.localUser as LumosUser;
+		user.SendFriendRequest(friendID, (success) => {
+			if (success) {
+				Debug.Log("Sent friend request to: " + friendID);
+			} else {
+				Debug.LogWarning("Unable to send friend request to " + friendID);
+			}
+		});
+	}
+
+	public static void AcceptFriendRequest(string friendID)
+	{
+		var user = Social.localUser as LumosUser;
+		user.AcceptFriendRequest(friendID, (success) => {
+			if (success) {
+				Debug.Log("Added friend: " + friendID);
+			} else {
+				Debug.LogWarning("Unable to add friend " + friendID);
+			}
+		});
+	}
+
+	public static void DeclineFriendRequest(string friendID)
+	{
+		var user = Social.localUser as LumosUser;
+		user.DeclineFriendRequest(friendID, (success) => {
+			if (success) {
+				Debug.Log("Declined friend request from: " + friendID);
+			} else {
+				Debug.LogWarning("Unable to decline friend request from " + friendID);
+			}
+		});
+	}
+
+	public static void LoadFriendRequest()
+	{
+		var user = Social.localUser as LumosUser;
+		user.LoadFriendRequests((success) => {
+			if (success) {
+				// access friend requests from user.friendRequests
+				Debug.Log("Loaded friend requests");
+			} else {
+				Debug.LogWarning("Unable to load friend requests");
+			}
+		});
+	}
 }
