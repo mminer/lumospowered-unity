@@ -23,7 +23,7 @@ public class LumosWizard : ScriptableWizard
 		PrefabUtility.InstantiatePrefab(prefab);
 		#else
 		var obj = PrefabUtility.InstantiatePrefab(prefab);
-		RegisterCreatedObjectUndo(obj, undoTitle);
+		Undo.RegisterCreatedObjectUndo(obj, undoTitle);
 		#endif
 	}
 
