@@ -188,9 +188,8 @@ public class LumosUser : LumosUserProfile, ILocalUser
 
 		LumosRequest.Send(LumosSocial.instance, endpoint, LumosRequest.Method.PUT,
 			success => {
-				var resp = success as Dictionary<string, object>;
-				friends = ParseFriends(resp["friends"] as IList);
-				friendRequests = ParseFriends(resp["friend_requests"] as IList);
+				var newFriend = success as Dictionary<string, object>;
+				AddFriend(newFriend);
 
 				if (callback != null) {
 					callback(true);
@@ -246,8 +245,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 
 		LumosRequest.Send(LumosSocial.instance, endpoint, LumosRequest.Method.DELETE,
 			success => {
-				var resp = success as IList;
-				friends = ParseFriends(resp);
+				RemoveFriendByID(friendID);
 
 				if (callback != null) {
 					callback(true);
@@ -258,6 +256,47 @@ public class LumosUser : LumosUserProfile, ILocalUser
 					callback(false);
 				}
 			});
+	}
+
+	void RemoveFriendByID (string friendID)
+	{
+		if (friends == null || friends.Length <= 0) {
+			return;
+		}
+
+		var newFriends = new List<IUserProfile>();
+
+		foreach (var friend in friends) {
+			if (friend.id != friendID) {
+				newFriends.Add(friend);
+			}
+		}
+
+		friends = newFriends.ToArray();
+	}
+
+	void AddFriend (Dictionary<string, object> friend)
+	{
+		if (friends == null || friends.Length <= 0) {
+			return;
+		}
+
+		var id = friend["user_id"] as string;
+		string name = null;
+		
+		if (friend.ContainsKey("name")) {
+			name = friend["name"].ToString();
+		}
+
+		var newFriend = new UserProfile(name, id, true);
+		var existingFriends = new List<IUserProfile>();
+		
+		foreach (var existingFriend in friends) {
+			existingFriends.Add(existingFriend);
+		}
+
+		existingFriends.Add(newFriend);
+		friends = existingFriends.ToArray();
 	}
 
 	/// <summary>
@@ -350,8 +389,8 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	// Updates the user.
 	public void Update (Dictionary<string, object> info)
 	{
-		if (info.ContainsKey("username")) {
-			userID = info["username"] as string;
+		if (info.ContainsKey("user_id")) {
+			userID = info["user_id"] as string;
 		}
 
 		if (info.ContainsKey("name")) {
@@ -393,7 +432,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 
 			for (int i = 0; i < friends.Count; i++) {
 				var friend = friends[i] as Dictionary<string, object>;
-				var id = friend["username"] as string;
+				var id = friend["user_id"] as string;
 				string name = null;
 
 				if (friend.ContainsKey("name")) {
@@ -418,7 +457,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 		Score score = null;
 
 		foreach (Dictionary<string, object> info in scores) {
-			var username = info["username"] as string;
+			var username = info["user_id"] as string;
 
 			if (username == userID) {
 				var val = Convert.ToInt32(info["score"]);
