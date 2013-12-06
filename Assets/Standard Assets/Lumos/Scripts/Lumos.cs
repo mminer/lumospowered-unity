@@ -9,22 +9,22 @@ using UnityEngine;
 /// </summary>
 public partial class Lumos : MonoBehaviour
 {
-	public const string version = "1.6";
+	public const string version = "1.5.3";
 
 	#region Inspector Settings
 
 	public bool runWhileInEditor = true;
-	
+
 	/// <summary>
 	/// When true, displays result of web requests and responses.
 	/// </summary>
-	public static bool debug { 
-		get { 
+	public static bool debug {
+		get {
 			return instance.debugSetting;
 		}
 		set{}
 	}
-	
+
 	public bool debugSetting = false;
 
 	#endregion
@@ -141,7 +141,7 @@ public partial class Lumos : MonoBehaviour
 			OnReady();
 			RunRoutine(SendQueuedData());
 		}
-		
+
 		ready = true;
 	}
 

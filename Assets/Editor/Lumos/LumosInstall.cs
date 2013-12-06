@@ -7,7 +7,7 @@ using System.Collections;
 /// <summary>
 /// Wizard that sets up Lumos before instantiating the prefab in the scene.
 /// </summary>
-/// 
+///
 [InitializeOnLoad]
 public class LumosInstall : EditorWindow
 {
@@ -18,44 +18,44 @@ public class LumosInstall : EditorWindow
 
 	static LumosCredentials credentials;
 	bool showError;
-	
-	
+
+
 	static LumosInstall ()
-	{		
+	{
 		EditorApplication.projectWindowChanged += PromptLumosInstall;
 		EditorApplication.hierarchyWindowChanged += PromptLumosInstall;
 	}
-	
+
 	static void PromptLumosInstall ()
 	{
 		EditorApplication.projectWindowChanged -= PromptLumosInstall;
 		EditorApplication.hierarchyWindowChanged -= PromptLumosInstall;
-		
+
 		credentials = LumosCredentialsManager.GetCredentials();
-		
+
 		if (credentials.apiKey.Length >= 32) {
 			return;
 		}
-		
+
 		// Make window pop up
-		 EditorWindow.GetWindow<LumosInstall>(true, "Install Window");	
+		 EditorWindow.GetWindow<LumosInstall>(true, "Install Window");
 	}
-	
+
 	void OnEnable ()
 	{
 		credentials = LumosCredentialsManager.GetCredentials();
-		
+
 		if (LumosPackages.package == LumosPackages.Update.None || LumosPackages.package == LumosPackages.Update.CheckingVersion) {
 			LumosPackages.CheckForUpdates();
 		}
 	}
-	
+
     void OnGUI ()
 	{
 		if (credentials == null) {
 			return;
 		}
-		
+
 		EditorGUILayout.HelpBox(instructions + " " + errorMessage, MessageType.Info);
 		EditorGUILayout.Space();
 
@@ -70,21 +70,21 @@ public class LumosInstall : EditorWindow
 		}
 
 		EditorGUILayout.Space();
-		
+
 		EditorGUILayout.LabelField("Version", Lumos.version);
-		
+
 		if (LumosPackages.package == LumosPackages.Update.CheckingVersion) {
 			GUILayout.Label("Checking for updates...");
 		} else if (LumosPackages.package == LumosPackages.Update.OutOfDate) {
 			EditorGUILayout.Space();
 			EditorGUILayout.HelpBox("Your Lumos version is out of date. Please download the latest version from our website.", MessageType.Warning);
 			EditorGUILayout.Space();
-			
+
 			if (GUILayout.Button("Download Lumos " + LumosPackages.latestVersion, GUILayout.Width(Screen.width / 2))) {
 				Application.OpenURL("https://www.lumospowered.com/downloads");
 			}
 		}
-		
+
 		GUILayout.FlexibleSpace();
 
 		// Install & Cancel buttons
@@ -108,7 +108,7 @@ public class LumosInstall : EditorWindow
 		GUILayout.EndHorizontal();
 
 		EditorGUILayout.Space();
-		
+
 		// Save the new credentials
 		if (GUI.changed) {
 			EditorUtility.SetDirty(credentials);
@@ -118,9 +118,17 @@ public class LumosInstall : EditorWindow
 	void InstallLumos ()
 	{
 		showError = false;
-		Undo.RegisterSceneUndo("Add Lumos To Scene");
+		const string undoTitle = "Add Lumos To Scene";
 		var prefab = Resources.LoadAssetAtPath(prefabPath, typeof(GameObject));
+
+		#if UNITY_3_5
+		Undo.RegisterSceneUndo(undoTitle);
 		PrefabUtility.InstantiatePrefab(prefab);
+		#else
+		var obj = PrefabUtility.InstantiatePrefab(prefab);
+		RegisterCreatedObjectUndo(obj, undoTitle);
+		#endif
+
 		LumosPackages.RunSetupScripts();
 		this.Close();
 	}
