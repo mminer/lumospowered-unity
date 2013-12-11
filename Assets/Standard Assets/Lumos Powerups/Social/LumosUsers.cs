@@ -42,11 +42,10 @@ public partial class LumosSocial
 
 		LumosRequest.Send(LumosSocial.instance, endpoint, LumosRequest.Method.GET, payload,
 			success => {
-				var resp = success as Dictionary<string, object>;
+				var resp = success as List<object>;
 				var users = new List<IUserProfile>(resp.Count);
 
-				foreach (var kvp in resp) {
-					var info = kvp.Value as Dictionary<string, object>;
+				foreach (Dictionary<string, object> info in resp) {
 					var user = new LumosUserProfile(info);
 					users.Add(user);
 				}
