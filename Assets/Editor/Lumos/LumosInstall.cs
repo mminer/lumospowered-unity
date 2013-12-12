@@ -38,7 +38,7 @@ public class LumosInstall : EditorWindow
 		}
 
 		// Make window pop up
-		 EditorWindow.GetWindow<LumosInstall>(true, "Install Window");
+		 EditorWindow.GetWindow<LumosInstall>(true, "Install Lumos");
 	}
 
 	void OnEnable ()
