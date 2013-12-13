@@ -67,7 +67,11 @@ public class LumosLeaderboard : ILeaderboard
 	// Loads the scores.
 	public void LoadScores(Action<bool> callback)
 	{
-		LoadScores(1, 0, callback);
+		if (range.count > 0) {
+			LoadScores(range.count, range.from, callback);
+		} else {
+			LoadScores(100, 0, callback);
+		}
 	}
 
 	#region Added Functions
@@ -90,7 +94,7 @@ public class LumosLeaderboard : ILeaderboard
 			success => {
 				var info = success as Dictionary<string, object>;
 				title = info["name"] as string;
-				scores = ParseScores(id, info["scores"] as IList);
+				//scores = ParseScores(id, info["scores"] as IList);
 				loading = false;
 
 				if (callback != null) {
@@ -116,8 +120,8 @@ public class LumosLeaderboard : ILeaderboard
 	{
 		loading = true;
 
-		if (friendScores == null && !loading) {
-			FetchFriendScores((success) => {
+		if (friendScores == null) {
+			FetchFriendScores(success => {
 				if (success) {
 					Lumos.Log("Loaded friend scores for " + id);
 				} else {
@@ -127,9 +131,10 @@ public class LumosLeaderboard : ILeaderboard
 		}
 
 		FetchScores(limit, offset,
-			scores => {
-				callback(scores != null);
-			});
+			fetchedScores => {
+			callback(fetchedScores != null);
+			}
+		);
 	}
 
 	/// <summary>
@@ -175,8 +180,14 @@ public class LumosLeaderboard : ILeaderboard
 				IndexScores(newScores);
 				loading = false;
 
+				var tempScores = new List<Score>();
+
+				foreach (var score in scores) {
+					tempScores.Add(score as Score);
+				}
+
 				if (callback != null) {
-					callback(scores as Score[]);
+					callback(tempScores.ToArray());
 				}
 			},
 			error => {
