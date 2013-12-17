@@ -1,5 +1,6 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
+using System.Text;
 using UnityEngine;
 
 /// <summary>
@@ -8,44 +9,52 @@ using UnityEngine;
 /// </summary>
 public partial class Lumos
 {
+	const string prefix = "[Lumos]";
+
 	/// <summary>
 	/// Records a debug message.
 	/// </summary>
-	/// <param name="message">The message to log.</param>
-	public static void Log (object message)
+	/// <param name="messageParts">Messages(s) to log.</param>
+	public static void Log (params object[] messageParts)
 	{
-		LogMessage(Debug.Log, message);
+		LogMessage(Debug.Log, messageParts);
 	}
 
 	/// <summary>
 	/// Records a warning.
 	/// </summary>
-	/// <param name="message">The message to log.</param>
-	public static void LogWarning (object message)
+	/// <param name="messageParts">Messages(s) to log.</param>
+	public static void LogWarning (params object[] messageParts)
 	{
-		LogMessage(Debug.LogWarning, message);
+		LogMessage(Debug.LogWarning, messageParts);
 	}
 
 	/// <summary>
 	/// Records an error.
 	/// </summary>
-	/// <param name="message">The message to log.</param>
-	public static void LogError (object message)
+	/// <param name="messageParts">Messages(s) to log.</param>
+	public static void LogError (params object[] messageParts)
 	{
-		LogMessage(Debug.LogError, message);
+		LogMessage(Debug.LogError, messageParts);
 	}
 
 	/// <summary>
 	/// Records a message.
 	/// </summary>
-	/// <param name="logger">The function to send the message to.</param>
-	/// <param name="message">The message to log.</param>
-	static void LogMessage (System.Action<object> logger, object message)
+	/// <param name="logger">Function to send the message to.</param>
+	/// <param name="messageParts">Messages(s) to log.</param>
+	static void LogMessage (System.Action<object> logger, object[] messageParts)
 	{
-		if (instance == null || !debug) {
-			return;
-		}
+		if (debug && instance != null) {
+			var builder = new StringBuilder(prefix, messageParts.Length * 2 + 1);
 
-		logger("[Lumos] " + message);
+			foreach (var part in messageParts) {
+				builder.Append(' ');
+				builder.Append(part);
+			}
+
+			var message = builder.ToString();
+			logger(message);
+		}
 	}
 }
