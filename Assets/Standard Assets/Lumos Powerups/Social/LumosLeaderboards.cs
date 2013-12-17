@@ -89,7 +89,26 @@ public partial class LumosSocial
 	{
 		var leaderboard = LumosSocial.GetLeaderboard(leaderboardID);
 
-		leaderboard.LoadScores(
+		if (leaderboard == null) {
+			leaderboard = new LumosLeaderboard();
+			leaderboard.id = leaderboardID;
+			leaderboard.LoadDescription(
+				success => {
+					if (success) {
+						LoadScoresFromLeaderboard(leaderboard, callback);
+					} else {
+						callback(null);
+					}
+				}
+			);
+		} else {
+			LoadScoresFromLeaderboard(leaderboard, callback);
+		}
+	}
+
+	void LoadScoresFromLeaderboard (LumosLeaderboard leaderboard, Action<IScore[]> callback) 
+	{
+		leaderboard.LoadScores(100, 0,
 			success => {
 				if (success) {
 					callback(leaderboard.scores);
@@ -98,7 +117,8 @@ public partial class LumosSocial
 						callback(null);
 					}
 				}
-			});
+			}
+		);
 	}
 
 	/// <summary>
@@ -136,7 +156,7 @@ public partial class LumosSocial
 	/// <returns type="LumosLeaderboard">The leaderboard.</returns>
 	public static LumosLeaderboard GetLeaderboard (string leaderboardID)
 	{
-		if (_leaderboards.ContainsKey(leaderboardID)) {
+		if (_leaderboards != null && _leaderboards.ContainsKey(leaderboardID)) {
 			return _leaderboards[leaderboardID];
 		} else {
 			return null;

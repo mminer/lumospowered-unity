@@ -17,11 +17,9 @@ using UnityEngine;
 public static class LumosPackages
 {	
 	static readonly Uri updatesUrl = new Uri("https://www.lumospowered.com/api/1/powerups/updates?engine=unity");
-	static readonly Uri subscribedUrl = new Uri("https://www.lumospowered.com/api/1/powerups/files?engine=unity");
 	public static string latestVersion;
 	public enum Update { None, CheckingVersion, OutOfDate, UpToDate };
 	public static Update package;
-	public static List<string> subscriptions = new List<string>();
 	static List<Type> setupScripts;
 	
 	/// <summary>
@@ -35,24 +33,6 @@ public static class LumosPackages
 			latestVersion = LumosJson.Deserialize(result) as string;
 			var outOfDate = IsOutdated(Lumos.version, latestVersion);
 			package = (outOfDate) ? Update.OutOfDate : Update.UpToDate;
-		});
-	}
-	
-	/// <summary>
-	/// Checks which powerups this game is subscribed to.
-	/// </summary>
-	public static void CheckSubscribedPowerups ()
-	{
-		DoRequest(subscribedUrl, delegate (string result) {
-			var response = LumosJson.Deserialize(result) as IList;
-			subscriptions = new List<string>();
-
-		    foreach (Dictionary<string, object> data in response) {
-	            var powerupID = data["powerup_id"] as string;
-				subscriptions.Add(powerupID);
-		    }
-			
-			DoSetups();
 		});
 	}
 	
@@ -114,7 +94,7 @@ public static class LumosPackages
 			setupScripts = q.ToList();
 
 			if (setupScripts.Count > 0) {
-				CheckSubscribedPowerups();
+				DoSetups();
 			}
 		}
 	}
@@ -124,12 +104,7 @@ public static class LumosPackages
 		foreach (var setup in setupScripts) {
 			var instance = Activator.CreateInstance(setup);
 			Convert.ChangeType(instance, setup);
-			
-			var powerupID = setup.GetProperty("powerupID").GetValue(instance, null) as string;
-			
-			if (subscriptions.Contains(powerupID)) {
-				setup.GetMethod("Setup").Invoke(instance, null);	
-			}
+			setup.GetMethod("Setup").Invoke(instance, null);	
 		}
 	}
 }
