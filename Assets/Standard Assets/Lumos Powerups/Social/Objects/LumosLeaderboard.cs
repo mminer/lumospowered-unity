@@ -83,7 +83,7 @@ public class LumosLeaderboard : ILeaderboard
 	public void LoadDescription (Action<bool> callback)
 	{
 		if (id == null) {
-			Lumos.LogWarning("Leaderboard must have an ID before loading its description.");
+			LumosUnity.Debug.LogWarning("Leaderboard must have an ID before loading its description.");
 			return;
 		}
 
@@ -123,7 +123,7 @@ public class LumosLeaderboard : ILeaderboard
 		if (friendScores == null) {
 			FetchFriendScores(success => {
 				if (success) {
-					Lumos.Log("Loaded friend scores for " + id);
+					LumosUnity.Debug.Log("Loaded friend scores for " + id);
 				} else {
 					Debug.LogError("[Lumos] Unable to load friend scores for " + id);
 				}
@@ -151,7 +151,7 @@ public class LumosLeaderboard : ILeaderboard
 
 		FetchUserScores(limit, callback);
 	}
-	
+
 	public void LoadFriendScores (Action<bool> callback)
 	{
 		FetchFriendScores(callback);
@@ -296,7 +296,7 @@ public class LumosLeaderboard : ILeaderboard
 	void IndexScores (IScore[] newScores)
 	{
 		if (newScores == null || newScores.Length == 0) {
-			Debug.LogWarning("There are no more scores to load.");
+			LumosUnity.Debug.LogWarning("There are no more scores to load.");
 			return;
 		}
 

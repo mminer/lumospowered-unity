@@ -29,24 +29,24 @@ public partial class LumosSocial : ISocialPlatform, ILumosPowerup
 			Lumos.OnReady += InitializeSettings;
 		}
 	}
-	
+
 	void InitializeSettings ()
 	{
 		// For now Social settings are only used for Game Center.
 		if (Application.platform == RuntimePlatform.IPhonePlayer) {
 			var settings = LumosPowerups.powerups["social"].settings;
 			var gameCenterKey = "use_game_center";
-			
+
 			if (settings != null && settings.ContainsKey(gameCenterKey)) {
 				useGameCenter = System.Convert.ToBoolean(settings[gameCenterKey]);
 			}
-			
-			if (useGameCenter) {			
+
+			if (useGameCenter) {
 				gameCenterPlatform = new GameCenterPlatform();
-				
+
 				gameCenterPlatform.localUser.Authenticate(success => {
 					if (success) {
-						Lumos.Log("Authenticated with game center.");
+						LumosUnity.Debug.Log("Authenticated with game center.");
 					}
 				});
 			}

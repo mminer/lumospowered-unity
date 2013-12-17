@@ -128,7 +128,7 @@ public class LumosRequest
 
 		// Send info to server.
 		yield return www;
-		Lumos.Log("Request: " + url + "\n" + Encoding.Default.GetString(postData));
+		LumosUnity.Debug.Log("Request: " + url + "\n" + Encoding.Default.GetString(postData));
 
 		// Handle failed response.
 		if (www.error != null) {
@@ -140,7 +140,7 @@ public class LumosRequest
 		}
 		// Handle successful response.
 		else {
-			Lumos.Log("Response: " + www.text);
+			LumosUnity.Debug.Log("Response: " + www.text);
 			var response = LumosJson.Deserialize(www.text) as Dictionary<string, object>;
 			var statusCode = int.Parse(response["_status"].ToString());
 
@@ -206,7 +206,7 @@ public class LumosRequest
 
 			www.LoadImageIntoTexture(texture);
 		} catch (Exception e) {
-			Lumos.LogError("Failed to load achievement image: " + e.Message);
+			LumosUnity.Debug.LogError("Failed to load achievement image: " + e.Message);
 		}
 	}
 

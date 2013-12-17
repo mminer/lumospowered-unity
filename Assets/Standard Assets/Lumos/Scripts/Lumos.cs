@@ -89,7 +89,7 @@ public partial class Lumos : MonoBehaviour
 		// Prevent multiple instances of Lumos from existing.
 		// Necessary because DontDestroyOnLoad keeps the object between scenes.
 		if (instance != null) {
-			Lumos.Log("Destroying duplicate game object instance.");
+			LumosUnity.Debug.Log("Destroying duplicate game object instance.");
 			Destroy(gameObject);
 			return;
 		}
@@ -122,7 +122,7 @@ public partial class Lumos : MonoBehaviour
 		// Wait until a player ID is set.
 		if (PlayerPrefs.HasKey(idPrefsKey)) {
 			Lumos.playerID = PlayerPrefs.GetString(idPrefsKey);
-			Lumos.Log("Using existing player " + Lumos.playerID);
+			LumosUnity.Debug.Log("Using existing player " + Lumos.playerID);
 		} else {
 			yield return LumosCore.RequestPlayerID();
 		}
@@ -152,7 +152,7 @@ public partial class Lumos : MonoBehaviour
 	public static Coroutine RunRoutine (IEnumerator routine)
 	{
 		if (instance == null) {
-			Lumos.LogError("The Lumos game object must be instantiated before its methods can be called.");
+			LumosUnity.Debug.LogError("The Lumos game object must be instantiated before its methods can be called.");
 			return null;
 		}
 

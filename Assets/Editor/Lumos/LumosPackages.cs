@@ -15,41 +15,41 @@ using UnityEngine;
 /// Manages the retrieval and status of powerup packages.
 /// </summary>
 public static class LumosPackages
-{	
+{
 	static readonly Uri updatesUrl = new Uri("https://www.lumospowered.com/api/1/powerups/updates?engine=unity");
 	public static string latestVersion;
 	public enum Update { None, CheckingVersion, OutOfDate, UpToDate };
 	public static Update package;
 	static List<Type> setupScripts;
-	
+
 	/// <summary>
 	/// Checks if there is a newer Lumos package.
 	/// </summary>
 	public static void CheckForUpdates ()
 	{
 		package = Update.CheckingVersion;
-		
+
 		DoRequest(updatesUrl, delegate (string result) {
 			latestVersion = LumosJson.Deserialize(result) as string;
 			var outOfDate = IsOutdated(Lumos.version, latestVersion);
 			package = (outOfDate) ? Update.OutOfDate : Update.UpToDate;
 		});
 	}
-	
+
 	static void DoRequest (Uri uri, Action<string> callback)
 	{
 		var request = WebRequest.Create(uri);
 		request.ContentType = "application/json; charset=utf-8";
-		
+
 		var authorizationHeader =
 			LumosRequest.GenerateAuthorizationHeader(LumosCredentialsManager.GetCredentials(), null);
 		request.Headers.Add("Authorization", authorizationHeader);
-		
+
 		var failedSSLCallback = new RemoteCertificateValidationCallback(delegate { return true; });
 		ServicePointManager.ServerCertificateValidationCallback += failedSSLCallback;
-		
+
 		string text;
-		
+
 		try {
 			var response = (HttpWebResponse) request.GetResponse();
 			using (var sr = new StreamReader(response.GetResponseStream())) {
@@ -57,12 +57,12 @@ public static class LumosPackages
 				callback(text);
 			}
 		} catch (WebException e) {
-			Lumos.Log("Web exception: " + e.Message);
+			LumosUnity.Debug.Log("Web exception: " + e.Message);
 		} finally {
 			ServicePointManager.ServerCertificateValidationCallback -= failedSSLCallback;
 		}
 	}
-	
+
 	static bool IsOutdated (String current, String latest)
     {
         var vA = new Version(current);
@@ -98,13 +98,13 @@ public static class LumosPackages
 			}
 		}
 	}
-	
+
 	static void DoSetups ()
 	{
 		foreach (var setup in setupScripts) {
 			var instance = Activator.CreateInstance(setup);
 			Convert.ChangeType(instance, setup);
-			setup.GetMethod("Setup").Invoke(instance, null);	
+			setup.GetMethod("Setup").Invoke(instance, null);
 		}
 	}
 }

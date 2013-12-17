@@ -106,7 +106,7 @@ public class LumosAchievement : IAchievement
 	void ReportProgressToGameCenter (string achievementID, double percentCompleted)
 	{
 		LumosSocial.gameCenterPlatform.ReportProgress(achievementID, percentCompleted, delegate {
-			Lumos.Log("Reported achievement progress to Game Center.");
+			LumosUnity.Debug.Log("Reported achievement progress to Game Center.");
 		});
 	}
 

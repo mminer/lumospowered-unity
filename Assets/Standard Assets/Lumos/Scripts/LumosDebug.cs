@@ -1,60 +1,64 @@
 // Copyright (c) 2013 Rebel Hippo Inc. All rights reserved.
 
+using System;
 using System.Text;
-using UnityEngine;
 
-/// <summary>
-/// Replacement Debug functions that the library can use without being picked
-/// up by Lumos' Diagnostics powerup.
-/// </summary>
-public partial class Lumos
+namespace LumosUnity
 {
-	const string prefix = "[Lumos]";
-
 	/// <summary>
-	/// Records a debug message.
+	/// Wrapper for UnityEngine.Debug
+	/// Allows Lumos to record debug messages that won't be picked up by the
+	/// Diagnostics powerup.
 	/// </summary>
-	/// <param name="messageParts">Messages(s) to log.</param>
-	public static void Log (params object[] messageParts)
+	public class Debug
 	{
-		LogMessage(Debug.Log, messageParts);
-	}
+		const string prefix = "[Lumos]";
 
-	/// <summary>
-	/// Records a warning.
-	/// </summary>
-	/// <param name="messageParts">Messages(s) to log.</param>
-	public static void LogWarning (params object[] messageParts)
-	{
-		LogMessage(Debug.LogWarning, messageParts);
-	}
+		/// <summary>
+		/// Records a debug message.
+		/// </summary>
+		/// <param name="messageParts">Messages(s) to log.</param>
+		public static void Log (params object[] messageParts)
+		{
+			LogMessage(UnityEngine.Debug.Log, messageParts);
+		}
 
-	/// <summary>
-	/// Records an error.
-	/// </summary>
-	/// <param name="messageParts">Messages(s) to log.</param>
-	public static void LogError (params object[] messageParts)
-	{
-		LogMessage(Debug.LogError, messageParts);
-	}
+		/// <summary>
+		/// Records a warning.
+		/// </summary>
+		/// <param name="messageParts">Messages(s) to log.</param>
+		public static void LogWarning (params object[] messageParts)
+		{
+			LogMessage(UnityEngine.Debug.LogWarning, messageParts);
+		}
 
-	/// <summary>
-	/// Records a message.
-	/// </summary>
-	/// <param name="logger">Function to send the message to.</param>
-	/// <param name="messageParts">Messages(s) to log.</param>
-	static void LogMessage (System.Action<object> logger, object[] messageParts)
-	{
-		if (debug && instance != null) {
-			var builder = new StringBuilder(prefix, messageParts.Length * 2 + 1);
+		/// <summary>
+		/// Records an error.
+		/// </summary>
+		/// <param name="messageParts">Messages(s) to log.</param>
+		public static void LogError (params object[] messageParts)
+		{
+			LogMessage(UnityEngine.Debug.LogError, messageParts);
+		}
 
-			foreach (var part in messageParts) {
-				builder.Append(' ');
-				builder.Append(part);
+		/// <summary>
+		/// Records a message.
+		/// </summary>
+		/// <param name="logger">Function to send the message to.</param>
+		/// <param name="messageParts">Messages(s) to log.</param>
+		static void LogMessage (Action<object> logger, object[] messageParts)
+		{
+			if (Lumos.debug && Lumos.instance != null) {
+				var builder = new StringBuilder(prefix, messageParts.Length * 2 + 1);
+
+				foreach (var part in messageParts) {
+					builder.Append(' ');
+					builder.Append(part);
+				}
+
+				var message = builder.ToString();
+				logger(message);
 			}
-
-			var message = builder.ToString();
-			logger(message);
 		}
 	}
 }
