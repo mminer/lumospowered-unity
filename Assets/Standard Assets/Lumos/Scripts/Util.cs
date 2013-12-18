@@ -34,26 +34,26 @@ namespace LumosUnity
 		/// <returns>The hash.</returns>
 		public static string MD5Hash (params string[] strings)
 		{
-			var combined = "";
+			var builder = new StringBuilder(strings.Length);
 
-			foreach (var str in strings) {
-				combined += str;
+			foreach (var s in strings) {
+				builder.Append(s);
 			}
 
-			var bytes = Encoding.ASCII.GetBytes(combined);
+			var bytes = Encoding.UTF8.GetBytes(builder.ToString());
 
 			// Encrypt bytes.
 			var md5 = new MD5CryptoServiceProvider();
 			var data = md5.ComputeHash(bytes);
 
 			// Convert encrypted bytes back to a hex string.
-			var hash = new StringBuilder();
+			builder = new StringBuilder(bytes.Length);
 
 			foreach (var b in data) {
-				hash.Append(b.ToString("x2").ToLower());
+				builder.Append(b.ToString("x2").ToLower());
 			}
 
-			return hash.ToString();
+			return builder.ToString();
 		}
 
 		/// <summary>
