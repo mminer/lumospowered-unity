@@ -352,7 +352,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	{
 		// Check if the user is updating their password
 		// If they are, make sure both the current and new password are provided.
-		if ((LumosUnity.Util.IsNonemptyString(password) && new_password == null) || (password == null && LumosUnity.Util.IsNonemptyString(new_password))) {
+		if ((!string.IsNullOrEmpty(password) && new_password == null) || (password == null && !string.IsNullOrEmpty(new_password))) {
 			LumosUnity.Debug.LogError("If you update a user's password, you must provide both their current and new password.", true);
 			callback(false);
 			return;

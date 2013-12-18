@@ -64,14 +64,9 @@ namespace LumosUnity
 		/// <param name="val">The dictionary value.</param>
 		public static void AddToDictionaryIfNonempty (IDictionary dict, object key, string val)
 		{
-			if (IsNonemptyString(val)) {
+			if (!string.IsNullOrEmpty(val)) {
 				dict[key] = val;
 			}
-		}
-
-		public static bool IsNonemptyString (string val)
-		{
-			return (val != null && val != "");
 		}
 	}
 }
