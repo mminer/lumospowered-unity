@@ -50,7 +50,7 @@ public static class LumosLogs
 		}
 
 		// Ignore messages logged by Lumos.
-		if (message.StartsWith("[Lumos]")) {
+		if (message.StartsWith(LumosUnity.Debug.prefix)) {
 			return;
 		}
 

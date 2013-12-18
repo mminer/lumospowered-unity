@@ -283,14 +283,14 @@ public class LumosUser : LumosUserProfile, ILocalUser
 
 		var id = friend["user_id"] as string;
 		string name = null;
-		
+
 		if (friend.ContainsKey("name")) {
 			name = friend["name"].ToString();
 		}
 
 		var newFriend = new UserProfile(name, id, true);
 		var existingFriends = new List<IUserProfile>();
-		
+
 		foreach (var existingFriend in friends) {
 			existingFriends.Add(existingFriend);
 		}
@@ -353,7 +353,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 		// Check if the user is updating their password
 		// If they are, make sure both the current and new password are provided.
 		if ((LumosUtil.IsNonemptyString(password) && new_password == null) || (password == null && LumosUtil.IsNonemptyString(new_password))) {
-			Debug.LogError("[Lumos] If you update a user's password, you must provide both their current and new password.");
+			LumosUnity.Debug.LogError("If you update a user's password, you must provide both their current and new password.", true);
 			callback(false);
 			return;
 		}

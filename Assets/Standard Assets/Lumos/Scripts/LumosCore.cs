@@ -50,14 +50,14 @@ public class LumosCore : ILumosPowerup
 	{
 		return LumosRequest.Send(instance, "/ping", LumosRequest.Method.POST,
 			success => {
-				LumosUnity.Debug.Log ("Returned Ping request with user " + Lumos.playerID);
+				LumosUnity.Debug.Log("Returned Ping request with user " + Lumos.playerID);
 				var resp = success as Dictionary<string, object>;
 				var powerupInfo = resp["powerups"] as IList;
 				LumosPowerups.LoadPowerupInfo(powerupInfo);
 				callback(true);
 			},
 			error => {
-				var message = "[Lumos] There was a problem establishing communication with Lumos. No information will be recorded for this play session.";
+				var message = "There was a problem establishing communication with Lumos. No information will be recorded for this play session.";
 
 				if (error != null) {
 					var resp = error as Dictionary<string, object>;
@@ -67,7 +67,7 @@ public class LumosCore : ILumosPowerup
 					}
 				}
 
-				Debug.LogWarning(message);
+				LumosUnity.Debug.LogWarning(message, true);
 				callback(false);
 			});
 	}

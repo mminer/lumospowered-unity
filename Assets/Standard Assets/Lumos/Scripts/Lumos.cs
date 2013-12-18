@@ -97,7 +97,7 @@ public partial class Lumos : MonoBehaviour
 		credentials = LumosCredentials.Load();
 
 		if (credentials == null || credentials.apiKey == null || credentials.apiKey == "") {
-			Debug.LogError("[Lumos] The Lumos API key is not set. Do this in the Lumos pane in Unity's preferences.");
+			LumosUnity.Debug.LogError("The Lumos API key is not set. Do this in the Lumos pane in Unity's preferences.", true);
 			Destroy(gameObject);
 			return;
 		}
@@ -167,8 +167,7 @@ public partial class Lumos : MonoBehaviour
 	public static void Remove (string reason)
 	{
 		if (instance != null) {
-			Debug.LogWarning("[Lumos] " + reason +
-			                 " No information will be recorded.");
+			LumosUnity.Debug.LogWarning(reason + " No information will be recorded.", true);
 			Destroy(instance.gameObject);
 		}
 	}

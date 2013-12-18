@@ -132,7 +132,7 @@ public class LumosRequest
 
 		// Handle failed response.
 		if (www.error != null) {
-			Debug.LogError("[Lumos] Unexpected Error: " + www.error);
+			LumosUnity.Debug.LogError("Unexpected Error: " + www.error, true);
 
 			if (errorCallback != null) {
 				errorCallback(null);
@@ -146,7 +146,7 @@ public class LumosRequest
 
 			if (statusCode >= 400) { // Error
 				var result = response["_result"] as Dictionary<string, object>;
-				Debug.LogError("[Lumos] Error " + statusCode + ": " + result["error"]);
+				LumosUnity.Debug.LogError("Error " + statusCode + ": " + result["error"], true);
 
 				if (errorCallback != null) {
 					errorCallback(result);

@@ -10,14 +10,14 @@ public class LumosAnalyticsSetup : ILumosSetup
 	public string powerupID {
 		get { return "analytics"; }
 	}
-	
+
 	public void Setup ()
 	{
 		var lumos = GameObject.Find("Lumos");
 
 		if (lumos != null && lumos.GetComponent<LumosAnalytics>() == null) {
 			lumos.AddComponent<LumosAnalytics>();
-			Debug.Log("[Lumos] Lumos Analytics setup complete.");
+			LumosUnity.Debug.Log("Lumos Analytics setup complete.", true);
 		}
 	}
 }

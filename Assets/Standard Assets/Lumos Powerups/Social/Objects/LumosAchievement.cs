@@ -67,7 +67,7 @@ public class LumosAchievement : IAchievement
 	public void ReportProgress (Action<bool> callback)
 	{
 		if (Social.localUser == null) {
-			Debug.LogWarning("[Lumos] The user must be authenticated before reporting an achievement.");
+			LumosUnity.Debug.LogWarning("The user must be authenticated before reporting an achievement.", true);
 			callback(false);
 			return;
 		}

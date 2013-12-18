@@ -52,7 +52,7 @@ public partial class LumosAnalytics : MonoBehaviour, ILumosPowerup
 
 		Lumos.OnTimerFinish += LumosEvents.Send;
 		LumosLocation.Record();
-		
+
 		if (recordLevelCompletionEvents) {
 			levelStartTime = Time.time;
 			RecordEvent("level-started", true);
@@ -64,12 +64,12 @@ public partial class LumosAnalytics : MonoBehaviour, ILumosPowerup
 		GameObject lumosGO = GameObject.Find("Lumos");
 
 		if (lumosGO == null) {
-			Debug.LogWarning("[Lumos] The Lumos Game Object has not been added to your initial scene.");
+			LumosUnity.Debug.LogWarning("The Lumos Game Object has not been added to your initial scene.", true);
 			return false;
 		}
 
 		if (lumosGO.GetComponent<LumosAnalytics>() == null) {
-			Debug.LogWarning("[Lumos] The LumosAnalytics script has not been added to the Lumos GameObject.");
+			LumosUnity.Debug.LogWarning("The LumosAnalytics script has not been added to the Lumos GameObject.", true);
 			return false;
 		}
 

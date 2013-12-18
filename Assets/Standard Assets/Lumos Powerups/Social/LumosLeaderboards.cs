@@ -40,7 +40,7 @@ public partial class LumosSocial
 	public void ReportScore (System.Int64 score, string leaderboardID, Action<bool> callback)
 	{
 		if (localUser == null) {
-			LumosUnity.Debug.LogWarning("[Lumos] The user must be authenticated before recording their score.");
+			LumosUnity.Debug.LogWarning("The user must be authenticated before recording their score.", true);
 			callback(false);
 			return;
 		}

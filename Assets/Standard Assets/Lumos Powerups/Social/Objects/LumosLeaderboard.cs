@@ -125,7 +125,7 @@ public class LumosLeaderboard : ILeaderboard
 				if (success) {
 					LumosUnity.Debug.Log("Loaded friend scores for " + id);
 				} else {
-					Debug.LogError("[Lumos] Unable to load friend scores for " + id);
+					LumosUnity.Debug.LogError("Unable to load friend scores for " + id, true);
 				}
 			});
 		}
