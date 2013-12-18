@@ -11,7 +11,7 @@ namespace LumosUnity
 	/// JSON encoder and decoder. Based on MiniJSON and others (see below).
 	/// Spec. details, see http://www.json.org/
 	///
-	/// JSON uses Arrays and Objects. These correspond here to the datatypes
+	/// JSON uses arrays and objects. These correspond here to data structures
 	/// IList and IDictionary. All numbers are parsed to doubles.
 	///
 	/// Based on work by Calvin Rien, who based it on work by Patrick van Bergen.
@@ -78,11 +78,13 @@ namespace LumosUnity
 				int index = 0;
 				bool success = true;
 				object value = ParseValue(charArray, ref index, ref success);
+
 				if (success) {
 					lastErrorIndex = -1;
 				} else {
 					lastErrorIndex = index;
 				}
+
 				return value;
 			} else {
 				return null;
@@ -131,9 +133,11 @@ namespace LumosUnity
 			} else {
 				int startIndex = lastErrorIndex - 5;
 				int endIndex = lastErrorIndex + 15;
+
 				if (startIndex < 0) {
 					startIndex = 0;
 				}
+
 				if (endIndex >= lastDecode.Length) {
 					endIndex = lastDecode.Length - 1;
 				}
@@ -152,6 +156,7 @@ namespace LumosUnity
 
 			while (true) {
 				token = LookAhead(json, index);
+
 				if (token == TOKEN.NONE) {
 					return null;
 				} else if (token == TOKEN.COMMA) {
@@ -160,7 +165,6 @@ namespace LumosUnity
 					NextToken(json, ref index);
 					return table;
 				} else {
-
 					// name
 					string name = ParseString(json, ref index);
 					if (name == null) {
@@ -195,6 +199,7 @@ namespace LumosUnity
 
 			while (true) {
 				token = LookAhead(json, index);
+
 				if (token == TOKEN.NONE) {
 					return null;
 				} else if (token == TOKEN.COMMA) {
@@ -205,6 +210,7 @@ namespace LumosUnity
 				} else {
 					bool success = true;
 					object value = ParseValue(json, ref index, ref success);
+
 					if (!success) {
 						return null;
 					}
@@ -219,25 +225,25 @@ namespace LumosUnity
 		static object ParseValue (char[] json, ref int index, ref bool success)
 		{
 			switch (LookAhead(json, index)) {
-			case TOKEN.STRING:
-				return ParseString(json, ref index);
-			case TOKEN.NUMBER:
-				return ParseNumber(json, ref index);
-			case TOKEN.CURLY_OPEN:
-				return ParseObject(json, ref index);
-			case TOKEN.SQUARED_OPEN:
-				return ParseArray(json, ref index);
-			case TOKEN.TRUE:
-				NextToken(json, ref index);
-				return true;
-			case TOKEN.FALSE:
-				NextToken(json, ref index);
-				return false;
-			case TOKEN.NULL:
-				NextToken(json, ref index);
-				return null;
-			case TOKEN.NONE:
-				break;
+				case TOKEN.STRING:
+					return ParseString(json, ref index);
+				case TOKEN.NUMBER:
+					return ParseNumber(json, ref index);
+				case TOKEN.CURLY_OPEN:
+					return ParseObject(json, ref index);
+				case TOKEN.SQUARED_OPEN:
+					return ParseArray(json, ref index);
+				case TOKEN.TRUE:
+					NextToken(json, ref index);
+					return true;
+				case TOKEN.FALSE:
+					NextToken(json, ref index);
+					return false;
+				case TOKEN.NULL:
+					NextToken(json, ref index);
+					return null;
+				case TOKEN.NONE:
+					break;
 			}
 
 			success = false;
@@ -254,21 +260,22 @@ namespace LumosUnity
 			c = json[index++];
 
 			bool complete = false;
-			while (!complete) {
 
+			while (!complete) {
 				if (index == json.Length) {
 					break;
 				}
 
 				c = json[index++];
+
 				if (c == '"') {
 					complete = true;
 					break;
 				} else if (c == '\\') {
-
 					if (index == json.Length) {
 						break;
 					}
+
 					c = json[index++];
 
 					if (c == '"') {
@@ -305,7 +312,6 @@ namespace LumosUnity
 				} else {
 					s.Append(c);
 				}
-
 			}
 
 			if (!complete) {
@@ -338,11 +344,13 @@ namespace LumosUnity
 		static int GetLastIndexOfNumber (char[] json, int index)
 		{
 			int lastIndex;
+
 			for (lastIndex = index; lastIndex < json.Length; lastIndex++) {
 				if ("0123456789+-.eE".IndexOf(json[lastIndex]) == -1) {
 					break;
 				}
 			}
+
 			return lastIndex - 1;
 		}
 
@@ -371,36 +379,37 @@ namespace LumosUnity
 
 			char c = json[index];
 			index++;
-			switch (c) {
-			case '{':
-				return TOKEN.CURLY_OPEN;
-			case '}':
-				return TOKEN.CURLY_CLOSE;
-			case '[':
-				return TOKEN.SQUARED_OPEN;
-			case ']':
-				return TOKEN.SQUARED_CLOSE;
-			case ',':
-				return TOKEN.COMMA;
-			case '"':
-				return TOKEN.STRING;
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-			case '-':
-				return TOKEN.NUMBER;
-			case ':':
-				return TOKEN.COLON;
-			}
-			index--;
 
+			switch (c) {
+				case '{':
+					return TOKEN.CURLY_OPEN;
+				case '}':
+					return TOKEN.CURLY_CLOSE;
+				case '[':
+					return TOKEN.SQUARED_OPEN;
+				case ']':
+					return TOKEN.SQUARED_CLOSE;
+				case ',':
+					return TOKEN.COMMA;
+				case '"':
+					return TOKEN.STRING;
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+				case '-':
+					return TOKEN.NUMBER;
+				case ':':
+					return TOKEN.COLON;
+			}
+
+			index--;
 			int remainingLength = json.Length - index;
 
 			if (remainingLength >= 5) {
@@ -441,7 +450,6 @@ namespace LumosUnity
 		static bool SerializeObject (IDictionary anObject, StringBuilder builder)
 		{
 			bool first = true;
-
 			builder.Append('{');
 
 			foreach (object e in anObject.Keys) {
@@ -466,7 +474,6 @@ namespace LumosUnity
 		static bool SerializeArray (IList anArray, StringBuilder builder)
 		{
 			builder.Append('[');
-
 			bool first = true;
 
 			foreach (object obj in anArray) {
@@ -506,14 +513,15 @@ namespace LumosUnity
 			} else {
 				return false;
 			}
+
 			return true;
 		}
 
 		static void SerializeString (string aString, StringBuilder builder)
 		{
 			builder.Append('\"');
-
 			char[] charArray = aString.ToCharArray();
+
 			foreach (var c in charArray) {
 				if (c == '"') {
 					builder.Append("\\\"");
