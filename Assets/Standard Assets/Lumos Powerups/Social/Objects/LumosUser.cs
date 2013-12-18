@@ -352,7 +352,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 	{
 		// Check if the user is updating their password
 		// If they are, make sure both the current and new password are provided.
-		if ((LumosUtil.IsNonemptyString(password) && new_password == null) || (password == null && LumosUtil.IsNonemptyString(new_password))) {
+		if ((LumosUnity.Util.IsNonemptyString(password) && new_password == null) || (password == null && LumosUnity.Util.IsNonemptyString(new_password))) {
 			LumosUnity.Debug.LogError("If you update a user's password, you must provide both their current and new password.", true);
 			callback(false);
 			return;
@@ -361,10 +361,10 @@ public class LumosUser : LumosUserProfile, ILocalUser
 		var endpoint = "/users/" + userID;
 
 		var payload = new Dictionary<string, object>();
-		LumosUtil.AddToDictionaryIfNonempty(payload, "name", name);
-		LumosUtil.AddToDictionaryIfNonempty(payload, "email", email);
-		LumosUtil.AddToDictionaryIfNonempty(payload, "password", password);
-		LumosUtil.AddToDictionaryIfNonempty(payload, "new_password", new_password);
+		LumosUnity.Util.AddToDictionaryIfNonempty(payload, "name", name);
+		LumosUnity.Util.AddToDictionaryIfNonempty(payload, "email", email);
+		LumosUnity.Util.AddToDictionaryIfNonempty(payload, "password", password);
+		LumosUnity.Util.AddToDictionaryIfNonempty(payload, "new_password", new_password);
 
 		if (other != null) {
 			payload["other"] = LumosUnity.Json.Serialize(other);
@@ -463,7 +463,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 				var val = Convert.ToInt32(info["score"]);
 				var rank = Convert.ToInt32(info["rank"]);
 				var timestamp = Convert.ToDouble(info["created"]);
-				var date = LumosUtil.UnixTimestampToDateTime(timestamp);
+				var date = LumosUnity.Util.UnixTimestampToDateTime(timestamp);
 				var formattedValue = ""; // Lumos doesn't support this
 				score = new Score(leaderboardID, val, username, date, formattedValue, rank);
 				break;

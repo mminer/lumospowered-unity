@@ -39,7 +39,7 @@ public class LumosAchievement : IAchievement
 		this.percentCompleted = Convert.ToDouble(info["percent_completed"]);
 
 		var timestamp = Convert.ToDouble(info["updated"]);
-		this.lastReportedDate = LumosUtil.UnixTimestampToDateTime(timestamp);
+		this.lastReportedDate = LumosUnity.Util.UnixTimestampToDateTime(timestamp);
 
 		if (info.ContainsKey("hidden")) {
 			var intHidden = Convert.ToInt32(info["hidden"]);
@@ -84,7 +84,7 @@ public class LumosAchievement : IAchievement
 
 				// Update timestamp.
 				var timestamp = Convert.ToDouble(info["updated"]);
-				lastReportedDate = LumosUtil.UnixTimestampToDateTime(timestamp);
+				lastReportedDate = LumosUnity.Util.UnixTimestampToDateTime(timestamp);
 
 				if (Application.platform == RuntimePlatform.IPhonePlayer && LumosSocial.useGameCenter) {
 					ReportProgressToGameCenter(id, percentCompleted);

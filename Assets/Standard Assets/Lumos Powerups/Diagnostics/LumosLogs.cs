@@ -75,7 +75,7 @@ public static class LumosLogs
 			}
 		}
 
-		var hash = LumosUtil.MD5Hash(typeLabels[type], message, trace);
+		var hash = LumosUnity.Util.MD5Hash(typeLabels[type], message, trace);
 
 		if (logs.ContainsKey(hash)) {
 			// Increment an identical log's total.
@@ -90,7 +90,7 @@ public static class LumosLogs
 				{ "total", 1 }
 			};
 
-			LumosUtil.AddToDictionaryIfNonempty(logs[hash], "trace", trace);
+			LumosUnity.Util.AddToDictionaryIfNonempty(logs[hash], "trace", trace);
 		}
 	}
 

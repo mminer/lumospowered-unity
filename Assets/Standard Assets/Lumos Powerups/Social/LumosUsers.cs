@@ -90,7 +90,7 @@ public partial class LumosSocial
 			{ "password", user.password }
 		};
 
-		LumosUtil.AddToDictionaryIfNonempty(payload, "email", user.email);
+		LumosUnity.Util.AddToDictionaryIfNonempty(payload, "email", user.email);
 
 		LumosRequest.Send(LumosSocial.instance, endpoint, LumosRequest.Method.PUT, payload,
 			success => {

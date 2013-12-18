@@ -281,7 +281,7 @@ public class LumosLeaderboard : ILeaderboard
 	{
 		var val = Convert.ToInt32(info["score"]);
 		var timestamp = Convert.ToDouble(info["created"]);
-		var date = LumosUtil.UnixTimestampToDateTime(timestamp);
+		var date = LumosUnity.Util.UnixTimestampToDateTime(timestamp);
 		var formattedValue = ""; // Lumos lacks support for this.
 		var userID = info["user_id"] as string;
 		var rank = Convert.ToInt32(info["rank"]);
