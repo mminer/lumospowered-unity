@@ -152,7 +152,7 @@ public partial class Lumos : MonoBehaviour
 	public static Coroutine RunRoutine (IEnumerator routine)
 	{
 		if (instance == null) {
-			LumosUnity.Debug.LogError("The Lumos game object must be instantiated before its methods can be called.");
+			LumosUnity.Debug.LogError("The Lumos game object must be instantiated before its methods can be called.", true);
 			return null;
 		}
 

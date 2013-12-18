@@ -367,7 +367,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 		LumosUtil.AddToDictionaryIfNonempty(payload, "new_password", new_password);
 
 		if (other != null) {
-			payload["other"] = LumosJson.Serialize(other);
+			payload["other"] = LumosUnity.Json.Serialize(other);
 		}
 
 		LumosRequest.Send(LumosSocial.instance, endpoint, LumosRequest.Method.PUT, payload,
@@ -412,7 +412,7 @@ public class LumosUser : LumosUserProfile, ILocalUser
 		}
 
 		if (info.ContainsKey("other")) {
-			other = LumosJson.Deserialize(info["other"] as string) as Dictionary<string, object>;
+			other = LumosUnity.Json.Deserialize(info["other"] as string) as Dictionary<string, object>;
 		}
 	}
 

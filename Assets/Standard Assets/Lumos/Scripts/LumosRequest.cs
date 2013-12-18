@@ -141,7 +141,7 @@ public class LumosRequest
 		// Handle successful response.
 		else {
 			LumosUnity.Debug.Log("Response: " + www.text);
-			var response = LumosJson.Deserialize(www.text) as Dictionary<string, object>;
+			var response = LumosUnity.Json.Deserialize(www.text) as Dictionary<string, object>;
 			var statusCode = int.Parse(response["_status"].ToString());
 
 			if (statusCode >= 400) { // Error
@@ -222,7 +222,7 @@ public class LumosRequest
 		if (parameters == null) {
 			json = "{}";
 		} else {
-			json = LumosJson.Serialize(parameters);
+			json = LumosUnity.Json.Serialize(parameters);
 		}
 
 		var postData = Encoding.ASCII.GetBytes(json);
@@ -248,7 +248,7 @@ public class LumosRequest
 
 			// Non-standard headers:
 			{ "Lumos-Game-ID", Lumos.credentials.gameID },
-			{ "Lumos-Version", LumosJson.Serialize(versionData) }
+			{ "Lumos-Version", LumosUnity.Json.Serialize(versionData) }
 		};
 
 		if (Lumos.playerID != null) {

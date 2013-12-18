@@ -30,7 +30,7 @@ public static class LumosPackages
 		package = Update.CheckingVersion;
 
 		DoRequest(updatesUrl, delegate (string result) {
-			latestVersion = LumosJson.Deserialize(result) as string;
+			latestVersion = LumosUnity.Json.Deserialize(result) as string;
 			var outOfDate = IsOutdated(Lumos.version, latestVersion);
 			package = (outOfDate) ? Update.OutOfDate : Update.UpToDate;
 		});
