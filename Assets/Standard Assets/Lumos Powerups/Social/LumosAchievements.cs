@@ -88,7 +88,7 @@ public partial class LumosSocial
 	/// Loads the player's earned achievements.
 	public void LoadAchievements (Action<IAchievement[]> callback)
 	{
-		if (achievements == null && !loadingAchievements) {
+		if ((achievements == null || achievements.Length == 0) && !loadingAchievements) {
 			// Load the achievements from the server.
 			loadingAchievements = true;
 			var endpoint = "/users/" + localUser.id + "/achievements";

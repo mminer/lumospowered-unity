@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 public partial class Lumos : MonoBehaviour
 {
-	public const string version = "1.5.6";
+	public const string version = "1.5.7";
 
 	#region Inspector Settings
 
